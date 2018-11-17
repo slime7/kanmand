@@ -5,7 +5,6 @@ import {
   installVueDevtools,
 } from 'vue-cli-plugin-electron-builder/lib';
 /* eslint-enable */
-import axios from 'axios';
 import KancolleRequest from './utils/KancolleRequest';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
