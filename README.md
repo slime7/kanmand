@@ -22,6 +22,11 @@ npm run electron:serve
 
 发送数据：`{"api_id":1,"api_ship_idx":1,"api_ship_id":5}`
 
+## TODO
+
+- 一次执行多个
+- 定时执行
+
 ## License
 
 MIT
