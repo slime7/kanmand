@@ -46,7 +46,6 @@ export default class KancolleRequest {
     };
     this.requests = [];
     this.loading = 0;
-    this.ipcEvent = null;
     this.requestIndex = 0;
   }
 
@@ -59,6 +58,10 @@ export default class KancolleRequest {
     this.requests.push({ route, data: reqData });
   }
 
+  clear() {
+    this.requests = [];
+  }
+
   requestInfo() {
     return {
       gameInfo: this.gameInfo,
@@ -66,18 +69,19 @@ export default class KancolleRequest {
     };
   }
 
-  start(ev) {
+  async start() {
     this.loading += 1;
-    if (ev) {
-      this.ipcEvent = ev;
+    try {
+      const response = await this.connect();
+      await this.success(response);
+    } catch (error) {
+      await this.failed(error);
     }
-    this.connect();
   }
 
-  connect() {
+  async connect() {
     const requestInd = this.requestIndex;
 
-    const self = this;
     const postConfig = {
       url: `http://${this.gameInfo.serverIp}${this.requests[requestInd].route}`,
       method: 'POST',
@@ -90,47 +94,53 @@ export default class KancolleRequest {
       },
       data: qs.stringify(this.requests[requestInd].data),
     };
-    axios(postConfig)
-      .then(r => self.success(r))
-      .catch(r => self.failed(r));
+    try {
+      const response = await axios(postConfig);
+      return new Promise((resolve) => {
+        resolve(response);
+      });
+    } catch (error) {
+      return new Promise((resolve, reject) => {
+        reject(error);
+      });
+    }
   }
 
-  success(response) {
+  async success(response) {
     const requestInd = this.requestIndex;
     this.requests[requestInd].response = response;
     const result = response.data.replace(/[\s\S]*svdata=/, '');
-    this.parse(result);
+    await this.parse(result);
   }
 
-  parse(r) {
+  async parse(r) {
     const requestInd = this.requestIndex;
 
     const json = JSON.parse(r);
     this.requests[requestInd].api_result = getNumber(json, 'api_result');
     this.requests[requestInd].api_result_msg = getString(json, 'api_result_msg');
     this.requests[requestInd].raw_data = getObject(json, 'api_data');
-    this.endTask(!!this.requests[requestInd].api_result);
+    await this.endTask(!!this.requests[requestInd].api_result);
   }
 
-  failed(response) {
+  async failed(error) {
     const requestInd = this.requestIndex;
-    this.requests[requestInd].response = response;
-    this.endTask(false);
+    this.requests[requestInd].error = error;
+    await this.endTask(true);
   }
 
-  endTask(isSuccess) {
+  async endTask(isApiSuccess) {
     if (this.loading > 0) {
       this.loading -= 1;
     }
-    if (!isSuccess) {
-      this.requests[this.requestIndex].error = true;
+    if (!isApiSuccess) {
+      this.requests[this.requestIndex].api_error = true;
     }
 
     this.requestIndex += 1;
     if (this.requestIndex < this.requests.length) {
-      this.start();
-    } else if (this.ipcEvent) {
-      this.ipcEvent.sender.send('kancolle-command-ipc-reply', this.requests);
+      await this.start();
+    } else {
       console.log('end task');
     }
   }

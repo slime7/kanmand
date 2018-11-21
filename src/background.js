@@ -5,9 +5,13 @@ import {
   installVueDevtools,
 } from 'vue-cli-plugin-electron-builder/lib';
 /* eslint-enable */
+import path from 'path';
 import KancolleRequest from './utils/KancolleRequest';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
+
+global.ROOT = __dirname;
+global.APPDATA_PATH = path.join(app.getPath('appData'), 'kanmand');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -18,7 +22,12 @@ protocol.registerStandardSchemes(['app'], { secure: true });
 
 function createWindow() {
   // Create the browser window.
-  win = new BrowserWindow({ width: 800, height: 600 });
+  win = new BrowserWindow({
+    width: 400,
+    height: 600,
+    frame: false,
+    transparent: true,
+  });
 
   if (isDevelopment || process.env.IS_TEST) {
     // Load the url of the dev server if in development mode
@@ -31,10 +40,29 @@ function createWindow() {
   }
 
   // ipc request listen
-  ipcMain.on('kancolle-command-ipc-data', (event, reqData) => {
-    const kanmand = new KancolleRequest(reqData.gameLink);
+  let kanmand;
+  ipcMain.on('kancolle-command-add-data', (event, reqData) => {
+    if (!kanmand) {
+      kanmand = new KancolleRequest(reqData.gameLink);
+    }
     kanmand.add(reqData.gameRoute, reqData.gameReqData);
-    kanmand.start(event);
+    event.sender.send('kancolle-command-ipc-reply', kanmand.requests);
+  });
+  ipcMain.on('kancolle-command-start', async (event) => {
+    if (!kanmand) {
+      console.log('请求列表为空');
+      return;
+    }
+    await kanmand.start();
+    event.sender.send('kancolle-command-ipc-reply', kanmand.requests);
+  });
+  ipcMain.on('kancolle-command-clear-data', (event) => {
+    if (!kanmand) {
+      console.log('请求列表为空');
+      return;
+    }
+    kanmand.clear();
+    event.sender.send('kancolle-command-ipc-reply', kanmand.requests);
   });
 
   win.on('closed', () => {
