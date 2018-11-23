@@ -18,7 +18,9 @@
 </template>
 
 <script>
+/* global process, KancolleRequest */
 import { ipcRenderer } from 'electron'; // eslint-disable-line
+// import KancolleRequest from '../utils/KancolleRequest';
 
 export default {
   name: 'Command',
@@ -28,8 +30,14 @@ export default {
       gameLink: '',
       gameRoute: '',
       gameData: '',
-      requests: null,
+      kanmand: null,
     };
+  },
+
+  computed: {
+    requests() {
+      return this.$store.state.requests;
+    },
   },
 
   methods: {
@@ -66,20 +74,30 @@ export default {
         gameReqData: this.gameData,
       };
       this.saveLastReqData();
-      ipcRenderer.send('kancolle-command-add-data', ipcData);
+      // ipcRenderer.send('kancolle-command-add-data', ipcData);
+      if (ipcRenderer) {
+        ipcRenderer.send('kancolle-command-add-data', ipcData);
+      } else {
+        if (!this.kanmand) {
+          this.kanmand = new KancolleRequest(this.gameLink);
+        }
+        this.kanmand.add(this.gameRoute, this.gameData);
+      }
     },
     startCommand() {
-      ipcRenderer.send('kancolle-command-start');
+      // ipcRenderer.send('kancolle-command-start');
     },
     clearCommand() {
-      ipcRenderer.send('kancolle-command-clear-data');
+      // ipcRenderer.send('kancolle-command-clear-data');
     },
     onReqReply() {
-      ipcRenderer.on('kancolle-command-ipc-reply', (event, requests) => {
-        const r = JSON.parse(JSON.stringify(requests));
-        this.requests = r;
-        console.log('请求列表: ', JSON.parse(JSON.stringify(r)));
-      });
+      if (ipcRenderer) {
+        ipcRenderer.on('kancolle-command-ipc-reply', () => {
+          // const r = JSON.parse(JSON.stringify(requests));
+          // this.requests = r;
+          console.log('请求列表: ', JSON.parse(JSON.stringify(this.requests)));
+        });
+      }
     },
   },
 

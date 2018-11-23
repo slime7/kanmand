@@ -1,5 +1,6 @@
 import axios from 'axios';
 import qs from 'qs';
+import store from '../store';
 
 function getProp(json, jsonKey, defaultValue) {
   if (json !== null && Object.prototype.hasOwnProperty.call(json, jsonKey)) {
@@ -44,7 +45,7 @@ export default class KancolleRequest {
       ...parseGameLink(gameLink),
       gameLink,
     };
-    this.requests = [];
+    // this.requests = store.state.requests;
     this.loading = 0;
     this.requestIndex = 0;
   }
@@ -55,17 +56,20 @@ export default class KancolleRequest {
       api_verno: 1,
       ...JSON.parse(data),
     };
-    this.requests.push({ route, data: reqData });
+    // this.requests.push({ route, data: reqData });
+    store.commit('pushRequests', { route, data: reqData });
   }
 
   clear() {
-    this.requests = [];
+    store.commit('clearRequests');
+    this.loading = 0;
+    this.requestIndex = 0;
   }
 
   requestInfo() {
     return {
       gameInfo: this.gameInfo,
-      request: this.requests,
+      request: store.state.requests,
     };
   }
 
@@ -81,9 +85,10 @@ export default class KancolleRequest {
 
   async connect() {
     const requestInd = this.requestIndex;
+    const request = store.state.requests[requestInd];
 
     const postConfig = {
-      url: `http://${this.gameInfo.serverIp}${this.requests[requestInd].route}`,
+      url: `http://${this.gameInfo.serverIp}${request.route}`,
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -92,7 +97,7 @@ export default class KancolleRequest {
         Referer: this.gameInfo.gameLink,
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36',
       },
-      data: qs.stringify(this.requests[requestInd].data),
+      data: qs.stringify(request.data),
     };
     try {
       const response = await axios(postConfig);
@@ -108,37 +113,67 @@ export default class KancolleRequest {
 
   async success(response) {
     const requestInd = this.requestIndex;
-    this.requests[requestInd].response = response;
+    // this.requests[requestInd].response = response;
+    store.commit('setRequestProp',
+      {
+        reqInd: requestInd,
+        key: 'response',
+        value: response,
+      });
     const result = response.data.replace(/[\s\S]*svdata=/, '');
     await this.parse(result);
   }
 
   async parse(r) {
     const requestInd = this.requestIndex;
+    const request = store.state.requests[requestInd];
 
     const json = JSON.parse(r);
-    this.requests[requestInd].api_result = getNumber(json, 'api_result');
-    this.requests[requestInd].api_result_msg = getString(json, 'api_result_msg');
-    this.requests[requestInd].raw_data = getObject(json, 'api_data');
-    await this.endTask(!!this.requests[requestInd].api_result);
+    // this.requests[requestInd].api_result = getNumber(json, 'api_result');
+    // this.requests[requestInd].api_result_msg = getString(json, 'api_result_msg');
+    // this.requests[requestInd].raw_data = getObject(json, 'api_data');
+    store.commit('setRequestProp',
+      {
+        reqInd: requestInd,
+        key: 'responseData',
+        value: {
+          api_result: getNumber(json, 'api_result'),
+          api_result_msg: getString(json, 'api_result_msg'),
+          raw_data: getObject(json, 'api_data'),
+        },
+      });
+    await this.endTask(!!request.api_result);
   }
 
   async failed(error) {
     const requestInd = this.requestIndex;
-    this.requests[requestInd].error = error;
+    // this.requests[requestInd].error = error;
+    store.commit('setRequestProp',
+      {
+        reqInd: requestInd,
+        key: 'error',
+        value: error,
+      });
     await this.endTask(true);
   }
 
   async endTask(isApiSuccess) {
+    const requestInd = this.requestIndex;
     if (this.loading > 0) {
       this.loading -= 1;
     }
     if (!isApiSuccess) {
-      this.requests[this.requestIndex].api_error = true;
+      // this.requests[this.requestIndex].api_error = true;
+      store.commit('setRequestProp',
+        {
+          reqInd: requestInd,
+          key: 'api_error',
+          value: true,
+        });
     }
 
     this.requestIndex += 1;
-    if (this.requestIndex < this.requests.length) {
+    if (requestInd < store.state.requests.length) {
       await this.start();
     } else {
       console.log('end task');

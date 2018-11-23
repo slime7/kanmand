@@ -9,6 +9,7 @@
       </div>
       <div class="dq-frame-body flex">
         <Command/>
+        <request-line/>
       </div>
     </div>
   </div>
@@ -17,16 +18,20 @@
 <script>
 import { remote } from 'electron'; // eslint-disable-line
 import Command from './components/Command.vue';
+import RequestLine from './components/RequestLine.vue';
 
 export default {
   name: 'app',
   components: {
     Command,
+    RequestLine,
   },
 
   methods: {
     appClose() {
-      remote.getCurrentWindow().close();
+      if (remote) {
+        remote.getCurrentWindow().close();
+      }
     },
   },
 };

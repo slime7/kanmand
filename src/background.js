@@ -46,7 +46,7 @@ function createWindow() {
       kanmand = new KancolleRequest(reqData.gameLink);
     }
     kanmand.add(reqData.gameRoute, reqData.gameReqData);
-    event.sender.send('kancolle-command-ipc-reply', kanmand.requests);
+    event.sender.send('kancolle-command-ipc-reply');
   });
   ipcMain.on('kancolle-command-start', async (event) => {
     if (!kanmand) {
@@ -54,7 +54,7 @@ function createWindow() {
       return;
     }
     await kanmand.start();
-    event.sender.send('kancolle-command-ipc-reply', kanmand.requests);
+    event.sender.send('kancolle-command-ipc-reply');
   });
   ipcMain.on('kancolle-command-clear-data', (event) => {
     if (!kanmand) {
@@ -62,7 +62,7 @@ function createWindow() {
       return;
     }
     kanmand.clear();
-    event.sender.send('kancolle-command-ipc-reply', kanmand.requests);
+    event.sender.send('kancolle-command-ipc-reply');
   });
 
   win.on('closed', () => {
