@@ -7,7 +7,7 @@
         <div class="flex"></div>
         <div id="app-close" class="flex-none" v-on:click="appClose">关闭</div>
       </div>
-      <div class="dq-frame-body flex">
+      <div class="dq-frame-body flex gap-v-8">
         <Command/>
         <request-line/>
       </div>
@@ -88,12 +88,16 @@ export default {
     flex: none;
   }
 
+  .gap-v-8 > *:not(:last-of-type) {
+    margin-bottom: 8px;
+  }
+
   body {
     margin: 0;
     font-size: 14px;
   }
 
-  input, textarea {
+  input, textarea, select {
     background-color: #fff;
     border: 1px solid #184179;
     border-radius: 4px;
@@ -101,6 +105,12 @@ export default {
     padding: 2px 5px;
     text-align: left;
     outline: none;
+  }
+
+  input:disabled, textarea:disabled, select:disabled {
+    background-color: #ebebe4;
+    color: #545454;
+    cursor: not-allowed;
   }
 
   #app {
@@ -165,5 +175,18 @@ export default {
     -1px 1px 2px #5fb4fd,
     1px 1px 2px #5fb4fd,
     2px 2px 5px #000;
+  }
+
+  .action-btn {
+    border: 2px #fff solid;
+    background-color: #5fb4fd;
+    color: #fff;
+    outline: none;
+    cursor: pointer;
+    height: 32px;
+    min-width: 64px;
+    padding: 2px 8px;
+    border-radius: 16px;
+    margin: 2px 6px;
   }
 </style>

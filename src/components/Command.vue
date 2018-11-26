@@ -2,10 +2,21 @@
   <div>
     <div class="input-area gap-v-8">
       <div class="layout-flex flex-row">
-        <input class="flex" placeholder="游戏链接" v-model="gameLink">
+        <input class="flex"
+               placeholder="游戏链接"
+               v-model="gameLink"
+               :disabled="!!requests.length">
       </div>
       <div class="layout-flex flex-row">
-        <input class="flex" placeholder="发送路径" v-model="gameRoute">
+        <!--input class="flex" placeholder="发送路径" v-model="gameRoute"-->
+        <select class="flex" placeholder="发送路径" v-model="gameRoute">
+          <option disabled value="">发送路径</option>
+          <option v-for="route in routes"
+                  :key="route.name"
+                  v-bind:value="route">
+            {{ route.path }}
+          </option>
+        </select>
       </div>
       <div class="layout-flex flex-row">
         <textarea class="flex" placeholder="发送数据" rows="5" v-model="gameData"></textarea>
@@ -18,9 +29,8 @@
 </template>
 
 <script>
-/* global process, KancolleRequest */
 import { ipcRenderer } from 'electron'; // eslint-disable-line
-// import KancolleRequest from '../utils/KancolleRequest';
+import { mapState, mapMutations } from 'vuex';
 
 export default {
   name: 'Command',
@@ -30,21 +40,18 @@ export default {
       gameLink: '',
       gameRoute: '',
       gameData: '',
-      kanmand: null,
     };
   },
 
   computed: {
-    requests() {
-      return this.$store.state.requests;
-    },
+    ...mapState(['requests', 'routes']),
   },
 
   methods: {
     saveLastReqData() {
       const ls = localStorage;
       ls.setItem('gamelink', this.gameLink);
-      ls.setItem('gameroute', this.gameRoute);
+      ls.setItem('gameroute', this.gameRoute.name);
       ls.setItem('gamereqdata', this.gameData);
     },
     restoreLastReqData() {
@@ -58,7 +65,7 @@ export default {
         this.gameLink = gl;
       }
       if (gr) {
-        this.gameRoute = gr;
+        [this.gameRoute] = this.routes.filter(r => r.name === gr);
       }
       if (gd) {
         this.gameData = gd;
@@ -74,31 +81,24 @@ export default {
         gameReqData: this.gameData,
       };
       this.saveLastReqData();
-      // ipcRenderer.send('kancolle-command-add-data', ipcData);
-      if (ipcRenderer) {
-        ipcRenderer.send('kancolle-command-add-data', ipcData);
-      } else {
-        if (!this.kanmand) {
-          this.kanmand = new KancolleRequest(this.gameLink);
-        }
-        this.kanmand.add(this.gameRoute, this.gameData);
-      }
+      ipcRenderer.send('kancolle-command-add-data', ipcData);
     },
     startCommand() {
-      // ipcRenderer.send('kancolle-command-start');
+      ipcRenderer.send('kancolle-command-start');
     },
     clearCommand() {
-      // ipcRenderer.send('kancolle-command-clear-data');
+      ipcRenderer.send('kancolle-command-clear-data');
     },
     onReqReply() {
       if (ipcRenderer) {
-        ipcRenderer.on('kancolle-command-ipc-reply', () => {
-          // const r = JSON.parse(JSON.stringify(requests));
-          // this.requests = r;
-          console.log('请求列表: ', JSON.parse(JSON.stringify(this.requests)));
+        ipcRenderer.on('kancolle-command-ipc-reply', (event, requests) => {
+          const r = JSON.parse(JSON.stringify(requests));
+          this.setRequests(r);
+          // console.log('请求列表: ', r);
         });
       }
     },
+    ...mapMutations(['setRequests']),
   },
 
   mounted() {
@@ -109,24 +109,7 @@ export default {
 </script>
 
 <style scoped>
-  .gap-v-8 > *:not(:last-of-type) {
-    margin-bottom: 8px;
-  }
-
   .input-area {
     margin-bottom: 8px;
-  }
-
-  .action-btn {
-    border: 2px #fff solid;
-    background-color: #5fb4fd;
-    color: #fff;
-    outline: none;
-    cursor: pointer;
-    height: 32px;
-    min-width: 64px;
-    padding: 2px 8px;
-    border-radius: 16px;
-    margin: 2px 6px;
   }
 </style>

@@ -1,17 +1,15 @@
 /* eslint-disable */
-import { app, protocol, BrowserWindow, ipcMain } from 'electron';
+import { app, protocol, BrowserWindow, ipcMain, screen } from 'electron';
 import {
   createProtocol,
   installVueDevtools,
 } from 'vue-cli-plugin-electron-builder/lib';
 /* eslint-enable */
-import path from 'path';
+import './utils/global';
 import KancolleRequest from './utils/KancolleRequest';
+import config from './utils/config';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
-
-global.ROOT = __dirname;
-global.APPDATA_PATH = path.join(app.getPath('appData'), 'kanmand');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -21,10 +19,27 @@ let win;
 protocol.registerStandardSchemes(['app'], { secure: true });
 
 function createWindow() {
+  // set position
+  const { workArea } = screen.getPrimaryDisplay();
+  const defaultWin = {
+    x: workArea.width / 2 - 225,
+    y: workArea.height / 2 - 300,
+    width: 450,
+    height: 600,
+  };
+  let {
+    x,
+    y,
+    width,
+    height,
+  } = config.get('kanmand.window', defaultWin);
+
   // Create the browser window.
   win = new BrowserWindow({
-    width: 400,
-    height: 600,
+    x,
+    y,
+    width,
+    height,
     frame: false,
     transparent: true,
   });
@@ -46,15 +61,17 @@ function createWindow() {
       kanmand = new KancolleRequest(reqData.gameLink);
     }
     kanmand.add(reqData.gameRoute, reqData.gameReqData);
-    event.sender.send('kancolle-command-ipc-reply');
+    event.sender.send('kancolle-command-ipc-reply', kanmand.requestInfo().requests);
   });
   ipcMain.on('kancolle-command-start', async (event) => {
     if (!kanmand) {
       console.log('请求列表为空');
       return;
     }
-    await kanmand.start();
-    event.sender.send('kancolle-command-ipc-reply');
+    await kanmand.start(() => {
+      event.sender.send('kancolle-command-ipc-reply', kanmand.requestInfo().requests);
+    });
+    kanmand.clear();
   });
   ipcMain.on('kancolle-command-clear-data', (event) => {
     if (!kanmand) {
@@ -62,7 +79,19 @@ function createWindow() {
       return;
     }
     kanmand.clear();
-    event.sender.send('kancolle-command-ipc-reply');
+    event.sender.send('kancolle-command-ipc-reply', kanmand.requestInfo().requests);
+  });
+
+  win.on('close', () => {
+    const pos = win.getPosition();
+    const size = win.getSize();
+    [x, y, width, height] = [...pos, ...size];
+    config.set('kanmand.window', {
+      x,
+      y,
+      width,
+      height,
+    });
   });
 
   win.on('closed', () => {
