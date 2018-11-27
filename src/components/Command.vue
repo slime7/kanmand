@@ -14,7 +14,7 @@
           <option v-for="route in routes"
                   :key="route.name"
                   v-bind:value="route">
-            {{ route.path }}
+            {{ route.name }}({{ route.path }})
           </option>
         </select>
       </div>
@@ -22,9 +22,16 @@
         <textarea class="flex" placeholder="发送数据" rows="5" v-model="gameData"></textarea>
       </div>
     </div>
-    <button class="action-btn" v-on:click="clearCommand">clear</button>
-    <button class="action-btn" v-on:click="addCommand">add</button>
-    <button class="action-btn" v-on:click="startCommand">send</button>
+    <div class="button-group">
+      <button class="action-btn" v-on:click="clearCommand">清空队列</button>
+      <button class="action-btn" v-on:click="addCommand"> 新增</button>
+      <button class="action-btn"
+              v-on:click="modifyCommand"
+              v-show="selected !== null">
+        修改
+      </button>
+      <button class="action-btn" v-on:click="startCommand">执行队列</button>
+    </div>
   </div>
 </template>
 
@@ -44,7 +51,26 @@ export default {
   },
 
   computed: {
-    ...mapState(['requests', 'routes']),
+    ...mapState(['requests', 'routes', 'selected']),
+  },
+
+  watch: {
+    selected() {
+      if (this.requests[this.selected]) {
+        ({ route: this.gameRoute, data: this.gameData } = this.requests[this.selected]);
+      }
+    },
+    requests() {
+      if (this.requests.length === 0) {
+        this.selectEditingRequest(null);
+      }
+      this.requests.forEach((req) => {
+        if (req.error || req.response) {
+          this.pushLastRequests(JSON.parse(JSON.stringify(req)));
+          this.removeRequest(this.requests.indexOf(req));
+        }
+      });
+    },
   },
 
   methods: {
@@ -78,31 +104,42 @@ export default {
       const ipcData = {
         gameLink: this.gameLink,
         gameRoute: this.gameRoute,
-        gameReqData: this.gameData,
+        gameData: this.gameData,
       };
       this.saveLastReqData();
       ipcRenderer.send('kancolle-command-add-data', ipcData);
     },
     startCommand() {
+      this.clearLastRequests();
       ipcRenderer.send('kancolle-command-start');
     },
     clearCommand() {
       ipcRenderer.send('kancolle-command-clear-data');
+      this.selectEditingRequest(null);
     },
-    onReqReply() {
-      if (ipcRenderer) {
-        ipcRenderer.on('kancolle-command-ipc-reply', (event, requests) => {
-          const r = JSON.parse(JSON.stringify(requests));
-          this.setRequests(r);
-          // console.log('请求列表: ', r);
-        });
+    modifyCommand() {
+      if (this.gameRoute === '' || this.gameData === '') {
+        return;
       }
+      const ipcData = {
+        gameRoute: this.gameRoute,
+        gameData: this.gameData,
+      };
+      this.saveLastReqData();
+      ipcRenderer.send('kancolle-command-modify-data', { reqInd: this.selected, ipcData });
     },
-    ...mapMutations(['setRequests']),
+    removeCommand() {
+      ipcRenderer.send('kancolle-command-remove-data', this.selected);
+    },
+    ...mapMutations([
+      'selectEditingRequest',
+      'pushLastRequests',
+      'removeRequest',
+      'clearLastRequests',
+    ]),
   },
 
   mounted() {
-    this.onReqReply();
     this.restoreLastReqData();
   },
 };

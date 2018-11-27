@@ -6,6 +6,8 @@ Vue.use(Vuex);
 export default new Vuex.Store({
   state: {
     requests: [],
+    lastRequests: [],
+    selected: null,
     routes: [
       {
         name: 'questlist',
@@ -43,6 +45,14 @@ export default new Vuex.Store({
         name: 'charge',
         path: '/kcsapi/api_req_hokyu/charge',
         hint: '补给',
+      }, {
+        name: 'repair_start',
+        path: '/kcsapi/api_req_nyukyo/start',
+        hint: '修理',
+      }, {
+        name: 'quest_clear',
+        path: '/kcsapi/api_req_quest/clearitemget',
+        hint: '完成任务',
       },
     ],
   },
@@ -59,10 +69,17 @@ export default new Vuex.Store({
     setRequestProp(state, { reqInd, key, value }) {
       state.requests[reqInd] = Vue.set(state.requests[reqInd], key, value);
     },
-  },
-  actions: {
-    addRequests({ commit }, req) {
-      commit('pushRequests', req);
+    removeRequest(state, reqInd) {
+      state.requests.splice(reqInd, 1);
+    },
+    selectEditingRequest(state, selected) {
+      state.selected = selected;
+    },
+    pushLastRequests(state, req) {
+      state.lastRequests.push(req);
+    },
+    clearLastRequests(state) {
+      state.lastRequests = [];
     },
   },
 });

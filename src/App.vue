@@ -16,7 +16,8 @@
 </template>
 
 <script>
-import { remote } from 'electron'; // eslint-disable-line
+import { remote, ipcRenderer } from 'electron'; // eslint-disable-line
+import { mapMutations } from 'vuex';
 import Command from './components/Command.vue';
 import RequestLine from './components/RequestLine.vue';
 
@@ -33,6 +34,20 @@ export default {
         remote.getCurrentWindow().close();
       }
     },
+    onReqReply() {
+      if (ipcRenderer) {
+        ipcRenderer.on('kancolle-command-ipc-reply', (event, requests) => {
+          const r = JSON.parse(JSON.stringify(requests));
+          this.setRequests(r);
+          // console.log('请求列表: ', r);
+        });
+      }
+    },
+    ...mapMutations(['setRequests']),
+  },
+
+  mounted() {
+    this.onReqReply();
   },
 };
 </script>
@@ -164,6 +179,11 @@ export default {
     border-bottom: 1px solid #000;
   }
 
+  .dq-frame.orange {
+    box-shadow: 0 0 0 1px #ff9800, 0 0 7px 3px #ff9800 inset;
+    text-shadow: 0 1px #ff9800, 1px 0 #ff9800, -1px 0 #ff9800, 0 -1px #ff9800;
+  }
+
   #app-close {
     cursor: pointer;
     -webkit-app-region: no-drag;
@@ -188,5 +208,19 @@ export default {
     padding: 2px 8px;
     border-radius: 16px;
     margin: 2px 6px;
+  }
+
+  .text-btn {
+    cursor: pointer;
+    user-select: none;
+    margin: 0 2px;
+  }
+
+  .text-btn:hover {
+    text-shadow: -1px -1px 2px #5fb4fd,
+    1px -1px 2px #5fb4fd,
+    -1px 1px 2px #5fb4fd,
+    1px 1px 2px #5fb4fd,
+    2px 2px 5px #000;
   }
 </style>

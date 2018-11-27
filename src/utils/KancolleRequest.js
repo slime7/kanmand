@@ -50,18 +50,26 @@ export default class KancolleRequest {
   }
 
   add(route, data) {
-    const reqData = {
-      api_token: this.gameInfo.gameToken,
-      api_verno: 1,
-      ...JSON.parse(data),
-    };
-    this.requests.push({ route, data: reqData });
+    this.requests.push({ route, data });
   }
 
   clear() {
     this.requests = [];
     this.loading = 0;
     this.requestIndex = 0;
+  }
+
+  remove(reqInd) {
+    this.requests.splice(reqInd, 1);
+  }
+
+  move(reqInd, direction) {
+    const moveReq = JSON.stringify(this.requests.splice(reqInd, 1)[0]);
+    this.requests.splice(reqInd + direction, 0, JSON.parse(moveReq));
+  }
+
+  modify(reqInd, reqData) {
+    this.requests[reqInd] = { route: reqData.gameRoute, data: reqData.gameData };
   }
 
   requestInfo() {
@@ -97,6 +105,11 @@ export default class KancolleRequest {
   async connect() {
     const requestInd = this.requestIndex;
     const request = this.requests[requestInd];
+    const reqData = {
+      api_token: this.gameInfo.gameToken,
+      api_verno: 1,
+      ...JSON.parse(request.data),
+    };
 
     const postConfig = {
       url: `http://${this.gameInfo.serverIp}${request.route.path}`,
@@ -108,7 +121,7 @@ export default class KancolleRequest {
         Referer: this.gameInfo.gameLink,
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36',
       },
-      data: qs.stringify(request.data),
+      data: qs.stringify(reqData),
     };
     try {
       const response = await axios(postConfig);

@@ -22,11 +22,14 @@ function createWindow() {
   // set position
   const { workArea } = screen.getPrimaryDisplay();
   const defaultWin = {
-    x: workArea.width / 2 - 225,
+    x: workArea.width / 2 - 200,
     y: workArea.height / 2 - 300,
-    width: 450,
+    width: 400,
     height: 600,
   };
+  if (defaultWin.y < 0) {
+    defaultWin.y = 0;
+  }
   let {
     x,
     y,
@@ -56,13 +59,15 @@ function createWindow() {
 
   // ipc request listen
   let kanmand;
+
   ipcMain.on('kancolle-command-add-data', (event, reqData) => {
     if (!kanmand) {
       kanmand = new KancolleRequest(reqData.gameLink);
     }
-    kanmand.add(reqData.gameRoute, reqData.gameReqData);
+    kanmand.add(reqData.gameRoute, reqData.gameData);
     event.sender.send('kancolle-command-ipc-reply', kanmand.requestInfo().requests);
   });
+
   ipcMain.on('kancolle-command-start', async (event) => {
     if (!kanmand) {
       console.log('请求列表为空');
@@ -72,13 +77,36 @@ function createWindow() {
       event.sender.send('kancolle-command-ipc-reply', kanmand.requestInfo().requests);
     });
     kanmand.clear();
+    kanmand = null;
   });
+
   ipcMain.on('kancolle-command-clear-data', (event) => {
     if (!kanmand) {
       console.log('请求列表为空');
       return;
     }
     kanmand.clear();
+    kanmand = null;
+    event.sender.send('kancolle-command-ipc-reply', []);
+  });
+
+  ipcMain.on('kancolle-command-remove-data', (event, reqInd) => {
+    kanmand.remove(reqInd);
+    if (kanmand.requestInfo().requests.length === 0) {
+      kanmand = null;
+      event.sender.send('kancolle-command-ipc-reply', []);
+    } else {
+      event.sender.send('kancolle-command-ipc-reply', kanmand.requestInfo().requests);
+    }
+  });
+
+  ipcMain.on('kancolle-command-move-data', (event, { reqInd, direction }) => {
+    kanmand.move(reqInd, direction);
+    event.sender.send('kancolle-command-ipc-reply', kanmand.requestInfo().requests);
+  });
+
+  ipcMain.on('kancolle-command-modify-data', (event, { reqInd, ipcData }) => {
+    kanmand.modify(reqInd, ipcData);
     event.sender.send('kancolle-command-ipc-reply', kanmand.requestInfo().requests);
   });
 

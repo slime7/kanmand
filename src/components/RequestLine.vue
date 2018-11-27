@@ -2,9 +2,37 @@
   <div>
     <div class="layout-flex flex-row flex-wrap">
       <div class="flex-none req-block" v-for="(req, index) in requests" :key="index">
-        <div class="layout-flex flex-column flex-center flex-space-between req-block-content">
-          <div class="flex">{{ index + 1 + '.' + req.route.name }}</div>
-          <div class="flex">{{ requestStatus(req) }}</div>
+        <div class="dq-frame" :class="{orange: selected === index}"
+             v-on:click="selectEditingRequest(index)">
+          <div class="layout-flex flex-column dq-frame-body">
+            <div class="flex-none">{{ index + 1 + '.' + req.route.name }}</div>
+            <div class="flex-none">{{ requestStatus(req) }}</div>
+            <div class="flex"></div>
+            <div class="req-actions flex-none layout-flex flex-row flex-space-between">
+              <div class="text-btn" v-on:click.stop="moveCommand(index, -1)">⬅</div>
+              <div class="text-btn" v-on:click.stop="removeCommand(index)">删除</div>
+              <div class="text-btn" v-on:click.stop="moveCommand(index, 1)">➡</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="flex-none req-block">
+        <div class="dq-frame" :class="{orange: selected === null}"
+             v-on:click="selectEditingRequest(null)">
+          <div class="layout-flex flex-column dq-frame-body">
+            <div class="flex-none">NEW</div>
+            <div class="flex-none">➕</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex-none req-block" v-for="(req, index) in lastRequests" :key="index">
+        <div class="dq-frame">
+          <div class="layout-flex flex-column dq-frame-body">
+            <div class="flex-none">{{ index + 1 + '.' + req.route.name }}</div>
+            <div class="flex-none">{{ requestStatus(req) }}</div>
+            <div class="flex"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -12,14 +40,14 @@
 </template>
 
 <script>
-// import { ipcRenderer } from 'electron'; // eslint-disable-line
-import { mapState } from 'vuex';
+import { ipcRenderer } from 'electron'; // eslint-disable-line
+import { mapState, mapMutations } from 'vuex';
 
 export default {
   name: 'RequestLine',
 
   computed: {
-    ...mapState(['requests', 'routes']),
+    ...mapState(['requests', 'lastRequests', 'routes', 'selected']),
   },
 
   methods: {
@@ -36,27 +64,31 @@ export default {
       }
       return ret;
     },
+    removeCommand(reqInd) {
+      ipcRenderer.send('kancolle-command-remove-data', reqInd);
+    },
+    moveCommand(reqInd, direction) {
+      if (reqInd + direction < 0 || reqInd + direction >= this.requests.length) {
+        return;
+      }
+      ipcRenderer.send('kancolle-command-move-data', { reqInd, direction });
+    },
+    ...mapMutations(['selectEditingRequest']),
   },
 };
 </script>
 
 <style scoped>
   .req-block {
-    padding: 10px;
+    padding: 2px;
   }
 
-  .req-block-content {
-    background-color: #fafafa;
-    color: #222;
-    border: 1px solid #504137;
-    text-shadow: none;
-    padding: 10px;
+  .req-block .dq-frame {
     width: 120px;
     height: 90px;
-    text-align: center;
   }
 
-  .req-block-content:hover {
-    border-color: #f8b700
+  .dq-frame-body {
+    height: 100%;
   }
 </style>
