@@ -60,54 +60,73 @@ function createWindow() {
   // ipc request listen
   let kanmand;
 
-  ipcMain.on('kancolle-command-add-data', (event, reqData) => {
-    if (!kanmand) {
-      kanmand = new KancolleRequest(reqData.gameLink);
+  ipcMain.on('kancolle-command-actions', async (event, {
+    type,
+    reqData,
+    reqInd,
+    direction,
+  }) => {
+    const init = () => {
+      if (!kanmand) {
+        kanmand = new KancolleRequest(reqData.gameLink);
+      }
+    };
+    const reply = (data) => {
+      event.sender.send('kancolle-command-ipc-reply', data);
+    };
+
+    switch (type) {
+      case 'start':
+        if (!kanmand) {
+          console.log('请求列表为空');
+          break;
+        }
+        await kanmand.start(() => {
+          event.sender.send('kancolle-command-ipc-reply', kanmand.requestInfo().requests);
+        });
+        kanmand.clear();
+        kanmand = null;
+        break;
+
+      case 'add':
+        init();
+        kanmand.add(reqData.gameRoute, reqData.gameData);
+        reply(kanmand.requestInfo().requests);
+        break;
+
+      case 'clear':
+        if (!kanmand) {
+          console.log('请求列表为空');
+          break;
+        }
+        kanmand.clear();
+        kanmand = null;
+        reply([]);
+        break;
+
+      case 'remove':
+        kanmand.remove(reqInd);
+        if (kanmand.requestInfo().requests.length === 0) {
+          kanmand = null;
+          reply([]);
+        } else {
+          reply(kanmand.requestInfo().requests);
+        }
+        break;
+
+      case 'move':
+        kanmand.move(reqInd, direction);
+        reply(kanmand.requestInfo().requests);
+        break;
+
+      case 'modify':
+        kanmand.modify(reqInd, reqData);
+        reply(kanmand.requestInfo().requests);
+        break;
+
+      default:
+        break;
     }
-    kanmand.add(reqData.gameRoute, reqData.gameData);
-    event.sender.send('kancolle-command-ipc-reply', kanmand.requestInfo().requests);
-  });
-
-  ipcMain.on('kancolle-command-start', async (event) => {
-    if (!kanmand) {
-      console.log('请求列表为空');
-      return;
-    }
-    await kanmand.start(() => {
-      event.sender.send('kancolle-command-ipc-reply', kanmand.requestInfo().requests);
-    });
-    kanmand.clear();
-    kanmand = null;
-  });
-
-  ipcMain.on('kancolle-command-clear-data', (event) => {
-    if (!kanmand) {
-      console.log('请求列表为空');
-      return;
-    }
-    kanmand.clear();
-    kanmand = null;
-    event.sender.send('kancolle-command-ipc-reply', []);
-  });
-
-  ipcMain.on('kancolle-command-remove-data', (event, reqInd) => {
-    kanmand.remove(reqInd);
-    if (kanmand.requestInfo().requests.length === 0) {
-      kanmand = null;
-      event.sender.send('kancolle-command-ipc-reply', []);
-    } else {
-      event.sender.send('kancolle-command-ipc-reply', kanmand.requestInfo().requests);
-    }
-  });
-
-  ipcMain.on('kancolle-command-move-data', (event, { reqInd, direction }) => {
-    kanmand.move(reqInd, direction);
-    event.sender.send('kancolle-command-ipc-reply', kanmand.requestInfo().requests);
-  });
-
-  ipcMain.on('kancolle-command-modify-data', (event, { reqInd, ipcData }) => {
-    kanmand.modify(reqInd, ipcData);
-    event.sender.send('kancolle-command-ipc-reply', kanmand.requestInfo().requests);
   });
 
   win.on('close', () => {

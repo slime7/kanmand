@@ -65,13 +65,13 @@ export default {
       return ret;
     },
     removeCommand(reqInd) {
-      ipcRenderer.send('kancolle-command-remove-data', reqInd);
+      ipcRenderer.send('kancolle-command-actions', { type: 'remove', reqInd });
     },
     moveCommand(reqInd, direction) {
       if (reqInd + direction < 0 || reqInd + direction >= this.requests.length) {
         return;
       }
-      ipcRenderer.send('kancolle-command-move-data', { reqInd, direction });
+      ipcRenderer.send('kancolle-command-actions', { type: 'move', reqInd, direction });
     },
     ...mapMutations(['selectEditingRequest']),
   },

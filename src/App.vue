@@ -39,7 +39,6 @@ export default {
         ipcRenderer.on('kancolle-command-ipc-reply', (event, requests) => {
           const r = JSON.parse(JSON.stringify(requests));
           this.setRequests(r);
-          // console.log('请求列表: ', r);
         });
       }
     },

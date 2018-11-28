@@ -101,35 +101,32 @@ export default {
       if (this.gameLink === '' || this.gameRoute === '' || this.gameData === '') {
         return;
       }
-      const ipcData = {
+      const reqData = {
         gameLink: this.gameLink,
         gameRoute: this.gameRoute,
         gameData: this.gameData,
       };
       this.saveLastReqData();
-      ipcRenderer.send('kancolle-command-add-data', ipcData);
+      ipcRenderer.send('kancolle-command-actions', { type: 'add', reqData });
     },
     startCommand() {
       this.clearLastRequests();
-      ipcRenderer.send('kancolle-command-start');
+      ipcRenderer.send('kancolle-command-actions', { type: 'start' });
     },
     clearCommand() {
-      ipcRenderer.send('kancolle-command-clear-data');
+      ipcRenderer.send('kancolle-command-actions', { type: 'clear' });
       this.selectEditingRequest(null);
     },
     modifyCommand() {
       if (this.gameRoute === '' || this.gameData === '') {
         return;
       }
-      const ipcData = {
+      const reqData = {
         gameRoute: this.gameRoute,
         gameData: this.gameData,
       };
       this.saveLastReqData();
-      ipcRenderer.send('kancolle-command-modify-data', { reqInd: this.selected, ipcData });
-    },
-    removeCommand() {
-      ipcRenderer.send('kancolle-command-remove-data', this.selected);
+      ipcRenderer.send('kancolle-command-actions', { type: 'modify', reqInd: this.selected, reqData });
     },
     ...mapMutations([
       'selectEditingRequest',
