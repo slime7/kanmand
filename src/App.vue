@@ -10,6 +10,7 @@
       <div class="dq-frame-body flex gap-v-8">
         <Command/>
         <request-line/>
+        <Result/>
       </div>
     </div>
   </div>
@@ -20,12 +21,14 @@ import { remote, ipcRenderer } from 'electron'; // eslint-disable-line
 import { mapMutations } from 'vuex';
 import Command from './components/Command.vue';
 import RequestLine from './components/RequestLine.vue';
+import Result from './components/Result.vue';
 
 export default {
   name: 'app',
   components: {
     Command,
     RequestLine,
+    Result,
   },
 
   methods: {
