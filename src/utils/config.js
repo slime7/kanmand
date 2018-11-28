@@ -37,7 +37,11 @@ class Config {
     const pathKey = valuePath.split('.');
     let cur = this.configData;
     while (pathKey.length > 1) {
-      cur = cur[pathKey.shift()];
+      const curKey = pathKey.shift();
+      if (!Object.prototype.hasOwnProperty.call(cur, curKey)) {
+        cur[curKey] = {};
+      }
+      cur = cur[curKey];
     }
     cur[pathKey.shift()] = value;
 
