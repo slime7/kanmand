@@ -38,10 +38,11 @@ export default new Vuex.Store({
         path: '/kcsapi/api_req_mission/result',
         hint: '收远征',
       }, {
-        name: 'mission_start',
-        path: '/kcsapi/api_req_mission/start',
-        hint: '发远征',
-      }, {
+        /* name: 'mission_start',
+         * path: '/kcsapi/api_req_mission/start',
+         * hint: '发远征',
+         * }, {
+         */
         name: 'charge',
         path: '/kcsapi/api_req_hokyu/charge',
         hint: '补给',
