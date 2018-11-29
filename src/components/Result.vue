@@ -2,7 +2,7 @@
   <div>
     <div class="dq-frame" v-show="lastRequests.length">
       <div class="layout-flex flex-column dq-frame-body">
-        <div class="flex-none">
+        <div class="flex-none result-content">
           <div>
             {{
             lastRequests[resultIndex] ?
@@ -73,5 +73,7 @@ export default {
 </script>
 
 <style scoped>
-
+  .result-content {
+    overflow: scroll;
+  }
 </style>

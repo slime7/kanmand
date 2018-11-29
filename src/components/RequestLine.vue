@@ -26,7 +26,7 @@
         </div>
       </div>
 
-      <div class="flex-none req-block" v-for="(req, index) in lastRequests" :key="index">
+      <div class="flex-none req-block" v-for="(req, index) in lastRequests" :key="'lr' + index">
         <div class="dq-frame">
           <div class="layout-flex flex-column dq-frame-body">
             <div class="flex-none">{{ index + 1 + '.' + req.route.name }}</div>

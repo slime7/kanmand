@@ -7,10 +7,12 @@
         <div class="flex"></div>
         <div id="app-close" class="flex-none" v-on:click="appClose">关闭</div>
       </div>
-      <div class="dq-frame-body flex gap-v-8">
-        <Command/>
-        <request-line/>
-        <Result/>
+      <div class="dq-frame-body flex layout-flex flex-column">
+        <div class="main-content gap-v-8">
+          <Command/>
+          <request-line/>
+          <Result/>
+        </div>
       </div>
     </div>
   </div>
@@ -59,6 +61,11 @@ export default {
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
     box-sizing: border-box;
+  }
+
+  ::-webkit-scrollbar {
+    height: 0;
+    width: 0;
   }
 
   .layout-flex {
@@ -224,5 +231,10 @@ export default {
     -1px 1px 2px #5fb4fd,
     1px 1px 2px #5fb4fd,
     2px 2px 5px #000;
+  }
+
+  .main-content {
+    overflow: scroll;
+    flex: 1 1 0%;
   }
 </style>
