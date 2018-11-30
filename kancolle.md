@@ -29,6 +29,13 @@
 | -------- | ------- |
 | `api_id` | 舰娘 id |
 
+装备物品 `/kcsapi/api_req_kaisou/slotset`
+
+| 参数          | 说明    |
+| ------------- | ------- |
+| `api_id`      | 舰娘 id |
+| `api_item_id` | 装备 id |
+
 取消任务 `/kcsapi/api_req_quest/stop`
 
 接任务 `/kcsapi/api_req_quest/start`

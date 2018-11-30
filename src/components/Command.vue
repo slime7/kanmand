@@ -11,6 +11,7 @@
         <!--input class="flex" placeholder="发送路径" v-model="gameRoute"-->
         <select class="flex" placeholder="发送路径" v-model="gameRoute">
           <option disabled value="">发送路径</option>
+          <option value="importDataFromString">导入数据</option>
           <option v-for="route in routes"
                   :key="route.name"
                   v-bind:value="route">
@@ -24,7 +25,7 @@
     </div>
     <div class="button-group">
       <button class="action-btn" v-on:click="clearCommand">清空队列</button>
-      <button class="action-btn" v-on:click="addCommand"> 新增</button>
+      <button class="action-btn" v-on:click="addCommandAction"> 新增</button>
       <button class="action-btn"
               v-on:click="modifyCommand"
               v-show="selected !== null">
@@ -97,6 +98,14 @@ export default {
         this.gameData = gd;
       }
     },
+    addCommandAction() {
+      const selectRoute = this.gameRoute;
+      if (selectRoute === 'importDataFromString') {
+        this.importCommand();
+      } else {
+        this.addCommand();
+      }
+    },
     addCommand() {
       if (this.gameLink === '' || this.gameRoute === '' || this.gameData === '') {
         return;
@@ -126,7 +135,19 @@ export default {
         gameData: this.gameData,
       };
       this.saveLastReqData();
-      ipcRenderer.send('kancolle-command-actions', { type: 'modify', reqInd: this.selected, reqData });
+      ipcRenderer.send('kancolle-command-actions', {
+        type: 'modify',
+        reqInd: this.selected,
+        reqData,
+      });
+    },
+    importCommand() {
+      if (this.gameLink === '' || this.gameRoute === '' || this.gameData === '') {
+        return;
+      }
+      const importString = this.gameData;
+      const reqData = { gameLink: this.gameLink, importString };
+      ipcRenderer.send('kancolle-command-actions', { type: 'import', reqData });
     },
     ...mapMutations([
       'selectEditingRequest',

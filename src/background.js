@@ -66,8 +66,8 @@ function createWindow() {
     reqInd,
     direction,
   }) => {
-    const init = () => {
-      if (!kanmand) {
+    const init = (force) => {
+      if (force || !kanmand) {
         kanmand = new KancolleRequest(reqData.gameLink);
       }
     };
@@ -121,6 +121,12 @@ function createWindow() {
 
       case 'modify':
         kanmand.modify(reqInd, reqData);
+        reply(kanmand.requestInfo().requests);
+        break;
+
+      case 'import':
+        init(true);
+        kanmand.importReq(reqData.importString);
         reply(kanmand.requestInfo().requests);
         break;
 

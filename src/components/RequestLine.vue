@@ -22,6 +22,10 @@
           <div class="layout-flex flex-column dq-frame-body">
             <div class="flex-none">NEW</div>
             <div class="flex-none">➕</div>
+            <div class="flex"></div>
+            <div class="req-actions flex-none layout-flex flex-row">
+              <div class="text-btn" v-on:click.stop="exportCommand">导出</div>
+            </div>
           </div>
         </div>
       </div>
@@ -40,7 +44,7 @@
 </template>
 
 <script>
-import { ipcRenderer } from 'electron'; // eslint-disable-line
+import { ipcRenderer, clipboard } from 'electron'; // eslint-disable-line
 import { mapState, mapMutations } from 'vuex';
 
 export default {
@@ -72,6 +76,16 @@ export default {
         return;
       }
       ipcRenderer.send('kancolle-command-actions', { type: 'move', reqInd, direction });
+    },
+    exportCommand() {
+      if (!this.requests.length) {
+        return;
+      }
+      const req = { version: 1, requests: [] };
+      this.requests.forEach((r) => {
+        req.requests.push({ ro: r.route.name, da: r.data });
+      });
+      clipboard.writeText(btoa(JSON.stringify(req)));
     },
     ...mapMutations(['selectEditingRequest']),
   },

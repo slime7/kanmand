@@ -76,4 +76,8 @@ export default {
   .result-content {
     overflow: scroll;
   }
+
+  .dq-frame {
+    margin: 1px;
+  }
 </style>

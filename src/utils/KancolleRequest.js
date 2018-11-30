@@ -1,5 +1,6 @@
 import axios from 'axios';
 import qs from 'qs';
+import { routes } from './constant';
 
 function getProp(json, jsonKey, defaultValue) {
   if (json !== null && Object.prototype.hasOwnProperty.call(json, jsonKey)) {
@@ -70,6 +71,30 @@ export default class KancolleRequest {
 
   modify(reqInd, reqData) {
     this.requests[reqInd] = { route: reqData.gameRoute, data: reqData.gameData };
+  }
+
+  importReq(importString) {
+    if (!importString) {
+      return;
+    }
+    let im;
+    try {
+      const imj = Buffer.from(importString, 'base64').toString('ascii');
+      im = JSON.parse(imj);
+      if (!im.requests) {
+        return;
+      }
+      this.clear();
+      im.requests.forEach((r) => {
+        const [route] = routes.filter(ro => ro.name === r.ro);
+        const data = r.da;
+        if (route) {
+          this.add(route, data);
+        }
+      });
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   requestInfo() {
