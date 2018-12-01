@@ -4,34 +4,42 @@ export const routes = [
     name: 'questlist',
     path: '/kcsapi/api_get_member/questlist',
     hint: '获取任务列表',
+    defaultData: '{"api_page_no":1,"api_tab_id":0}',
   }, {
     name: 'fleet_change',
     path: '/kcsapi/api_req_hensei/change',
     hint: '更换编成船只',
+    defaultData: '{"api_id":1,"api_ship_idx":0,"api_ship_id":1}',
   }, {
     name: 'quest_stop',
     path: '/kcsapi/api_req_quest/stop',
     hint: '取消任务',
+    defaultData: '{"api_quest_id":201}',
   }, {
     name: 'quest_start',
     path: '/kcsapi/api_req_quest/start',
     hint: '接任务',
+    defaultData: '{"api_quest_id":201}',
   }, {
     name: 'slotset',
     path: '/kcsapi/api_req_kaisou/slotset',
     hint: '装备物品',
+    defaultData: '{"api_id":1,"api_item_id":1,"api_slot_idx":0}',
   }, {
     name: 'unsetslot_all',
     path: '/kcsapi/api_req_kaisou/unsetslot_all',
     hint: '卸除所有装备',
+    defaultData: '{"api_id":1}',
   }, {
     name: 'slotset_ex',
     path: '/kcsapi/api_req_kaisou/slotset_ex',
     hint: '装备打孔栏物品',
+    defaultData: '{"api_id":1,"api_item_id":1}',
   }, {
     name: 'mission_result',
     path: '/kcsapi/api_req_mission/result',
     hint: '收远征',
+    defaultData: '{"api_deck_id":2}',
   }, {
     /* name: 'mission_start',
      * path: '/kcsapi/api_req_mission/start',
@@ -41,13 +49,16 @@ export const routes = [
     name: 'charge',
     path: '/kcsapi/api_req_hokyu/charge',
     hint: '补给',
+    defaultData: '{"api_kind":3,"api_id_items":"1,2","api_onslot":1}',
   }, {
     name: 'repair_start',
     path: '/kcsapi/api_req_nyukyo/start',
     hint: '修理',
+    defaultData: '{"api_highspeed":0,"api_ndock_id":1,"api_ship_id":1}',
   }, {
     name: 'quest_clear',
     path: '/kcsapi/api_req_quest/clearitemget',
     hint: '完成任务',
+    defaultData: '{"api_quest_id":201}',
   },
 ];

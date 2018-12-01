@@ -29,7 +29,7 @@
 | -------- | ------- |
 | `api_id` | 舰娘 id |
 
-装备物品 `/kcsapi/api_req_kaisou/slotset`
+装备打孔栏物品 `/kcsapi/api_req_kaisou/slotset_ex`
 
 | 参数          | 说明    |
 | ------------- | ------- |

@@ -8,14 +8,13 @@
                :disabled="!!requests.length">
       </div>
       <div class="layout-flex flex-row">
-        <!--input class="flex" placeholder="发送路径" v-model="gameRoute"-->
-        <select class="flex" placeholder="发送路径" v-model="gameRoute">
+        <select class="flex" v-model="gameRoute" v-on:change="changeRoute">
           <option disabled value="">发送路径</option>
           <option value="importDataFromString">导入数据</option>
           <option v-for="route in routes"
                   :key="route.name"
                   v-bind:value="route">
-            {{ route.name }}({{ route.path }})
+            {{ route.hint }}({{ route.path }})
           </option>
         </select>
       </div>
@@ -148,6 +147,11 @@ export default {
       const importString = this.gameData;
       const reqData = { gameLink: this.gameLink, importString };
       ipcRenderer.send('kancolle-command-actions', { type: 'import', reqData });
+    },
+    changeRoute() {
+      if (this.gameRoute !== 'importDataFromString') {
+        this.gameData = this.gameRoute.defaultData;
+      }
     },
     ...mapMutations([
       'selectEditingRequest',
