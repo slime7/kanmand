@@ -67,7 +67,7 @@
 | -------------- | ---------------------------------------------------------- |
 | `api_kind`     | 补给类型<br>`1` 单舰补油<br>`2` 单舰补弹<br>`3` 单舰全补给 |
 | `api_id_items` | 舰娘 id ，逗号分隔                                         |
-| `api_onslot`   | 不明，总是为1                                              |
+| `api_onslot`   | 补给界面为1，远征界面为0                                   |
 
 修理 `/kcsapi/api_req_nyukyo/start`
 
@@ -76,4 +76,39 @@
 | `api_highspeed` | 是否使用高速修理  |
 | `api_ndock_id`  | 修理渠号，从1开始 |
 | `api_ship_id`   | 舰娘 id           |
+
+## 技巧
+
+### 在 poi 控制台中获取需要的数据
+
+获取舰队及装备配置字符串
+
+```js
+{
+  const fleetNum = 0; // 可选 0-3
+  const fleet = getStore(`info.fleets[${fleetNum}]`).api_ship;
+  const ships = getStore('info.ships');
+  const kanmand = { version: 1, requests: [] };
+  fleet.forEach((shipId, shipIndex) => {
+    const ship = ships[shipId];
+    kanmand.requests.push({
+      ro: 'fleet_change',
+      da: `{"api_id":${fleetNum + 1},"api_ship_idx":${shipIndex},"api_ship_id":${shipId}}`,
+    });
+    for (let eqi = 0; eqi < ship.api_slotnum; eqi += 1) {
+      kanmand.requests.push({
+        ro: 'slotset',
+        da: `{"api_id":${shipId},"api_item_id":${ship.api_slot[eqi]},"api_slot_idx":${eqi}}`,
+      });
+    }
+    if (ship.api_slot_ex !== -1) {
+      kanmand.requests.push({
+        ro: 'slotset_ex',
+        da: `{"api_id":${shipId},"api_item_id":${ship.api_slot_ex ? ship.api_slot_ex : -1}}`,
+      });
+    }
+  });
+  console.log(btoa(JSON.stringify(kanmand)));
+}
+```
 
