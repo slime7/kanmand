@@ -86,7 +86,7 @@
 ```js
 {
   const fleetNum = 0; // 可选 0-3
-  const fleet = getStore(`info.fleets[${fleetNum}]`).api_ship;
+  const fleet = getStore(`info.fleets[${fleetNum}]`).api_ship.filter(s => s !== -1);
   const ships = getStore('info.ships');
   const kanmand = { version: 1, requests: [] };
   fleet.forEach((shipId, shipIndex) => {
@@ -95,16 +95,24 @@
       ro: 'fleet_change',
       da: `{"api_id":${fleetNum + 1},"api_ship_idx":${shipIndex},"api_ship_id":${shipId}}`,
     });
-    for (let eqi = 0; eqi < ship.api_slotnum; eqi += 1) {
+    if (ship.api_slot.filter(s => s !== -1).length < ship.api_slotnum) {
       kanmand.requests.push({
-        ro: 'slotset',
-        da: `{"api_id":${shipId},"api_item_id":${ship.api_slot[eqi]},"api_slot_idx":${eqi}}`,
+        ro: 'unsetslot_all',
+        da: `{"api_id":${shipId}}`,
       });
     }
-    if (ship.api_slot_ex !== -1) {
+    for (let eqi = 0; eqi < ship.api_slotnum; eqi += 1) {
+      if (ship.api_slot[eqi] !== -1) {
+        kanmand.requests.push({
+          ro: 'slotset',
+          da: `{"api_id":${shipId},"api_item_id":${ship.api_slot[eqi]},"api_slot_idx":${eqi}}`,
+        });
+      }
+    }
+    if (ship.api_slot_ex !== 0) {
       kanmand.requests.push({
         ro: 'slotset_ex',
-        da: `{"api_id":${shipId},"api_item_id":${ship.api_slot_ex ? ship.api_slot_ex : -1}}`,
+        da: `{"api_id":${shipId},"api_item_id":${ship.api_slot_ex}}`,
       });
     }
   });
