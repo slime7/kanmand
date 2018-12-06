@@ -20,13 +20,18 @@
 
 <script>
 import { remote, ipcRenderer } from 'electron'; // eslint-disable-line
-import { mapMutations } from 'vuex';
+import { mapMutations, mapState } from 'vuex';
 import Command from './components/Command.vue';
 import RequestLine from './components/RequestLine.vue';
 import Result from './components/Result.vue';
 
 export default {
   name: 'app',
+
+  computed: {
+    ...mapState(['selected']),
+  },
+
   components: {
     Command,
     RequestLine,
@@ -41,13 +46,37 @@ export default {
     },
     onReqReply() {
       if (ipcRenderer) {
-        ipcRenderer.on('kancolle-command-ipc-reply', (event, requests) => {
-          const r = JSON.parse(JSON.stringify(requests));
-          this.setRequests(r);
+        ipcRenderer.on('kancolle-command-reply', (event, { requestIndex, requests }) => {
+          const requestsCopy = JSON.parse(JSON.stringify(requests));
+          if (requestsCopy.length === 0) {
+            this.selectEditingRequest(null);
+          }
+
+          if (typeof requestIndex === 'number') {
+            const [requestsComplated, requestsProgressing] = [[], []];
+            while (requestsCopy.length) {
+              if (requestsCopy[0].error || requestsCopy[0].response) {
+                requestsComplated.push(requestsCopy.shift());
+              } else {
+                requestsProgressing.push(requestsCopy.shift());
+              }
+            }
+            this.setRequests(requestsProgressing);
+            this.setLastRequests(requestsComplated);
+            if (requestsProgressing.length <= this.selected) {
+              this.selectEditingRequest(null);
+            }
+          } else {
+            this.setRequests(requestsCopy);
+          }
         });
       }
     },
-    ...mapMutations(['setRequests']),
+    ...mapMutations([
+      'selectEditingRequest',
+      'setRequests',
+      'setLastRequests',
+    ]),
   },
 
   mounted() {

@@ -6,7 +6,9 @@
           <div>
             {{
             lastRequests[resultIndex] ?
-            `${lastRequests[resultIndex].route.name}(${lastRequests[resultIndex].route.path})` : '-'
+            `${resultIndex + 1}.${lastRequests[resultIndex].route.name}
+            (${lastRequests[resultIndex].route.path})`
+            : '-'
             }}
           </div>
           <div>

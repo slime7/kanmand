@@ -60,17 +60,6 @@ export default {
         ({ route: this.gameRoute, data: this.gameData } = this.requests[this.selected]);
       }
     },
-    requests() {
-      if (this.requests.length === 0) {
-        this.selectEditingRequest(null);
-      }
-      this.requests.forEach((req) => {
-        if (req.error || req.response) {
-          this.pushLastRequests(JSON.parse(JSON.stringify(req)));
-          this.removeRequest(this.requests.indexOf(req));
-        }
-      });
-    },
   },
 
   methods: {
@@ -155,8 +144,6 @@ export default {
     },
     ...mapMutations([
       'selectEditingRequest',
-      'pushLastRequests',
-      'removeRequest',
       'clearLastRequests',
     ]),
   },

@@ -66,13 +66,14 @@ function createWindow() {
     reqInd,
     direction,
   }) => {
+    const reply = (requests, requestIndex) => {
+      event.sender.send('kancolle-command-reply', { requests, requestIndex });
+    };
     const init = (force) => {
       if (force || !kanmand) {
         kanmand = new KancolleRequest(reqData.gameLink);
+        kanmand.setStageEndCallback(reply);
       }
-    };
-    const reply = (data) => {
-      event.sender.send('kancolle-command-ipc-reply', data);
     };
 
     switch (type) {
@@ -81,9 +82,7 @@ function createWindow() {
           console.log('请求列表为空');
           break;
         }
-        await kanmand.start(() => {
-          event.sender.send('kancolle-command-ipc-reply', kanmand.requestInfo().requests);
-        });
+        await kanmand.start();
         kanmand.clear();
         kanmand = null;
         break;

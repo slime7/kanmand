@@ -33,6 +33,9 @@ export default new Vuex.Store({
     pushLastRequests(state, req) {
       state.lastRequests.push(req);
     },
+    setLastRequests(state, req) {
+      state.lastRequests = req;
+    },
     clearLastRequests(state) {
       state.lastRequests = [];
     },

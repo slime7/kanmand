@@ -48,6 +48,11 @@ export default class KancolleRequest {
     this.loading = 0;
     this.requests = [];
     this.requestIndex = 0;
+    this.stageEndCallback = null;
+  }
+
+  setStageEndCallback(stageEndCallback) {
+    this.stageEndCallback = stageEndCallback;
   }
 
   add(route, data) {
@@ -58,6 +63,7 @@ export default class KancolleRequest {
     this.requests = [];
     this.loading = 0;
     this.requestIndex = 0;
+    // this.stageEndCallback = null;
   }
 
   remove(reqInd) {
@@ -104,7 +110,7 @@ export default class KancolleRequest {
     };
   }
 
-  async start(stageEndCallback) {
+  async start() {
     this.loading += 1;
     try {
       const response = await this.connect();
@@ -120,10 +126,6 @@ export default class KancolleRequest {
         this.requests[requestInd].error = error.message;
       }
       await this.endTask(true);
-    }
-
-    if (typeof stageEndCallback === 'function') {
-      stageEndCallback(this.requestIndex, this.requests);
     }
   }
 
@@ -188,6 +190,9 @@ export default class KancolleRequest {
       this.requests[this.requestIndex].api_error = true;
     }
 
+    if (typeof this.stageEndCallback === 'function') {
+      this.stageEndCallback(this.requests, this.requestIndex);
+    }
     this.requestIndex += 1;
     if (this.requestIndex < this.requests.length) {
       await this.start();
