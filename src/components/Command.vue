@@ -96,6 +96,7 @@ export default {
     },
     addCommand() {
       if (this.gameLink === '' || this.gameRoute === '' || this.gameData === '') {
+        this.toasted.show('内容填写不全');
         return;
       }
       const reqData = {
@@ -128,6 +129,7 @@ export default {
         reqInd: this.selected,
         reqData,
       });
+      this.$toasted.show('修改完成。');
     },
     importCommand() {
       if (this.gameLink === '' || this.gameRoute === '' || this.gameData === '') {

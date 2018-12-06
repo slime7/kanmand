@@ -86,6 +86,7 @@ export default {
         req.requests.push({ ro: r.route.name, da: r.data });
       });
       clipboard.writeText(btoa(JSON.stringify(req)));
+      this.$toasted.show('已复制到剪切板');
     },
     ...mapMutations(['selectEditingRequest']),
   },

@@ -1,6 +1,6 @@
 {
   "name": "kanmand",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "author": {
     "name": "Slime7",
     "url": "https://github.com/slime7"
@@ -17,6 +17,7 @@
     "axios": "^0.18.0",
     "qs": "^6.6.0",
     "vue": "^2.5.17",
+    "vue-toasted": "^1.1.26",
     "vuex": "^3.0.1"
   },
   "devDependencies": {

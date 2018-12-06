@@ -46,7 +46,16 @@ export default {
     },
     onReqReply() {
       if (ipcRenderer) {
-        ipcRenderer.on('kancolle-command-reply', (event, { requestIndex, requests }) => {
+        ipcRenderer.on('kancolle-command-reply', (event, {
+          requestIndex,
+          requests,
+          error,
+        }) => {
+          if (error) {
+            this.$toasted.error(error);
+            return;
+          }
+
           const requestsCopy = JSON.parse(JSON.stringify(requests));
           if (requestsCopy.length === 0) {
             this.selectEditingRequest(null);
@@ -188,6 +197,12 @@ export default {
     color: #fff;
     box-shadow: 0 0 0 1px #000, 0 0 7px 3px #000 inset;
     text-shadow: 0 1px #000, 1px 0 #000, -1px 0 #000, 0 -1px #000;
+  }
+
+  .dq-frame.toasted {
+    border-radius: 6px;
+    background-color: #000;
+    box-shadow: 0 0 0 1px #000, 0 0 7px 3px #000 inset;
   }
 
   .dq-frame-heading, .dq-frame-body {

@@ -40,11 +40,8 @@ function parseGameLink(link) {
 }
 
 export default class KancolleRequest {
-  constructor(gameLink) {
-    this.gameInfo = {
-      ...parseGameLink(gameLink),
-      gameLink,
-    };
+  constructor() {
+    this.gameInfo = null;
     this.loading = 0;
     this.requests = [];
     this.requestIndex = 0;
@@ -53,6 +50,18 @@ export default class KancolleRequest {
 
   setStageEndCallback(stageEndCallback) {
     this.stageEndCallback = stageEndCallback;
+  }
+
+  init(gameLink) {
+    const gameBaseInfo = parseGameLink(gameLink);
+    if (gameBaseInfo) {
+      this.gameInfo = {
+        ...gameBaseInfo,
+        gameLink,
+      };
+      return this;
+    }
+    return false;
   }
 
   add(route, data) {

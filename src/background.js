@@ -66,14 +66,22 @@ function createWindow() {
     reqInd,
     direction,
   }) => {
-    const reply = (requests, requestIndex) => {
-      event.sender.send('kancolle-command-reply', { requests, requestIndex });
+    const reply = (requests, requestIndex, error) => {
+      event.sender.send('kancolle-command-reply', { requests, requestIndex, error });
     };
     const init = (force) => {
       if (force || !kanmand) {
-        kanmand = new KancolleRequest(reqData.gameLink);
-        kanmand.setStageEndCallback(reply);
+        kanmand = new KancolleRequest();
+        const success = kanmand.init(reqData.gameLink);
+        if (!success) {
+          kanmand = null;
+          reply(null, null, '游戏链接填写有误');
+        } else {
+          kanmand.setStageEndCallback(reply);
+        }
+        return !!success;
       }
+      return true;
     };
 
     switch (type) {
@@ -88,9 +96,10 @@ function createWindow() {
         break;
 
       case 'add':
-        init();
-        kanmand.add(reqData.gameRoute, reqData.gameData);
-        reply(kanmand.requestInfo().requests);
+        if (init()) {
+          kanmand.add(reqData.gameRoute, reqData.gameData);
+          reply(kanmand.requestInfo().requests);
+        }
         break;
 
       case 'clear':
@@ -124,9 +133,10 @@ function createWindow() {
         break;
 
       case 'import':
-        init(true);
-        kanmand.importReq(reqData.importString);
-        reply(kanmand.requestInfo().requests);
+        if (init(true)) {
+          kanmand.importReq(reqData.importString);
+          reply(kanmand.requestInfo().requests);
+        }
         break;
 
       default:
