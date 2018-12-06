@@ -42,9 +42,10 @@
 
 完成任务 `/kcsapi/api_req_quest/clearitemget`
 
-| 参数           | 说明    |
-| -------------- | ------- |
-| `api_quest_id` | 任务 id |
+| 参数            | 说明                             |
+| --------------- | -------------------------------- |
+| `api_quest_id`  | 任务 id                          |
+| `api_select_no` | （可选）完成任务时选择的奖励序号 |
 
 收远征 `/kcsapi/api_req_mission/result`
 
