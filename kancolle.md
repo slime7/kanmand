@@ -78,6 +78,15 @@
 | `api_ndock_id`  | 修理渠号，从1开始 |
 | `api_ship_id`   | 舰娘 id           |
 
+开发装备 `/kcsapi/api_req_kousyou/createitem`
+
+| 参数        | 说明 |
+| ----------- | ---- |
+| `api_item1` | 油   |
+| `api_item2` | 弹   |
+| `api_item3` | 钢   |
+| `api_item4` | 铝   |
+
 ## 技巧
 
 ### 在 poi 控制台中获取需要的数据

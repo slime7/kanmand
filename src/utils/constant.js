@@ -60,5 +60,10 @@ export const routes = [
     path: '/kcsapi/api_req_quest/clearitemget',
     hint: '完成任务',
     defaultData: '{"api_quest_id":201}',
+  }, {
+    name: 'createitem',
+    path: '/kcsapi/api_req_kousyou/createitem',
+    hint: '开发装备',
+    defaultData: '{"api_item1":10,"api_item2":10,"api_item3":10,"api_item4":10}',
   },
 ];
