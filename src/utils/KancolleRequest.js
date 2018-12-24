@@ -119,6 +119,10 @@ export default class KancolleRequest {
     };
   }
 
+  setProxy(proxy) {
+    this.proxy = proxy;
+  }
+
   async start() {
     this.loading += 1;
     try {
@@ -159,6 +163,10 @@ export default class KancolleRequest {
       },
       data: qs.stringify(reqData),
     };
+    if (this.proxy) {
+      postConfig.proxy = this.proxy;
+    }
+
     try {
       const response = await axios(postConfig);
       return new Promise((resolve) => {

@@ -36,6 +36,7 @@ function createWindow() {
     width,
     height,
   } = config.get('kanmand.window', defaultWin);
+  let proxy = config.get('kanmand.proxy', { enabled: false });
 
   // Create the browser window.
   win = new BrowserWindow({
@@ -65,6 +66,7 @@ function createWindow() {
     reqData,
     reqInd,
     direction,
+    proxySetting,
   }) => {
     const reply = (requests, requestIndex, error) => {
       event.sender.send('kancolle-command-reply', { requests, requestIndex, error });
@@ -78,6 +80,9 @@ function createWindow() {
           reply(null, null, '游戏链接填写有误');
         } else {
           kanmand.setStageEndCallback(reply);
+          if (proxy && proxy.enabled) {
+            kanmand.setProxy({ host: proxy.host, port: proxy.port });
+          }
         }
         return !!success;
       }
@@ -139,9 +144,17 @@ function createWindow() {
         }
         break;
 
+      case 'proxy':
+        config.set('kanmand.proxy', proxySetting);
+        proxy = proxySetting;
+        break;
+
       default:
         break;
     }
+  });
+  ipcMain.on('get-proxy-setting', (event) => {
+    event.sender.send('proxy-setting', { proxy });
   });
 
   win.on('close', () => {

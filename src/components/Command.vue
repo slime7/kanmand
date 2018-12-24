@@ -31,6 +31,38 @@
         修改
       </button>
       <button class="action-btn" v-on:click="startCommand">执行队列</button>
+      <button
+        class="action-btn"
+        v-on:click="proxyPanel = !proxyPanel"
+        :disabled="!!requests.length"
+      >
+        <span class="proxy-on" v-show="proxy.enabled">🗝</span>代理
+      </button>
+    </div>
+    <div class="proxy-panel gap-v-8" v-show="proxyPanel">
+      <div>
+        <label>
+          <input type="checkbox"
+                 v-model="proxy.enabled"
+                 :disabled="!!requests.length"
+                 v-on:change="setProxy">
+          <span>启用代理</span>
+        </label>
+      </div>
+      <div class="layout-flex flex-row">
+        <input class="flex"
+               placeholder="代理地址"
+               v-model="proxy.host"
+               :disabled="!!requests.length"
+               v-on:change="setProxy">
+      </div>
+      <div class="layout-flex flex-row">
+        <input class="flex"
+               placeholder="代理端口"
+               v-model="proxy.port"
+               :disabled="!!requests.length"
+               v-on:change="setProxy">
+      </div>
     </div>
   </div>
 </template>
@@ -47,6 +79,8 @@ export default {
       gameLink: '',
       gameRoute: '',
       gameData: '',
+      proxyPanel: false,
+      proxy: { enabled: false },
     };
   },
 
@@ -144,6 +178,17 @@ export default {
         this.gameData = this.gameRoute.defaultData;
       }
     },
+    setProxy() {
+      ipcRenderer.send('kancolle-command-actions', { type: 'proxy', proxySetting: this.proxy });
+    },
+    getProxy() {
+      if (ipcRenderer) {
+        ipcRenderer.send('get-proxy-setting');
+        ipcRenderer.on('proxy-setting', (event, { proxy }) => {
+          this.proxy = proxy;
+        });
+      }
+    },
     ...mapMutations([
       'selectEditingRequest',
       'clearLastRequests',
@@ -152,6 +197,7 @@ export default {
 
   mounted() {
     this.restoreLastReqData();
+    this.getProxy();
   },
 };
 </script>
@@ -159,5 +205,9 @@ export default {
 <style scoped>
   .input-area {
     margin-bottom: 8px;
+  }
+
+  .proxy-on {
+    color: chartreuse;
   }
 </style>

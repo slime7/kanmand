@@ -263,6 +263,13 @@ export default {
     margin: 2px 6px;
   }
 
+  .action-btn:disabled {
+    background-color: #ebebe4;
+    color: #545454;
+    cursor: not-allowed;
+
+  }
+
   .text-btn {
     cursor: pointer;
     user-select: none;
