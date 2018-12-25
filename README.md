@@ -24,6 +24,8 @@ npm run electron:serve
 
 发送数据：`{"api_id":1,"api_ship_idx":1,"api_ship_id":5}`
 
+[更多介绍](kancolle.md)
+
 ## TODO
 
 - [x] 一次执行多个

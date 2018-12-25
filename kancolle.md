@@ -89,13 +89,18 @@
 
 ## 技巧
 
+### 代理
+
+代理可以用来让请求走你设定的服务器，不过 kancolle 并不需要像 DMM 那样需要伪装自己的国家才能玩。你可以把代理设置为 poi、航海日志、MyFleetGirls 等记录工具的代理地址，让它们记录你发送的数据。
+
 ### 在 poi 控制台中获取需要的数据
 
 获取舰队及装备配置字符串
 
 ```js
 {
-  const fleetNum = 0; // 可选 0-3
+  const fleetNum = 0; // 读取舰队，可选 0-3
+  const targetFleet = 0; // 展开舰队，可选 0-3
   const fleet = getStore(`info.fleets[${fleetNum}]`).api_ship.filter(s => s !== -1);
   const ships = getStore('info.ships');
   const kanmand = { version: 1, requests: [] };
@@ -103,7 +108,7 @@
     const ship = ships[shipId];
     kanmand.requests.push({
       ro: 'fleet_change',
-      da: `{"api_id":${fleetNum + 1},"api_ship_idx":${shipIndex},"api_ship_id":${shipId}}`,
+      da: `{"api_id":${targetFleet + 1},"api_ship_idx":${shipIndex},"api_ship_id":${shipId}}`,
     });
     if (ship.api_slot.filter(s => s !== -1).length < ship.api_slotnum) {
       kanmand.requests.push({
