@@ -36,7 +36,8 @@
         v-on:click="proxyPanel = !proxyPanel"
         :disabled="!!requests.length"
       >
-        <span class="proxy-on" v-show="proxy.enabled">🗝</span>代理
+        <span class="proxy-on" v-show="proxy.enabled"></span>
+        <span>代理</span>
       </button>
     </div>
     <div class="proxy-panel gap-v-8" v-show="proxyPanel">
@@ -208,6 +209,10 @@ export default {
   }
 
   .proxy-on {
-    color: chartreuse;
+    display: inline-block;
+    vertical-align: top;
+    background: center / contain no-repeat url("../assets/key.svg");
+    width: 15px;
+    height: 15px;
   }
 </style>
