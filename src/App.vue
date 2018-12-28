@@ -53,7 +53,6 @@ export default {
         }) => {
           if (error) {
             this.$toasted.error(error);
-            return;
           }
 
           const requestsCopy = JSON.parse(JSON.stringify(requests));

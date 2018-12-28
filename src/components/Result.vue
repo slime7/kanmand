@@ -13,20 +13,20 @@
           </div>
           <div>
             result: {{
-            lastRequests[resultIndex] ?
+            lastRequests[resultIndex] && !lastRequests[resultIndex].error ?
             lastRequests[resultIndex].responseData.api_result : '-'
             }}
           </div>
           <div>
             message: {{
-            lastRequests[resultIndex] ?
+            lastRequests[resultIndex] && !lastRequests[resultIndex].error ?
             lastRequests[resultIndex].responseData.api_result_msg : '-'
             }}
           </div>
           <div>
             data:
             <pre>{{
-            lastRequests[resultIndex] ?
+            lastRequests[resultIndex] && !lastRequests[resultIndex].error ?
             JSON.stringify(lastRequests[resultIndex].responseData.raw_data, null, 2) : '-'
             }}</pre>
           </div>

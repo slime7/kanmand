@@ -196,7 +196,7 @@ export default class KancolleRequest {
       api_result_msg: getString(json, 'api_result_msg'),
       raw_data: getObject(json, 'api_data'),
     };
-    await this.endTask(!!request.responseData.api_result);
+    await this.endTask(request.responseData.api_result === 1);
   }
 
   async endTask(isApiSuccess) {
@@ -208,7 +208,14 @@ export default class KancolleRequest {
     }
 
     if (typeof this.stageEndCallback === 'function') {
-      this.stageEndCallback(this.requests, this.requestIndex);
+      let errorMessage;
+      if (!isApiSuccess) {
+        errorMessage = `${this.requestIndex + 1}: 游戏返回了错误。`;
+      }
+      if (this.requests[this.requestIndex].error) {
+        errorMessage = `${this.requestIndex + 1}: 网络出错。`;
+      }
+      this.stageEndCallback(this.requests, this.requestIndex, errorMessage);
     }
     this.requestIndex += 1;
     if (this.requestIndex < this.requests.length) {
