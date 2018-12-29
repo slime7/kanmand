@@ -100,6 +100,18 @@ export default {
     box-sizing: border-box;
   }
 
+  *:not(pre) {
+    font-family: "Noto Sans", "Noto Sans CJK SC",
+    "Microsoft YaHei", "微软雅黑",
+    tahoma, arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  pre {
+    font-family: "Source Code Pro", Monospace, "Noto Sans CJK SC", "Microsoft YaHei";
+  }
+
   ::-webkit-scrollbar {
     height: 0;
     width: 0;
@@ -175,11 +187,6 @@ export default {
   }
 
   #app {
-    font-family: "Noto Sans", "Noto Sans CJK SC",
-    "Microsoft YaHei", "微软雅黑",
-    tahoma, arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
     padding: 1px;
     height: 100vh;
     width: 100vw;
