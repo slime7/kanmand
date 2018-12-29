@@ -26,6 +26,11 @@ export const routes = [
     hint: '装备物品',
     defaultData: '{"api_id":1,"api_item_id":1,"api_slot_idx":0}',
   }, {
+    name: 'slot_deprive',
+    path: '/kcsapi/api_req_kaisou/slot_deprive',
+    hint: '装备别舰物品',
+    defaultData: '{"api_unset_idx":1,"api_set_slot_kind":0,"api_unset_slot_kind":0,"api_unset_ship":1,"api_set_idx":0,"api_set_ship":2}',
+  }, {
     name: 'unsetslot_all',
     path: '/kcsapi/api_req_kaisou/unsetslot_all',
     hint: '卸除所有装备',

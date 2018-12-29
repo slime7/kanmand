@@ -11,6 +11,7 @@
         <select class="flex" v-model="gameRoute" v-on:change="changeRoute">
           <option disabled value="">发送路径</option>
           <option value="importDataFromString">导入数据</option>
+          <option value="importDataFromPoiBattle">复制poi战斗数据所用舰队</option>
           <option v-for="route in routes"
                   :key="route.name"
                   v-bind:value="route">
@@ -123,7 +124,7 @@ export default {
     },
     addCommandAction() {
       const selectRoute = this.gameRoute;
-      if (selectRoute === 'importDataFromString') {
+      if (selectRoute === 'importDataFromString' || selectRoute === 'importDataFromPoiBattle') {
         this.importCommand();
       } else {
         this.addCommand();
@@ -172,10 +173,19 @@ export default {
       }
       const importString = this.gameData;
       const reqData = { gameLink: this.gameLink, importString };
-      ipcRenderer.send('kancolle-command-actions', { type: 'import', reqData });
+      let type;
+      if (this.gameRoute === 'importDataFromString') {
+        type = 'import';
+      } else if (this.gameRoute === 'importDataFromPoiBattle') {
+        type = 'poifleets';
+      } else {
+        type = 'import';
+      }
+      ipcRenderer.send('kancolle-command-actions', { type, reqData });
     },
     changeRoute() {
-      if (this.gameRoute !== 'importDataFromString') {
+      if (this.gameRoute !== 'importDataFromString'
+        && this.gameRoute !== 'importDataFromPoiBattle') {
         this.gameData = this.gameRoute.defaultData;
       }
     },

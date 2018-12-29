@@ -292,6 +292,6 @@ export default {
 
   .main-content {
     overflow: scroll;
-    flex: 1 1 0%;
+    flex: 1 1 0;
   }
 </style>
