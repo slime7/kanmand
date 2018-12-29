@@ -23,6 +23,17 @@
 | `api_item_id`  | 装备 id               |
 | `api_slot_idx` | 装备格子序号，从0开始 |
 
+装备别舰装备 `/kcsapi/api_req_kaisou/slot_deprive`
+
+| 参数                  | 说明                           |
+| --------------------- | ------------------------------ |
+| `api_unset_idx`       | 卸装舰娘装备序号，0 为打孔     |
+| `api_set_slot_kind`   | 装备栏种类，0 为普通，1 为打孔 |
+| `api_unset_slot_kind` | 装备栏种类，0 为普通，1 为打孔 |
+| `api_unset_ship`      | 需卸装舰娘 id                  |
+| `api_set_idx`         | 需装舰娘装备序号，0 为打孔     |
+| `api_set_ship`        | 需装备舰娘 id                  |
+
 卸除所有装备 `/kcsapi/api_req_kaisou/unsetslot_all`
 
 | 参数     | 说明    |
