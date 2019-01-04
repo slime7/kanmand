@@ -1,8 +1,8 @@
 <template>
   <div>
     <div class="dq-frame" v-show="lastRequests.length">
-      <div class="layout-flex flex-column dq-frame-body">
-        <div class="flex-none result-content">
+      <v-layout column class="dq-frame-body">
+        <v-flex shrink class="result-content">
           <div>
             {{
             lastRequests[resultIndex] ?
@@ -30,13 +30,13 @@
             JSON.stringify(lastRequests[resultIndex].responseData.raw_data, null, 2) : '-'
             }}</pre>
           </div>
-        </div>
-        <div class="flex"></div>
-        <div class="req-actions flex-none layout-flex flex-row flex-space-between">
+        </v-flex>
+        <v-spacer/>
+        <v-layout row justify-space-between class="req-actions">
           <div class="text-btn" v-on:click.stop="nav(-1)">⬅</div>
           <div class="text-btn" v-on:click.stop="nav(1)">➡</div>
-        </div>
-      </div>
+        </v-layout>
+      </v-layout>
     </div>
   </div>
 </template>

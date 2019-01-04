@@ -1,21 +1,31 @@
 /* global __static */
 <template>
-  <div id="app">
-    <div class="dq-frame layout-flex flex-column">
-      <div class="dq-frame-heading flex-none layout-flex flex-row">
-        <strong class="flex-none">kanmand</strong>
-        <div class="flex"></div>
-        <div id="app-close" class="flex-none" v-on:click="appClose">关闭</div>
-      </div>
-      <div class="dq-frame-body flex layout-flex flex-column">
-        <div class="main-content gap-v-8">
-          <Command/>
-          <request-line/>
-          <Result/>
-        </div>
-      </div>
-    </div>
-  </div>
+  <v-container id="app">
+    <v-layout column class="dq-frame">
+      <v-flex shrink class="dq-frame-heading">
+        <v-layout row>
+          <v-flex shrink tag="strong">kanmand</v-flex>
+          <v-spacer/>
+          <v-flex shrink id="app-close" v-on:click="appClose">关闭</v-flex>
+        </v-layout>
+      </v-flex>
+      <v-layout class="flex dq-frame-body">
+        <v-layout row class="main-content gap-h-8">
+          <v-flex xs6 sm6 md6 lg6 xl6 class="main-left">
+            <v-layout column class="flex gap-v-8">
+              <Command/>
+              <request-line/>
+            </v-layout>
+          </v-flex>
+          <v-flex xs6 sm6 md6 lg6 xl6 class="main-right">
+            <v-layout column fill-height>
+              <Result/>
+            </v-layout>
+          </v-flex>
+        </v-layout>
+      </v-layout>
+    </v-layout>
+  </v-container>
 </template>
 
 <script>
@@ -55,27 +65,29 @@ export default {
             this.$toasted.error(error);
           }
 
-          const requestsCopy = JSON.parse(JSON.stringify(requests));
-          if (requestsCopy.length === 0) {
-            this.selectEditingRequest(null);
-          }
-
-          if (typeof requestIndex === 'number') {
-            const [requestsComplated, requestsProgressing] = [[], []];
-            while (requestsCopy.length) {
-              if (requestsCopy[0].error || requestsCopy[0].response) {
-                requestsComplated.push(requestsCopy.shift());
-              } else {
-                requestsProgressing.push(requestsCopy.shift());
-              }
-            }
-            this.setRequests(requestsProgressing);
-            this.setLastRequests(requestsComplated);
-            if (requestsProgressing.length <= this.selected) {
+          if (requests) {
+            const requestsCopy = JSON.parse(JSON.stringify(requests));
+            if (requestsCopy.length === 0) {
               this.selectEditingRequest(null);
             }
-          } else {
-            this.setRequests(requestsCopy);
+
+            if (typeof requestIndex === 'number') {
+              const [requestsComplated, requestsProgressing] = [[], []];
+              while (requestsCopy.length) {
+                if (requestsCopy[0].error || requestsCopy[0].response) {
+                  requestsComplated.push(requestsCopy.shift());
+                } else {
+                  requestsProgressing.push(requestsCopy.shift());
+                }
+              }
+              this.setRequests(requestsProgressing);
+              this.setLastRequests(requestsComplated);
+              if (requestsProgressing.length <= this.selected) {
+                this.selectEditingRequest(null);
+              }
+            } else {
+              this.setRequests(requestsCopy);
+            }
           }
         });
       }
@@ -95,8 +107,6 @@ export default {
 
 <style>
   * {
-    -moz-box-sizing: border-box;
-    -webkit-box-sizing: border-box;
     box-sizing: border-box;
   }
 
@@ -117,52 +127,12 @@ export default {
     width: 0;
   }
 
-  .layout-flex {
-    display: flex !important;
-  }
-
-  .layout-flex.flex-row {
-    flex-direction: row;
-  }
-
-  .layout-flex.flex-column {
-    flex-direction: column;
-  }
-
-  .layout-flex.flex-center {
-    align-items: center;
-  }
-
-  .layout-flex.flex-space-between {
-    justify-content: space-between;
-  }
-
-  .layout-flex.flex-wrap {
-    flex-wrap: wrap;
-  }
-
-  .layout-flex .flex {
-    flex: auto;
-  }
-
-  .layout-flex .flex-33 {
-    flex: 33%;
-  }
-
-  .layout-flex .flex-50 {
-    flex: 50%;
-  }
-
-  .layout-flex .flex-100 {
-    flex: 100%;
-  }
-
-  .layout-flex .flex-none {
-    flex: none;
-  }
-
   .gap-v-8 > *:not(:last-of-type) {
     margin-bottom: 8px;
+  }
+
+  .gap-h-8 > *:not(:last-of-type) {
+    margin-right: 8px;
   }
 
   body {
@@ -290,8 +260,10 @@ export default {
     2px 2px 5px #000;
   }
 
-  .main-content {
+  .main-left, .main-right {
+    position: relative;
+    max-width: 100vw;
+    height: 100%;
     overflow: scroll;
-    flex: 1 1 0%;
   }
 </style>

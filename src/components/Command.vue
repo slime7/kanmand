@@ -1,13 +1,13 @@
 <template>
   <div>
     <div class="input-area gap-v-8">
-      <div class="layout-flex flex-row">
+      <v-layout row>
         <input class="flex"
                placeholder="游戏链接"
                v-model="gameLink"
-               :disabled="!!requests.length">
-      </div>
-      <div class="layout-flex flex-row">
+               :disabled="!!requests.length"/>
+      </v-layout>
+      <v-layout row>
         <select class="flex" v-model="gameRoute" v-on:change="changeRoute">
           <option disabled value="">发送路径</option>
           <option value="importDataFromString">导入数据</option>
@@ -17,10 +17,10 @@
             {{ route.hint }}({{ route.path }})
           </option>
         </select>
-      </div>
-      <div class="layout-flex flex-row">
+      </v-layout>
+      <v-layout row>
         <textarea class="flex" placeholder="发送数据" rows="5" v-model="gameData"></textarea>
-      </div>
+      </v-layout>
     </div>
     <div class="button-group">
       <button class="action-btn" v-on:click="clearCommand">清空队列</button>
@@ -50,20 +50,20 @@
           <span>启用代理</span>
         </label>
       </div>
-      <div class="layout-flex flex-row">
+      <v-layout row>
         <input class="flex"
                placeholder="代理地址"
                v-model="proxy.host"
                :disabled="!!requests.length"
-               v-on:change="setProxy">
-      </div>
-      <div class="layout-flex flex-row">
+               v-on:change="setProxy"/>
+      </v-layout>
+      <v-layout row>
         <input class="flex"
                placeholder="代理端口"
                v-model="proxy.port"
                :disabled="!!requests.length"
-               v-on:change="setProxy">
-      </div>
+               v-on:change="setProxy"/>
+      </v-layout>
     </div>
   </div>
 </template>

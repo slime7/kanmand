@@ -1,5 +1,10 @@
 module.exports = {
   productionSourceMap: false,
+  devServer: {
+    headers: { 'Access-Control-Allow-Origin': '*' },
+    https: false,
+    disableHostCheck: true,
+  },
   pluginOptions: {
     electronBuilder: {
       builderOptions: {

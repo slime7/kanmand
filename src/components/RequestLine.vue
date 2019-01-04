@@ -1,45 +1,47 @@
 <template>
   <div>
-    <div class="layout-flex flex-row flex-wrap">
-      <div class="flex-none req-block" v-for="(req, index) in requests" :key="index">
+    <v-layout row wrap>
+      <v-flex shrink class="req-block" v-for="(req, index) in requests" :key="index">
         <div class="dq-frame" :class="{orange: selected === index}"
              v-on:click="selectEditingRequest(index)">
-          <div class="layout-flex flex-column dq-frame-body">
-            <div class="flex-none">{{ index + 1 + '.' + req.route.name }}</div>
-            <div class="flex-none">{{ requestStatus(req) }}</div>
-            <div class="flex"></div>
-            <div class="req-actions flex-none layout-flex flex-row flex-space-between">
-              <div class="text-btn" v-on:click.stop="moveCommand(index, -1)">⬅</div>
-              <div class="text-btn" v-on:click.stop="removeCommand(index)">删除</div>
-              <div class="text-btn" v-on:click.stop="moveCommand(index, 1)">➡</div>
-            </div>
-          </div>
+          <v-layout column class="dq-frame-body">
+            <v-flex shrink>{{ index + 1 + '.' + req.route.name }}</v-flex>
+            <v-flex shrink class="flex-none">{{ requestStatus(req) }}</v-flex>
+            <v-spacer/>
+            <v-flex shrink class="req-actions">
+              <v-layout row justify-space-between>
+                <div class="text-btn" v-on:click.stop="moveCommand(index, -1)">⬅</div>
+                <div class="text-btn" v-on:click.stop="removeCommand(index)">删除</div>
+                <div class="text-btn" v-on:click.stop="moveCommand(index, 1)">➡</div>
+              </v-layout>
+            </v-flex>
+          </v-layout>
         </div>
-      </div>
-      <div class="flex-none req-block">
+      </v-flex>
+      <v-flex shrink class="req-block">
         <div class="dq-frame" :class="{orange: selected === null}"
              v-on:click="selectEditingRequest(null)">
-          <div class="layout-flex flex-column dq-frame-body">
-            <div class="flex-none">NEW</div>
-            <div class="flex-none">➕</div>
-            <div class="flex"></div>
-            <div class="req-actions flex-none layout-flex flex-row">
+          <v-layout column class="dq-frame-body">
+            <div>NEW</div>
+            <div>➕</div>
+            <v-spacer/>
+            <div class="req-actions">
               <div class="text-btn" v-on:click.stop="exportCommand">导出</div>
             </div>
-          </div>
+          </v-layout>
         </div>
-      </div>
+      </v-flex>
 
-      <div class="flex-none req-block" v-for="(req, index) in lastRequests" :key="'lr' + index">
+      <v-flex shrink class="req-block" v-for="(req, index) in lastRequests" :key="'lr' + index">
         <div class="dq-frame">
-          <div class="layout-flex flex-column dq-frame-body">
-            <div class="flex-none">{{ index + 1 + '.' + req.route.name }}</div>
-            <div class="flex-none">{{ requestStatus(req) }}</div>
-            <div class="flex"></div>
-          </div>
+          <v-layout column class="layout-flex flex-column dq-frame-body">
+            <div>{{ index + 1 + '.' + req.route.name }}</div>
+            <div>{{ requestStatus(req) }}</div>
+            <v-spacer/>
+          </v-layout>
         </div>
-      </div>
-    </div>
+      </v-flex>
+    </v-layout>
   </div>
 </template>
 
