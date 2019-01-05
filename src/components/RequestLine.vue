@@ -6,13 +6,19 @@
              v-on:click="selectEditingRequest(index)">
           <v-layout column class="dq-frame-body">
             <v-flex shrink>{{ index + 1 + '.' + req.route.name }}</v-flex>
-            <v-flex shrink class="flex-none">{{ requestStatus(req) }}</v-flex>
+            <v-flex shrink class="flex-none">
+              <v-icon dark>{{ requestStatus(req) }}</v-icon>
+            </v-flex>
             <v-spacer/>
             <v-flex shrink class="req-actions">
               <v-layout row justify-space-between>
-                <div class="text-btn" v-on:click.stop="moveCommand(index, -1)">⬅</div>
+                <div class="text-btn" v-on:click.stop="moveCommand(index, -1)">
+                  <v-icon dark small>arrow_back</v-icon>
+                </div>
                 <div class="text-btn" v-on:click.stop="removeCommand(index)">删除</div>
-                <div class="text-btn" v-on:click.stop="moveCommand(index, 1)">➡</div>
+                <div class="text-btn" v-on:click.stop="moveCommand(index, 1)">
+                  <v-icon dark small>arrow_forward</v-icon>
+                </div>
               </v-layout>
             </v-flex>
           </v-layout>
@@ -23,7 +29,9 @@
              v-on:click="selectEditingRequest(null)">
           <v-layout column class="dq-frame-body">
             <div>NEW</div>
-            <div>➕</div>
+            <div>
+              <v-icon dark>add</v-icon>
+            </div>
             <v-spacer/>
             <div class="req-actions">
               <div class="text-btn" v-on:click.stop="exportCommand">导出</div>
@@ -36,7 +44,9 @@
         <div class="dq-frame">
           <v-layout column class="layout-flex flex-column dq-frame-body">
             <div>{{ index + 1 + '.' + req.route.name }}</div>
-            <div>{{ requestStatus(req) }}</div>
+            <div>
+              <v-icon dark>{{ requestStatus(req) }}</v-icon>
+            </div>
             <v-spacer/>
           </v-layout>
         </div>
@@ -60,13 +70,13 @@ export default {
     requestStatus(req) {
       let ret;
       if (!req.error && !req.response) {
-        ret = '◯';
+        ret = 'flag';
       } else if (req.error) {
-        ret = '✘';
-      } else if (!req.responseData.api_result) {
-        ret = '✗';
+        ret = 'close';
+      } else if (req.responseData.api_result !== 1) {
+        ret = 'report_problem';
       } else {
-        ret = '✔';
+        ret = 'done';
       }
       return ret;
     },

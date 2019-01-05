@@ -1,8 +1,8 @@
 <template>
-  <div>
-    <div class="dq-frame" v-show="lastRequests.length">
-      <v-layout column class="dq-frame-body">
-        <v-flex shrink class="result-content">
+  <v-layout column class="dq-frame result-main" v-show="lastRequests.length">
+    <div class="dq-frame-body">
+      <v-layout row>
+        <div class="result-content">
           <div>
             {{
             lastRequests[resultIndex] ?
@@ -30,15 +30,20 @@
             JSON.stringify(lastRequests[resultIndex].responseData.raw_data, null, 2) : '-'
             }}</pre>
           </div>
-        </v-flex>
-        <v-spacer/>
-        <v-layout row justify-space-between class="req-actions">
-          <div class="text-btn" v-on:click.stop="nav(-1)">⬅</div>
-          <div class="text-btn" v-on:click.stop="nav(1)">➡</div>
-        </v-layout>
+        </div>
       </v-layout>
     </div>
-  </div>
+    <div class="dq-frame-footer">
+      <v-layout row justify-space-between class="req-actions">
+        <div class="text-btn" v-on:click.stop="nav(-1)">
+          <v-icon dark small>arrow_back</v-icon>
+        </div>
+        <div class="text-btn" v-on:click.stop="nav(1)">
+          <v-icon dark small>arrow_forward</v-icon>
+        </div>
+      </v-layout>
+    </div>
+  </v-layout>
 </template>
 
 <script>
@@ -75,8 +80,13 @@ export default {
 </script>
 
 <style scoped>
-  .result-content {
+  .result-main, .result-content {
     overflow: scroll;
+  }
+
+  .result-content {
+    position: relative;
+    height: 100%;
   }
 
   .dq-frame {

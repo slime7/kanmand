@@ -2,11 +2,13 @@
 <template>
   <v-container id="app">
     <v-layout column class="dq-frame">
-      <v-flex shrink class="dq-frame-heading">
+      <v-flex shrink class="dq-frame-header">
         <v-layout row>
           <v-flex shrink tag="strong">kanmand</v-flex>
           <v-spacer/>
-          <v-flex shrink id="app-close" v-on:click="appClose">关闭</v-flex>
+          <v-flex shrink id="app-close" v-on:click="appClose">
+            <v-icon dark small>close</v-icon>
+          </v-flex>
         </v-layout>
       </v-flex>
       <v-layout class="flex dq-frame-body">
@@ -120,6 +122,7 @@ export default {
 
   pre {
     font-family: "Source Code Pro", Monospace, "Noto Sans CJK SC", "Microsoft YaHei";
+    margin: 0;
   }
 
   ::-webkit-scrollbar {
@@ -181,12 +184,12 @@ export default {
     box-shadow: 0 0 0 1px #000, 0 0 7px 3px #000 inset;
   }
 
-  .dq-frame-heading, .dq-frame-body {
+  .dq-frame-header, .dq-frame-body, .dq-frame-footer {
     position: relative;
     padding: 8px;
   }
 
-  .dq-frame-heading {
+  .dq-frame-header {
     border: none;
     -webkit-app-region: drag;
   }
@@ -195,7 +198,8 @@ export default {
     overflow: auto;
   }
 
-  .dq-frame-heading + .dq-frame-body:before {
+  .dq-frame-header + .dq-frame-body:before,
+  .dq-frame-body + .dq-frame-footer:before {
     content: ' ';
     position: absolute;
     display: block;
