@@ -26,6 +26,7 @@ function createWindow() {
     y: workArea.height / 2 - 300,
     width: 800,
     height: 600,
+    maximize: false,
   };
   if (defaultWin.y < 0) {
     defaultWin.y = 0;
@@ -35,6 +36,7 @@ function createWindow() {
     y,
     width,
     height,
+    maximize,
   } = config.get('kanmand.window', defaultWin);
   let proxy = config.get('kanmand.proxy', { enabled: false });
 
@@ -45,7 +47,7 @@ function createWindow() {
     width,
     height,
     frame: false,
-    transparent: true,
+    // transparent: true,
   });
 
   if (isDevelopment || process.env.IS_TEST) {
@@ -56,6 +58,9 @@ function createWindow() {
     createProtocol('app');
     // Load the index.html when not in development
     win.loadURL('app://./index.html');
+  }
+  if (maximize) {
+    win.maximize();
   }
 
   // ipc request listen
@@ -68,8 +73,13 @@ function createWindow() {
     direction,
     proxySetting,
   }) => {
-    const reply = (requests, requestIndex, error) => {
-      event.sender.send('kancolle-command-reply', { requests, requestIndex, error });
+    const reply = (requests, requestIndex, error, data) => {
+      event.sender.send('kancolle-command-reply', {
+        requests,
+        requestIndex,
+        error,
+        data,
+      });
     };
     const init = (force) => {
       if (force || !kanmand) {
@@ -149,6 +159,10 @@ function createWindow() {
         proxy = proxySetting;
         break;
 
+      case 'isMaximize':
+        reply(null, null, null, { maximize });
+        break;
+
       default:
         break;
     }
@@ -157,15 +171,30 @@ function createWindow() {
     event.sender.send('proxy-setting', { proxy });
   });
 
+  win.on('maximize', () => {
+    // 最大化
+    maximize = true;
+    win.webContents.send('kancolle-command-reply', { data: { maximize } });
+  });
+
+  win.on('unmaximize', () => {
+    // 取消最大化：
+    maximize = false;
+    win.webContents.send('kancolle-command-reply', { data: { maximize } });
+  });
+
   win.on('close', () => {
-    const pos = win.getPosition();
-    const size = win.getSize();
-    [x, y, width, height] = [...pos, ...size];
+    if (!maximize) {
+      const pos = win.getPosition();
+      const size = win.getSize();
+      [x, y, width, height] = [...pos, ...size];
+    }
     config.set('kanmand.window', {
       x,
       y,
       width,
       height,
+      maximize,
     });
   });
 

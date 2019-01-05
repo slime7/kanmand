@@ -1,12 +1,32 @@
 /* global __static */
 <template>
-  <v-container id="app">
-    <v-layout column class="dq-frame">
+  <v-container fluid id="app">
+    <v-layout column class="dq-frame win" :class="{ max: maximize}">
       <v-flex shrink class="dq-frame-header">
         <v-layout row>
           <v-flex shrink tag="strong">kanmand</v-flex>
           <v-spacer/>
-          <v-flex shrink id="app-close" v-on:click="appClose">
+          <v-flex
+            shrink
+            class="titlebar-btn"
+            v-on:click="appMinimize">
+            <v-icon dark small>remove</v-icon>
+          </v-flex>
+          <v-flex
+            shrink
+            class="titlebar-btn"
+            v-on:click="appMaximize(true)"
+            v-show="!maximize">
+            <v-icon dark small>fullscreen</v-icon>
+          </v-flex>
+          <v-flex
+            shrink
+            class="titlebar-btn"
+            v-on:click="appMaximize(false)"
+            v-show="maximize">
+            <v-icon dark small>fullscreen_exit</v-icon>
+          </v-flex>
+          <v-flex shrink id="app-close" class="titlebar-btn" v-on:click="appClose">
             <v-icon dark small>close</v-icon>
           </v-flex>
         </v-layout>
@@ -40,14 +60,20 @@ import Result from './components/Result.vue';
 export default {
   name: 'app',
 
-  computed: {
-    ...mapState(['selected']),
-  },
-
   components: {
     Command,
     RequestLine,
     Result,
+  },
+
+  data() {
+    return {
+      maximize: false,
+    };
+  },
+
+  computed: {
+    ...mapState(['selected']),
   },
 
   methods: {
@@ -56,12 +82,27 @@ export default {
         remote.getCurrentWindow().close();
       }
     },
+    appMaximize(enter = true) {
+      if (remote) {
+        if (enter) {
+          remote.getCurrentWindow().maximize();
+        } else {
+          remote.getCurrentWindow().unmaximize();
+        }
+      }
+    },
+    appMinimize() {
+      if (remote) {
+        remote.getCurrentWindow().minimize();
+      }
+    },
     onReqReply() {
       if (ipcRenderer) {
         ipcRenderer.on('kancolle-command-reply', (event, {
           requestIndex,
           requests,
           error,
+          data,
         }) => {
           if (error) {
             this.$toasted.error(error);
@@ -91,6 +132,13 @@ export default {
               this.setRequests(requestsCopy);
             }
           }
+
+          if (data) {
+            const { maximize } = data;
+            if (typeof maximize !== 'undefined') {
+              this.maximize = maximize;
+            }
+          }
         });
       }
     },
@@ -103,6 +151,7 @@ export default {
 
   mounted() {
     this.onReqReply();
+    ipcRenderer.send('kancolle-command-actions', { type: 'isMaximize' });
   },
 };
 </script>
@@ -178,6 +227,14 @@ export default {
     text-shadow: 0 1px #000, 1px 0 #000, -1px 0 #000, 0 -1px #000;
   }
 
+  .dq-frame.win {
+    border-radius: 0;
+  }
+
+  .dq-frame.win.max {
+    border: 0;
+  }
+
   .dq-frame.toasted {
     border-radius: 6px;
     background-color: #000;
@@ -217,12 +274,16 @@ export default {
     text-shadow: 0 1px #ff9800, 1px 0 #ff9800, -1px 0 #ff9800, 0 -1px #ff9800;
   }
 
-  #app-close {
+  .titlebar-btn {
     cursor: pointer;
     -webkit-app-region: no-drag;
   }
 
-  #app-close:hover {
+  .titlebar-btn + .titlebar-btn {
+    margin-left: 4px;
+  }
+
+  .titlebar-btn:hover {
     text-shadow: -1px -1px 2px #5fb4fd,
     1px -1px 2px #5fb4fd,
     -1px 1px 2px #5fb4fd,
