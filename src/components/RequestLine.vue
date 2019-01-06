@@ -1,10 +1,10 @@
 <template>
-  <div>
-    <v-layout row wrap>
+  <v-layout column shrink class="flex padding-8">
+    <v-layout row wrap class="flex req-wrap">
       <v-flex shrink class="req-block" v-for="(req, index) in requests" :key="index">
         <div class="dq-frame" :class="{orange: selected === index}"
              v-on:click="selectEditingRequest(index)">
-          <v-layout column class="dq-frame-body">
+          <v-layout column class="dq-frame-body padding-8">
             <v-flex shrink>{{ index + 1 + '.' + req.route.name }}</v-flex>
             <v-flex shrink class="flex-none">
               <v-icon dark>{{ requestStatus(req) }}</v-icon>
@@ -13,11 +13,11 @@
             <v-flex shrink class="req-actions">
               <v-layout row justify-space-between>
                 <div class="text-btn" v-on:click.stop="moveCommand(index, -1)">
-                  <v-icon dark small>arrow_back</v-icon>
+                  <v-icon dark size="20">arrow_back</v-icon>
                 </div>
                 <div class="text-btn" v-on:click.stop="removeCommand(index)">删除</div>
                 <div class="text-btn" v-on:click.stop="moveCommand(index, 1)">
-                  <v-icon dark small>arrow_forward</v-icon>
+                  <v-icon dark size="20">arrow_forward</v-icon>
                 </div>
               </v-layout>
             </v-flex>
@@ -27,7 +27,7 @@
       <v-flex shrink class="req-block">
         <div class="dq-frame" :class="{orange: selected === null}"
              v-on:click="selectEditingRequest(null)">
-          <v-layout column class="dq-frame-body">
+          <v-layout column class="dq-frame-body padding-8">
             <div>NEW</div>
             <div>
               <v-icon dark>add</v-icon>
@@ -41,7 +41,7 @@
       </v-flex>
 
       <v-flex shrink class="req-block" v-for="(req, index) in lastRequests" :key="'lr' + index">
-        <div class="dq-frame">
+        <div class="dq-frame padding-8">
           <v-layout column class="layout-flex flex-column dq-frame-body">
             <div>{{ index + 1 + '.' + req.route.name }}</div>
             <div>
@@ -52,7 +52,7 @@
         </div>
       </v-flex>
     </v-layout>
-  </div>
+  </v-layout>
 </template>
 
 <script>
@@ -106,6 +106,10 @@ export default {
 </script>
 
 <style scoped>
+  .req-wrap {
+    overflow: scroll;
+  }
+
   .req-block {
     padding: 2px;
   }

@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="padding-8">
     <div class="input-area gap-v-8">
       <v-layout row>
         <input class="flex"

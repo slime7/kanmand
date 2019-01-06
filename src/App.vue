@@ -1,8 +1,8 @@
 /* global __static */
 <template>
   <v-container fluid id="app">
-    <v-layout column class="dq-frame win" :class="{ max: maximize}">
-      <v-flex shrink class="dq-frame-header">
+    <v-layout column class="dq-frame strong-shadow win" :class="{ max: maximize}">
+      <v-flex shrink class="dq-frame-header padding-8">
         <v-layout row>
           <v-flex shrink tag="strong">kanmand</v-flex>
           <v-spacer/>
@@ -31,16 +31,19 @@
           </v-flex>
         </v-layout>
       </v-flex>
-      <v-layout class="flex dq-frame-body">
-        <v-layout row class="main-content gap-h-8">
-          <v-flex xs6 sm6 md6 lg6 xl6 class="main-left">
-            <v-layout column class="flex gap-v-8">
+      <div class="divider"></div>
+      <v-layout class="flex dq-frame-body main-container">
+        <v-layout row class="main-content">
+          <v-flex xs6 sm6 md6 lg4 xl3 class="main-left">
+            <v-layout column fill-height class="flex">
               <Command/>
+              <div class="divider"></div>
               <request-line/>
             </v-layout>
           </v-flex>
-          <v-flex xs6 sm6 md6 lg6 xl6 class="main-right">
-            <v-layout column fill-height>
+          <div class="divider"></div>
+          <v-flex xs6 sm6 md6 lg8 xl9 class="main-right">
+            <v-layout column fill-height class="padding-8">
               <Result/>
             </v-layout>
           </v-flex>
@@ -187,6 +190,14 @@ export default {
     margin-right: 8px;
   }
 
+  .padding-8 {
+    padding: 8px;
+  }
+
+  .flip-x {
+    transform: scaleX(-1);
+  }
+
   body {
     margin: 0;
     font-size: 14px;
@@ -227,6 +238,10 @@ export default {
     text-shadow: 0 1px #000, 1px 0 #000, -1px 0 #000, 0 -1px #000;
   }
 
+  .dq-frame.strong-shadow {
+    box-shadow: 0 0 0 1px #000, 0 0 1.2em .5em #000 inset;
+  }
+
   .dq-frame.win {
     border-radius: 0;
   }
@@ -243,10 +258,9 @@ export default {
 
   .dq-frame-header, .dq-frame-body, .dq-frame-footer {
     position: relative;
-    padding: 8px;
   }
 
-  .dq-frame-header {
+  .win > .dq-frame-header {
     border: none;
     -webkit-app-region: drag;
   }
@@ -255,23 +269,36 @@ export default {
     overflow: auto;
   }
 
-  .dq-frame-header + .dq-frame-body:before,
-  .dq-frame-body + .dq-frame-footer:before {
-    content: ' ';
-    position: absolute;
-    display: block;
-    top: 0;
-    left: 0;
+  .dq-frame .divider {
+    height: 4px;
     width: 100%;
-    height: 2px;
-    background-color: #fff;
     border-top: 1px solid #000;
     border-bottom: 1px solid #000;
+    background-color: #fff;
+    flex: none;
+  }
+
+  .dq-frame .layout.row > .divider {
+    width: 4px;
+    height: 100%;
+    border-top: none;
+    border-bottom: none;
+    border-left: 1px solid #000;
+    border-right: 1px solid #000;
+    background-color: #fff;
   }
 
   .dq-frame.orange {
     box-shadow: 0 0 0 1px #ff9800, 0 0 7px 3px #ff9800 inset;
     text-shadow: 0 1px #ff9800, 1px 0 #ff9800, -1px 0 #ff9800, 0 -1px #ff9800;
+  }
+
+  .dq-frame.orange.strong-shadow {
+    box-shadow: 0 0 0 1px #ff9800, 0 0 1.2em .5em #ff9800 inset;
+  }
+
+  .dq-frame .page {
+    margin: 0 12px;
   }
 
   .titlebar-btn {
