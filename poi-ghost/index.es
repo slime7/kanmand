@@ -26,12 +26,13 @@ export const pluginDidLoad = () => {
           ret = JSON.stringify(getStore(data));
           break;
 
-	case 'close':
+        case 'close':
         default:
-	  ret = 'close';
+          ret = 'close';
           break;
       }
       socket.write(ret);
+      socket.end();
     });
   });
 };
