@@ -87,7 +87,7 @@ export default {
   },
 
   computed: {
-    ...mapState(['requests', 'routes', 'selected']),
+    ...mapState(['requests', 'routes', 'selected', 'poidata']),
   },
 
   watch: {
@@ -177,7 +177,10 @@ export default {
       if (this.gameRoute === 'importDataFromString') {
         type = 'import';
       } else if (this.gameRoute === 'importDataFromPoiBattle') {
-        type = 'poifleets';
+        // type = 'poifleets';
+        type = 'import';
+        const poifleetsString = this.parsePoiFleets(importString);
+        reqData.importString = poifleetsString;
       } else {
         type = 'import';
       }
@@ -188,6 +191,79 @@ export default {
         && this.gameRoute !== 'importDataFromPoiBattle') {
         this.gameData = this.gameRoute.defaultData;
       }
+    },
+    parsePoiFleets(poiBattleString) {
+      const formatShipKanmand = (ship, f, i) => {
+        const k = [];
+        const shipId = ship.api_id;
+        const shipStat = this.poidata.info.ships[shipId];
+        const equipmentStat = shipStat.api_slot.filter(e => e !== -1);
+        const exEquipmentStat = shipStat.api_slot_ex;
+        // 舰娘
+        k.push({
+          ro: 'fleet_change',
+          da: `{"api_id":${f},"api_ship_idx":${i},"api_ship_id":${shipId}}`,
+        });
+        const equipment = ship.poi_slot.filter(e => e !== null);
+        if (JSON.stringify(equipment) !== JSON.stringify(equipmentStat)) {
+          if (equipment.length < ship.api_slotnum) {
+            // 卸下所有装备
+            k.push({
+              ro: 'unsetslot_all',
+              da: `{"api_id":${ship.api_ship_id}}`,
+            });
+          }
+          if (equipment.length) {
+            // 装备
+            equipment.forEach((eq, eqi) => {
+              let unsetEqi;
+              const [searchEquipedShip] = Object.keys(this.poidata.info.ships)
+                .filter((sk) => {
+                  const thisShip = this.poidata.info.ships[sk];
+                  unsetEqi = [thisShip.api_slot_ex, ...thisShip.api_slot].indexOf(eq.api_id);
+                  return +thisShip !== shipId && unsetEqi >= 0;
+                });
+              if (searchEquipedShip) {
+                console.log(this.poidata.info.ships[searchEquipedShip]);
+                k.push({
+                  ro: 'slot_deprive',
+                  da: `{"api_unset_idx":${unsetEqi},"api_set_slot_kind":0,"api_unset_slot_kind":${unsetEqi === 0 ? 1 : 0},"api_unset_ship":${searchEquipedShip},"api_set_idx":${eqi + 1},"api_set_ship":${shipId}}`,
+                });
+              } else {
+                k.push({
+                  ro: 'slotset',
+                  da: `{"api_id":${shipId},"api_item_id":${eq.api_id},"api_slot_idx":${eqi}}`,
+                });
+              }
+            });
+          }
+        }
+        if (ship.poi_slot_ex && ship.poi_slot_ex !== exEquipmentStat) {
+          k.push({
+            ro: 'slotset_ex',
+            da: `{"api_id":${shipId},"api_item_id":${ship.poi_slot_ex.api_id}}`,
+          });
+        }
+
+        return k;
+      };
+      const poiBattle = JSON.parse(poiBattleString);
+      const kanmandObj = { version: 1, requests: [] };
+      const { main, escort } = poiBattle.fleet;
+      if (main) {
+        main.forEach((ship, si) => {
+          const k = formatShipKanmand(ship, 1, si);
+          kanmandObj.requests.push(...k);
+        });
+      }
+      if (escort) {
+        escort.forEach((ship, si) => {
+          const k = formatShipKanmand(ship, 2, si);
+          kanmandObj.requests.push(...k);
+        });
+      }
+
+      return btoa(JSON.stringify(kanmandObj));
     },
     setProxy() {
       ipcRenderer.send('kancolle-command-actions', { type: 'proxy', proxySetting: this.proxy });
