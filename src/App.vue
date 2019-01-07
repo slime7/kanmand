@@ -140,12 +140,12 @@ export default {
           }
 
           if (data) {
-            const { maximize, poidata } = data;
+            const { maximize, poidata, poidataPath } = data;
             if (typeof maximize !== 'undefined') {
               this.maximize = maximize;
             }
-            if (poidata) {
-              this.setPoidata({ poidata });
+            if (poidata && poidataPath) {
+              this.setPoidata({ poidata, poidataPath });
               // console.log(poidataPath, JSON.parse(poidata));
             }
           }
@@ -163,7 +163,13 @@ export default {
   mounted() {
     this.onReqReply();
     ipcRenderer.send('kancolle-command-actions', { type: 'isMaximize' });
-    // ipcRenderer.send('kancolle-command-actions', { type: 'poidata' });
+    [
+      'info.ships',
+      'info.fleets',
+      'info.equips',
+    ].forEach((poidataPath) => {
+      ipcRenderer.send('kancolle-command-actions', { type: 'poidata', poidataPath });
+    });
   },
 };
 </script>

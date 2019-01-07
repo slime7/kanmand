@@ -40,8 +40,12 @@ export default new Vuex.Store({
     clearLastRequests(state) {
       state.lastRequests = [];
     },
-    setPoidata(state, { poidata }) {
-      state.poidata = poidata;
+    setPoidata(state, { poidata, poidataPath }) {
+      const path = poidataPath.split('.');
+      if (!state.poidata[path[0]]) {
+        state.poidata[path[0]] = {};
+      }
+      state.poidata[path[0]][path[1]] = JSON.parse(poidata);
     },
   },
 });

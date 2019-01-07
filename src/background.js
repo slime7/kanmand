@@ -77,6 +77,7 @@ function createWindow() {
     reqInd,
     direction,
     proxySetting,
+    poidataPath,
   }) => {
     const reply = (requests, requestIndex, error, data) => {
       event.sender.send('kancolle-command-reply', {
@@ -169,21 +170,10 @@ function createWindow() {
         break;
 
       case 'poidata': {
-        const data = { info: {}, const: {} };
         const poidata = new Poidata();
-        poidata.fetch('info.ships')
+        poidata.fetch(poidataPath)
           .then((result) => {
-            data.info.ships = result;
-            return poidata.fetch('info.fleets');
-          })
-          .then((result) => {
-            data.info.fleets = result;
-            return poidata.fetch('info.equips');
-          })
-          .then((result) => {
-            data.info.equips = result;
-            reply(null, null, null, { poidata: data });
-            return poidata.fetch('close');
+            reply(null, null, null, { poidata: result, poidataPath });
           })
           .catch((error) => {
             console.log(error);

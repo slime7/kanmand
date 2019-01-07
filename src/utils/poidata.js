@@ -9,6 +9,7 @@ class Poidata {
     this.address = address || HOST;
     this.port = port || PORT;
     this.init();
+    this.chunks = [];
   }
 
   init() {
@@ -30,10 +31,13 @@ class Poidata {
         client.socket.write(path);
 
         client.socket.on('data', (data) => {
-          resolve(data.toString());
-          if (data.toString() === 'close') {
-            client.socket.destroy();
-          }
+          client.chunks.push(data);
+        });
+
+        client.socket.on('end', () => {
+          const result = Buffer.concat(client.chunks);
+          resolve(result.toString());
+          client.socket.destroy();
         });
       }
 
