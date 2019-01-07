@@ -56,7 +56,7 @@
 </template>
 
 <script>
-import { ipcRenderer, clipboard } from 'electron'; // eslint-disable-line
+import { ipcRenderer, clipboard } from 'electron';
 import { mapState, mapMutations } from 'vuex';
 
 export default {

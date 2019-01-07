@@ -10,6 +10,7 @@ export default new Vuex.Store({
     lastRequests: [],
     selected: null,
     routes,
+    poidata: {},
   },
   mutations: {
     pushRequests(state, req) {
@@ -38,6 +39,9 @@ export default new Vuex.Store({
     },
     clearLastRequests(state) {
       state.lastRequests = [];
+    },
+    setPoidata(state, { poidata }) {
+      state.poidata = poidata;
     },
   },
 });

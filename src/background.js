@@ -1,13 +1,18 @@
-/* eslint-disable */
-import { app, protocol, BrowserWindow, ipcMain, screen } from 'electron';
+import {
+  app,
+  protocol,
+  BrowserWindow,
+  ipcMain,
+  screen,
+} from 'electron';
 import {
   createProtocol,
   installVueDevtools,
 } from 'vue-cli-plugin-electron-builder/lib';
-/* eslint-enable */
 import './utils/global';
 import KancolleRequest from './utils/KancolleRequest';
 import config from './utils/config';
+import Poidata from './utils/poidata';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -162,6 +167,29 @@ function createWindow() {
       case 'isMaximize':
         reply(null, null, null, { maximize });
         break;
+
+      case 'poidata': {
+        const data = { info: {}, const: {} };
+        const poidata = new Poidata();
+        poidata.fetch('info.ships')
+          .then((result) => {
+            data.info.ships = result;
+            return poidata.fetch('info.fleets');
+          })
+          .then((result) => {
+            data.info.fleets = result;
+            return poidata.fetch('info.equips');
+          })
+          .then((result) => {
+            data.info.equips = result;
+            reply(null, null, null, { poidata: data });
+            return poidata.fetch('close');
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+        break;
+      }
 
       default:
         break;

@@ -69,7 +69,7 @@
 </template>
 
 <script>
-import { ipcRenderer } from 'electron'; // eslint-disable-line
+import { ipcRenderer } from 'electron';
 import { mapState, mapMutations } from 'vuex';
 
 export default {

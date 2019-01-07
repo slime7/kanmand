@@ -44,6 +44,7 @@
           <div class="divider"></div>
           <v-flex xs6 sm6 md6 lg8 xl9 class="main-right">
             <v-layout column fill-height class="padding-8">
+              <right-tab v-show="0"/>
               <Result/>
             </v-layout>
           </v-flex>
@@ -54,11 +55,12 @@
 </template>
 
 <script>
-import { remote, ipcRenderer } from 'electron'; // eslint-disable-line
+import { remote, ipcRenderer } from 'electron';
 import { mapMutations, mapState } from 'vuex';
 import Command from './components/Command.vue';
 import RequestLine from './components/RequestLine.vue';
 import Result from './components/Result.vue';
+import RightTab from './components/RightTab.vue';
 
 export default {
   name: 'app',
@@ -67,6 +69,7 @@ export default {
     Command,
     RequestLine,
     Result,
+    RightTab,
   },
 
   data() {
@@ -76,7 +79,7 @@ export default {
   },
 
   computed: {
-    ...mapState(['selected']),
+    ...mapState(['selected', 'poidata']),
   },
 
   methods: {
@@ -137,9 +140,13 @@ export default {
           }
 
           if (data) {
-            const { maximize } = data;
+            const { maximize, poidata } = data;
             if (typeof maximize !== 'undefined') {
               this.maximize = maximize;
+            }
+            if (poidata) {
+              this.setPoidata({ poidata });
+              // console.log(poidataPath, JSON.parse(poidata));
             }
           }
         });
@@ -149,12 +156,14 @@ export default {
       'selectEditingRequest',
       'setRequests',
       'setLastRequests',
+      'setPoidata',
     ]),
   },
 
   mounted() {
     this.onReqReply();
     ipcRenderer.send('kancolle-command-actions', { type: 'isMaximize' });
+    // ipcRenderer.send('kancolle-command-actions', { type: 'poidata' });
   },
 };
 </script>
@@ -357,5 +366,19 @@ export default {
     max-width: 100vw;
     height: 100%;
     overflow: scroll;
+  }
+
+  .tab-actions > .text-btn + .text-btn {
+    position: relative;
+    margin-left: 1.4em;
+  }
+
+  .tab-actions > .text-btn + .text-btn:hover:before,
+  .tab-actions > .text-btn + .text-btn.active:before {
+    position: absolute;
+    content: 'play_arrow';
+    font-family: 'Material Icons';
+    font-size: 20px;
+    left: -1em;
   }
 </style>
