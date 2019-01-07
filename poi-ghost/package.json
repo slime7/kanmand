@@ -1,0 +1,30 @@
+{
+  "name": "poi-plugin-ghost",
+  "version": "1.0.0",
+  "main": "index.es",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "description": "poi ghost",
+  "keywords": [
+    "kancolle"
+  ],
+  "author": {
+    "name": "Slime7",
+    "url": "https://github.com/slime7"
+  },
+  "license": "MIT",
+  "poiPlugin": {
+    "title": "poi ghost",
+    "description": "poi ghost",
+    "icon": "fa/assistive-listening-systems"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.3.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-config-poi-plugin": "^2.0.0",
+    "eslint-plugin-import": "^2.14.0"
+  }
+}
