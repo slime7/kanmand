@@ -26,7 +26,9 @@ export const pluginDidLoad = () => {
           ret = JSON.stringify(getStore(data));
           break;
 
+	case 'close':
         default:
+	  ret = 'close';
           break;
       }
       socket.write(ret);
