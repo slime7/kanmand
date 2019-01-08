@@ -44,7 +44,7 @@
           <div class="divider"></div>
           <v-flex xs6 sm6 md6 lg8 xl9 class="main-right">
             <v-layout column fill-height class="padding-8">
-              <right-tab v-show="0"/>
+              <right-tab/>
               <Result/>
             </v-layout>
           </v-flex>
@@ -79,7 +79,7 @@ export default {
   },
 
   computed: {
-    ...mapState(['selected', 'poidata']),
+    ...mapState(['selected']),
   },
 
   methods: {
@@ -146,7 +146,9 @@ export default {
             }
             if (poidata && poidataPath) {
               this.setPoidata({ poidata, poidataPath });
-              // console.log(poidataPath, JSON.parse(poidata));
+            }
+            if (typeof poidata !== 'undefined' && !poidata) {
+              this.setPluginStatus({ install: false });
             }
           }
         });
@@ -157,6 +159,8 @@ export default {
       'setRequests',
       'setLastRequests',
       'setPoidata',
+      'setPluginStatus',
+      'setTcpStatus',
     ]),
   },
 
@@ -167,7 +171,9 @@ export default {
       'info.ships',
       'info.fleets',
       'info.equips',
+      'info.quests',
     ].forEach((poidataPath) => {
+      this.setTcpStatus({ loading: true });
       ipcRenderer.send('kancolle-command-actions', { type: 'poidata', poidataPath });
     });
   },

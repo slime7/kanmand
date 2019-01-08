@@ -11,6 +11,8 @@ export default new Vuex.Store({
     selected: null,
     routes,
     poidata: {},
+    pluginInstalled: true,
+    tcpLoading: false,
   },
   mutations: {
     pushRequests(state, req) {
@@ -46,6 +48,26 @@ export default new Vuex.Store({
         state.poidata[path[0]] = {};
       }
       state.poidata[path[0]][path[1]] = JSON.parse(poidata);
+      state.tcpLoading = false;
+      state.pluginInstalled = true;
+    },
+    shipPreUnset(state, { shipId, equipId, isExSlot = false }) {
+      if (!isExSlot) {
+        const oldSlot = JSON.parse(JSON.stringify(state.poidata.info.ships[`${shipId}`].api_slot));
+        const equipIndex = oldSlot.indexOf(equipId);
+        oldSlot.splice(equipIndex, 1);
+        oldSlot.push(-1);
+        state.poidata.info.ships[`${shipId}`].api_slot = oldSlot;
+      } else {
+        state.poidata.info.ships[`${shipId}`].api_slot_ex = -1;
+      }
+    },
+    setPluginStatus(state, { installed }) {
+      state.tcpLoading = false;
+      state.pluginInstalled = installed;
+    },
+    setTcpStatus(state, { loading }) {
+      state.tcpLoading = loading;
     },
   },
 });

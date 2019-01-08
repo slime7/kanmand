@@ -104,59 +104,6 @@ function createWindow() {
       }
       return true;
     };
-    const parsePoiFleets = (poiBattleString) => {
-      const formatShipKanmand = (ship, f, i) => {
-        const k = [];
-        const shipId = ship.api_id;
-        // 舰娘
-        k.push({
-          ro: 'fleet_change',
-          da: `{"api_id":${f},"api_ship_idx":${i},"api_ship_id":${shipId}}`,
-        });
-        const equipment = ship.poi_slot.filter(e => e !== null);
-        if (equipment.length < ship.api_slotnum) {
-          // 卸下所有装备
-          k.push({
-            ro: 'unsetslot_all',
-            da: `{"api_id":${ship.api_ship_id}}`,
-          });
-        }
-        if (equipment.length) {
-          // 装备
-          equipment.forEach((eq, eqi) => {
-            k.push({
-              ro: 'slotset',
-              da: `{"api_id":${shipId},"api_item_id":${eq.api_id},"api_slot_idx":${eqi}}`,
-            });
-          });
-        }
-        if (ship.poi_slot_ex) {
-          k.push({
-            ro: 'slotset_ex',
-            da: `{"api_id":${shipId},"api_item_id":${ship.poi_slot_ex.api_id}}`,
-          });
-        }
-
-        return k;
-      };
-      const poiBattle = JSON.parse(poiBattleString);
-      const kanmandObj = { version: 1, requests: [] };
-      const { main, escort } = poiBattle.fleet;
-      if (main) {
-        main.forEach((ship, si) => {
-          const k = formatShipKanmand(ship, 1, si);
-          kanmandObj.requests.push(...k);
-        });
-      }
-      if (escort) {
-        escort.forEach((ship, si) => {
-          const k = formatShipKanmand(ship, 2, si);
-          kanmandObj.requests.push(...k);
-        });
-      }
-
-      return Buffer.from(JSON.stringify(kanmandObj)).toString('base64');
-    };
 
     switch (type) {
       case 'start':
@@ -213,14 +160,6 @@ function createWindow() {
         }
         break;
 
-      case 'poifleets':
-        if (init(true)) {
-          const kanmandString = parsePoiFleets(reqData.importString);
-          kanmand.importReq(kanmandString);
-          reply(kanmand.requestInfo().requests);
-        }
-        break;
-
       case 'proxy':
         config.set('kanmand.proxy', proxySetting);
         proxy = proxySetting;
@@ -236,8 +175,8 @@ function createWindow() {
           .then((result) => {
             reply(null, null, null, { poidata: result, poidataPath });
           })
-          .catch((error) => {
-            console.log(error);
+          .catch(() => {
+            reply(null, null, null, { poidata: null });
           });
         break;
       }

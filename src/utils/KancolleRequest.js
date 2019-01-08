@@ -94,7 +94,7 @@ export default class KancolleRequest {
     }
     let im;
     try {
-      const imj = Buffer.from(importString, 'base64').toString('ascii');
+      const imj = Buffer.from(importString, 'base64').toString();
       im = JSON.parse(imj);
       if (!im.requests) {
         return;
