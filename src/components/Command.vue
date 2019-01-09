@@ -5,7 +5,9 @@
         <input class="flex"
                placeholder="游戏链接"
                v-model="gameLink"
-               :disabled="!!requests.length"/>
+               :disabled="!!requests.length"
+               v-on:blur="saveGameLink"
+        />
       </v-layout>
       <v-layout row>
         <select class="flex" v-model="gameRoute" v-on:change="changeRoute">
@@ -116,6 +118,7 @@ export default {
       ];
       if (gl) {
         this.gameLink = gl;
+        this.saveGameLink();
       }
       if (gr) {
         [this.gameRoute] = this.routes.filter(r => r.name === gr);
@@ -322,10 +325,14 @@ export default {
         });
       }
     },
+    saveGameLink() {
+      this.setGameLink({ gameLink: this.gameLink });
+    },
     ...mapMutations([
       'selectEditingRequest',
       'clearLastRequests',
       'shipPreUnset',
+      'setGameLink',
     ]),
   },
 

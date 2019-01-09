@@ -45,7 +45,8 @@
           <v-flex xs6 sm6 md6 lg8 xl9 class="main-right">
             <v-layout column fill-height class="padding-8">
               <right-tab/>
-              <Result/>
+              <Result v-show="activeTab === 'result'"/>
+              <quick-action v-show="activeTab === 'quickaction'"/>
             </v-layout>
           </v-flex>
         </v-layout>
@@ -61,11 +62,13 @@ import Command from './components/Command.vue';
 import RequestLine from './components/RequestLine.vue';
 import Result from './components/Result.vue';
 import RightTab from './components/RightTab.vue';
+import QuickAction from './components/QuickAction.vue';
 
 export default {
   name: 'app',
 
   components: {
+    QuickAction,
     Command,
     RequestLine,
     Result,
@@ -79,7 +82,7 @@ export default {
   },
 
   computed: {
-    ...mapState(['selected']),
+    ...mapState(['selected', 'activeTab']),
   },
 
   methods: {
@@ -168,10 +171,11 @@ export default {
     this.onReqReply();
     ipcRenderer.send('kancolle-command-actions', { type: 'isMaximize' });
     [
+      'const.$ships',
       'info.ships',
       'info.fleets',
       'info.equips',
-      'info.quests',
+      'info.repairs',
     ].forEach((poidataPath) => {
       this.setTcpStatus({ loading: true });
       ipcRenderer.send('kancolle-command-actions', { type: 'poidata', poidataPath });
@@ -252,6 +256,7 @@ export default {
     position: relative;
     border: 2px solid #fff;
     border-radius: 6px;
+    margin: 1px;
     height: 100%;
     background: rgba(0, 0, 0, .54);
     color: #fff;
@@ -265,6 +270,7 @@ export default {
 
   .dq-frame.win {
     border-radius: 0;
+    margin: 0;
   }
 
   .dq-frame.win.max {

@@ -24,7 +24,15 @@
             ></v-progress-circular>
             <span>poi ghost</span>
           </div>
-          <div class="text-btn">结果</div>
+          <div
+            v-for="(tab, index) in tabs"
+            :key="index"
+            class="text-btn"
+            :class="{active: activeTab === tab.id}"
+            v-on:click="switchTab(tab.id)"
+          >
+            {{tab.name}}
+          </div>
         </v-layout>
       </div>
     </div>
@@ -38,8 +46,27 @@ import { mapState, mapMutations } from 'vuex';
 export default {
   name: 'RightTab',
 
+  data() {
+    return {
+      tabs: [
+        {
+          id: 'result',
+          name: '结果',
+        },
+        {
+          id: 'quickaction',
+          name: '快捷操作',
+        },
+        {
+          id: 'setting',
+          name: '设置',
+        },
+      ],
+    };
+  },
+
   computed: {
-    ...mapState(['poidata', 'pluginInstalled', 'tcpLoading']),
+    ...mapState(['poidata', 'pluginInstalled', 'tcpLoading', 'activeTab']),
   },
 
   methods: {
@@ -48,14 +75,18 @@ export default {
         'info.ships',
         'info.fleets',
         'info.equips',
-        'info.quests',
+        'info.repairs',
       ].forEach((poidataPath) => {
         this.setTcpStatus({ loading: true });
         ipcRenderer.send('kancolle-command-actions', { type: 'poidata', poidataPath });
       });
     },
+    switchTab(tab = 'result') {
+      this.setActiveTab({ tab });
+    },
     ...mapMutations([
       'setTcpStatus',
+      'setActiveTab',
     ]),
   },
 };

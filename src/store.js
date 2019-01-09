@@ -13,6 +13,40 @@ export default new Vuex.Store({
     poidata: {},
     pluginInstalled: true,
     tcpLoading: false,
+    activeTab: 'result',
+    gameLinkStored: '',
+  },
+  getters: {
+    repairShip: (state) => {
+      const repairShip = [];
+      const repairHp = 100;
+      const repairFleetOnly = false;
+      if (state.poidata.info
+        && state.poidata.info.ships
+        && state.poidata.info.repairs
+        && state.poidata.const
+        && state.poidata.const.$ships) {
+        let searchShips = Object.keys(state.poidata.info.ships)
+          .map(shipId => state.poidata.info.ships[shipId]);
+        if (repairFleetOnly) {
+          const [fleet1, fleet2, fleet3, fleet4] = state.poidata.info.fleets;
+          const fleetShips = [
+            ...fleet1.api_ship,
+            ...fleet2.api_ship,
+            ...fleet3.api_ship,
+            ...fleet4.api_ship,
+          ].filter(s => s !== -1);
+          searchShips = searchShips.filter(s => fleetShips.indexOf(s.api_id) >= 0);
+        }
+        searchShips.forEach((ship) => {
+          if ((ship.api_nowhp / ship.api_maxhp) < (repairHp / 100)) {
+            repairShip.push(ship);
+          }
+        });
+      }
+
+      return repairShip;
+    },
   },
   mutations: {
     pushRequests(state, req) {
@@ -45,7 +79,10 @@ export default new Vuex.Store({
     setPoidata(state, { poidata, poidataPath }) {
       const path = poidataPath.split('.');
       if (!state.poidata[path[0]]) {
-        state.poidata[path[0]] = {};
+        Vue.set(state.poidata, path[0], {});
+      }
+      if (!state.poidata[path[0]][path[1]]) {
+        Vue.set(state.poidata[path[0]], [path[1]], {});
       }
       state.poidata[path[0]][path[1]] = JSON.parse(poidata);
       state.tcpLoading = false;
@@ -68,6 +105,12 @@ export default new Vuex.Store({
     },
     setTcpStatus(state, { loading }) {
       state.tcpLoading = loading;
+    },
+    setActiveTab(state, { tab }) {
+      state.activeTab = tab;
+    },
+    setGameLink(state, { gameLink }) {
+      state.gameLinkStored = gameLink;
     },
   },
 });

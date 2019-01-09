@@ -1,5 +1,5 @@
 <template>
-  <v-layout column class="dq-frame result-main">
+  <v-layout column class="dq-frame main">
     <div class="dq-frame-header padding-8">
       <v-layout row class="req-actions">
         <div>结果</div>
@@ -17,7 +17,7 @@
     </div>
     <div class="divider"></div>
     <v-layout rolumn fill-height class="flex dq-frame-body padding-8">
-      <v-flex class="result-content">
+      <v-flex class="content">
         <div>
           {{
           lastRequests[resultIndex] ?
@@ -84,16 +84,12 @@ export default {
 </script>
 
 <style scoped>
-  .result-main, .result-content {
+  .main, .content {
     overflow: scroll;
   }
 
-  .result-content {
+  .content {
     position: relative;
     height: 100%;
-  }
-
-  .dq-frame {
-    margin: 1px;
   }
 </style>

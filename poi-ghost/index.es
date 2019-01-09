@@ -22,6 +22,7 @@ export const pluginDidLoad = () => {
         case 'info.ships':
         case 'info.equips':
         case 'info.quests':
+        case 'info.repairs':
         case 'const.$ships':
           ret = JSON.stringify(getStore(data));
           break;
