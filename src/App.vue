@@ -187,6 +187,7 @@ export default {
 <style>
   * {
     box-sizing: border-box;
+    user-select: none;
   }
 
   *:not(pre) {
@@ -200,6 +201,11 @@ export default {
   pre {
     font-family: "Source Code Pro", Monospace, "Noto Sans CJK SC", "Microsoft YaHei";
     margin: 0;
+  }
+
+  ol, ul {
+    margin: 0;
+    -webkit-padding-start: 24px;
   }
 
   ::-webkit-scrollbar {
