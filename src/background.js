@@ -181,6 +181,10 @@ function createWindow() {
         break;
       }
 
+      case 'devtool':
+        win.webContents.openDevTools();
+        break;
+
       default:
         break;
     }

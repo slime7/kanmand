@@ -34,7 +34,7 @@
             </div>
             <v-spacer/>
             <div class="req-actions">
-              <div class="text-btn" v-on:click.stop="exportCommand">导出</div>
+              <span class="text-btn" v-on:click.stop="exportCommand">导出</span>
             </div>
           </v-layout>
         </div>

@@ -5,19 +5,21 @@
         <v-layout row class="tab-actions">
           <div class="text-btn" v-on:click="poidataRefresh">
             <v-icon
-              dark size="20"
+              dark
+              size="20"
               v-show="!tcpLoading && !pluginInstalled"
             >
               close
             </v-icon>
             <v-icon
-              dark size="20"
+              dark
+              size="20"
               v-show="!tcpLoading && pluginInstalled"
             >
               check
             </v-icon>
             <v-progress-circular
-              :size="20"
+              :size="18"
               color="primary"
               indeterminate
               v-show="tcpLoading"

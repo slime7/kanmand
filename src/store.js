@@ -21,13 +21,22 @@ export default new Vuex.Store({
       const repairShip = [];
       const repairHp = 100;
       const repairFleetOnly = false;
-      if (state.poidata.info
+      if (state.activeTab === 'quickaction'
+        && state.poidata.info
         && state.poidata.info.ships
+        && state.poidata.info.fleets
         && state.poidata.info.repairs
         && state.poidata.const
         && state.poidata.const.$ships) {
         let searchShips = Object.keys(state.poidata.info.ships)
           .map(shipId => state.poidata.info.ships[shipId]);
+        const { repairs } = state.poidata.info;
+        const repairingShip = [];
+        repairs.forEach((r) => {
+          if (r.api_state === 1) {
+            repairingShip.push(r.api_ship_id);
+          }
+        });
         if (repairFleetOnly) {
           const [fleet1, fleet2, fleet3, fleet4] = state.poidata.info.fleets;
           const fleetShips = [
@@ -36,7 +45,8 @@ export default new Vuex.Store({
             ...fleet3.api_ship,
             ...fleet4.api_ship,
           ].filter(s => s !== -1);
-          searchShips = searchShips.filter(s => fleetShips.indexOf(s.api_id) >= 0);
+          searchShips = searchShips.filter(s => fleetShips.indexOf(s.api_id) >= 0
+            && repairingShip.indexOf(s.api_id) === -1);
         }
         searchShips.forEach((ship) => {
           if ((ship.api_nowhp / ship.api_maxhp) < (repairHp / 100)) {
