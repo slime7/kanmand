@@ -272,7 +272,6 @@ export default {
     padding: 1px;
     height: 100vh;
     width: 100vw;
-    border-radius: 7px;
     background-image: url("./assets/bg.jpg");
   }
 
