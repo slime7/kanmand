@@ -15,12 +15,16 @@ export default new Vuex.Store({
     tcpLoading: false,
     activeTab: 'result',
     gameLinkStored: '',
+    repairFilter: {
+      hp: 50,
+      infleet: true,
+    },
   },
   getters: {
     repairShip: (state) => {
       const repairShip = [];
-      const repairHp = 100;
-      const repairFleetOnly = false;
+      const repairHp = state.repairFilter.hp;
+      const repairFleetOnly = state.repairFilter.infleet;
       if (state.activeTab === 'quickaction'
         && state.poidata.info
         && state.poidata.info.ships
@@ -45,16 +49,17 @@ export default new Vuex.Store({
             ...fleet3.api_ship,
             ...fleet4.api_ship,
           ].filter(s => s !== -1);
-          searchShips = searchShips.filter(s => fleetShips.indexOf(s.api_id) >= 0
-            && repairingShip.indexOf(s.api_id) === -1);
+          searchShips = searchShips.filter(s => fleetShips.indexOf(s.api_id) >= 0);
         }
-        searchShips.forEach((ship) => {
-          if ((ship.api_nowhp / ship.api_maxhp) < (repairHp / 100)) {
-            repairShip.push(ship);
-          }
-        });
+        searchShips.filter(s => repairingShip.indexOf(s.api_id) === -1)
+          .forEach((ship) => {
+            if ((ship.api_nowhp / ship.api_maxhp) < (repairHp / 100)) {
+              repairShip.push(ship);
+            }
+          });
       }
 
+      repairShip.sort((a, b) => (a.api_nowhp / a.api_maxhp) - (b.api_nowhp / b.api_maxhp));
       return repairShip;
     },
   },
@@ -121,6 +126,14 @@ export default new Vuex.Store({
     },
     setGameLink(state, { gameLink }) {
       state.gameLinkStored = gameLink;
+    },
+    setRepairFilter(state, { hp, infleet }) {
+      if (typeof hp !== 'undefined') {
+        state.repairFilter.hp = +hp;
+      }
+      if (typeof infleet !== 'undefined') {
+        state.repairFilter.infleet = infleet;
+      }
     },
   },
 });

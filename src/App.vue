@@ -10,24 +10,24 @@
             shrink
             class="titlebar-btn"
             v-on:click="appMinimize">
-            <v-icon dark small>remove</v-icon>
+            <v-icon dark size="20">minimize</v-icon>
           </v-flex>
           <v-flex
             shrink
             class="titlebar-btn"
             v-on:click="appMaximize(true)"
             v-show="!maximize">
-            <v-icon dark small>fullscreen</v-icon>
+            <v-icon dark size="20">fullscreen</v-icon>
           </v-flex>
           <v-flex
             shrink
             class="titlebar-btn"
             v-on:click="appMaximize(false)"
             v-show="maximize">
-            <v-icon dark small>fullscreen_exit</v-icon>
+            <v-icon dark size="20">fullscreen_exit</v-icon>
           </v-flex>
           <v-flex shrink id="app-close" class="titlebar-btn" v-on:click="appClose">
-            <v-icon dark small>close</v-icon>
+            <v-icon dark size="20">close</v-icon>
           </v-flex>
         </v-layout>
       </v-flex>
@@ -47,6 +47,7 @@
               <right-tab/>
               <Result v-show="activeTab === 'result'"/>
               <quick-action v-show="activeTab === 'quickaction'"/>
+              <Setting v-show="activeTab === 'setting'"/>
             </v-layout>
           </v-flex>
         </v-layout>
@@ -63,11 +64,13 @@ import RequestLine from './components/RequestLine.vue';
 import Result from './components/Result.vue';
 import RightTab from './components/RightTab.vue';
 import QuickAction from './components/QuickAction.vue';
+import Setting from './components/Setting.vue';
 
 export default {
   name: 'app',
 
   components: {
+    Setting,
     QuickAction,
     Command,
     RequestLine,
@@ -143,15 +146,29 @@ export default {
           }
 
           if (data) {
-            const { maximize, poidata, poidataPath } = data;
+            const {
+              maximize,
+              poidata,
+              poidataPath,
+              settingKey,
+              settingValue,
+            } = data;
+            // 最大化
             if (typeof maximize !== 'undefined') {
               this.maximize = maximize;
             }
+            // poidata
             if (poidata && poidataPath) {
               this.setPoidata({ poidata, poidataPath });
             }
             if (typeof poidata !== 'undefined' && !poidata) {
               this.setPluginStatus({ install: false });
+            }
+            // 设置
+            if (settingKey && settingValue) {
+              if (settingKey === 'kanmand.repair') {
+                this.setRepairFilter(settingValue);
+              }
             }
           }
         });
@@ -164,6 +181,7 @@ export default {
       'setPoidata',
       'setPluginStatus',
       'setTcpStatus',
+      'setRepairFilter',
     ]),
   },
 

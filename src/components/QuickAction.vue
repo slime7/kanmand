@@ -10,22 +10,6 @@
     <div class="divider"></div>
     <v-layout rolumn fill-height class="flex dq-frame-body">
       <v-flex class="content">
-        <v-layout row>
-          <div class="padding-8">导出舰队</div>
-          <div class="padding-8">
-            <span class="text-btn">1</span>
-          </div>
-          <div class="padding-8">
-            <span class="text-btn">2</span>
-          </div>
-          <div class="padding-8">
-            <span class="text-btn">3</span>
-          </div>
-          <div class="padding-8">
-            <span class="text-btn">4</span>
-          </div>
-        </v-layout>
-        <div class="divider"></div>
         <div class="padding-8">
           <div>快速修理</div>
           <ol>
@@ -37,7 +21,11 @@
               class="text-btn"
               v-on:click="addRepairCommand(ship.api_id)"
             >
-              {{formatRepairShip(ship)}}
+              <span class="ship-name">
+                {{shipName(ship)}}
+              </span>
+              <span class="ship-level">lv.{{ship.api_lv}}</span>
+              <span class="ship-hp">{{shipHp(ship)}}</span>
             </span>
             </li>
           </ol>
@@ -53,14 +41,36 @@
               v-for="(fleet, index) in poidata.info.fleets"
               :key="index"
             >
-              <span>{{fleet.api_name}}</span>
-              <span
-                class="text-btn"
-                v-if="fleet.api_mission[0] !== 0"
-                v-on:click="addMissionCommand(fleet)"
-              >
+              <div>
+                <span class="fleet-name">{{fleet.api_name}}</span>
+                <span
+                  class="text-btn"
+                  v-on:click.left="addChargeCommand(fleet, 3)"
+                  v-on:click.right="addChargeCommand(fleet, 9)"
+                >
+                  补给
+                </span>
+                <span
+                  class="text-btn"
+                  v-on:click="addChargeCommand(fleet, 1)"
+                >
+                  油
+                </span>
+                <span
+                  class="text-btn"
+                  v-on:click="addChargeCommand(fleet, 2)"
+                >
+                  弹
+                </span>
+                <span class="text-btn fleet-export" v-show="0">保存</span>
+                <span
+                  class="text-btn"
+                  v-if="fleet.api_mission[0] !== 0"
+                  v-on:click="addMissionCommand(fleet)"
+                >
                 {{formatFleetMission(fleet)}}
               </span>
+              </div>
             </li>
           </ol>
         </div>
@@ -96,11 +106,19 @@ export default {
       };
       ipcRenderer.send('kancolle-command-actions', { type: 'add', reqData });
     },
-    formatRepairShip(ship) {
-      const shipName = this.poidata.const.$ships[ship.api_ship_id].api_name;
+    shipHp(ship) {
       const shipHpPercent = `${Math.round(ship.api_nowhp / ship.api_maxhp * 100)}%`;
-      return `${shipName} lv.${ship.api_lv} \
-      (${ship.api_nowhp} / ${ship.api_maxhp} | ${shipHpPercent})`;
+      return `${shipHpPercent} (${ship.api_nowhp} / ${ship.api_maxhp})`;
+    },
+    shipName(ship, fleetPrefix = true) {
+      let fleetNum;
+      this.poidata.info.fleets.forEach((fleet) => {
+        if (fleetPrefix && fleet.api_ship.indexOf(ship.api_id) >= 0) {
+          fleetNum = fleet.api_id;
+        }
+      });
+      const shipname = this.poidata.const.$ships[ship.api_ship_id].api_name;
+      return `${fleetNum ? `/${fleetNum} ` : ''}${shipname}`;
     },
     addRepairCommand(shipId) {
       const { repairs } = this.poidata.info;
@@ -130,13 +148,59 @@ export default {
       return missionText;
     },
     addMissionCommand(fleet) {
-      const completeLeftSecond = Math.round((fleet.api_mission[2] - new Date().getTime()) / 1000);
-      if (completeLeftSecond < 50) {
+      if (fleet.api_mission[0] === 2) {
         this.addCommand('mission_result', {
           api_deck_id: fleet.api_id,
         });
       } else {
         this.$toasted.show('远征还没回来');
+      }
+    },
+    addChargeCommand(fleet, type) {
+      // type 1: 油, 2: 弹, 3: 全
+      const shipStat = [];
+      fleet.api_ship.filter(s => s !== -1).forEach((shipId) => {
+        const ship = this.poidata.info.ships[shipId];
+        const shipStd = this.poidata.const.$ships[ship.api_ship_id];
+        shipStat.push({
+          shipId,
+          bull: [ship.api_bull, shipStd.api_bull_max],
+          fuel: [ship.api_fuel, shipStd.api_fuel_max],
+        });
+      });
+
+      if (type !== 9) {
+        const needCharge = [];
+        shipStat.forEach((ship) => {
+          if ((type !== 1 && ship.bull[0] < ship.bull[1])
+            || (type !== 2 && ship.fuel[0] < ship.fuel[1])) {
+            needCharge.push(ship.shipId);
+          }
+        });
+        if (needCharge.length) {
+          this.addCommand('charge', {
+            api_kind: type,
+            api_id_items: needCharge.join(','),
+            api_onslot: 1,
+          });
+        }
+      } else {
+        shipStat.forEach((ship) => {
+          if (ship.fuel[0] < ship.fuel[1]) {
+            this.addCommand('charge', {
+              api_kind: 1,
+              api_id_items: ship.shipId,
+              api_onslot: 1,
+            });
+          }
+          if (ship.bull[0] < ship.bull[1]) {
+            this.addCommand('charge', {
+              api_kind: 2,
+              api_id_items: ship.shipId,
+              api_onslot: 1,
+            });
+          }
+        });
       }
     },
     devtool() {
@@ -159,7 +223,23 @@ export default {
     height: 100%;
   }
 
-  .divider.v {
-    margin: -8px 4px;
+  .fleet-name,
+  .ship-name,
+  .ship-level,
+  .ship-hp {
+    display: inline-block;
+    vertical-align: top;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 0 2px;
+  }
+
+  .fleet-name, .ship-name {
+    width: 100px;
+  }
+
+  .ship-level {
+    width: 45px;
   }
 </style>

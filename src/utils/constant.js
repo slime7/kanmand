@@ -72,3 +72,14 @@ export const routes = [
     defaultData: '{"api_item1":10,"api_item2":10,"api_item3":10,"api_item4":10}',
   },
 ];
+export const defaultSetting = {
+  proxy: {
+    enabled: false,
+    host: '127.0.0.1',
+    port: '8080',
+  },
+  repair: {
+    hp: 50,
+    infleet: true,
+  },
+};

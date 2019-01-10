@@ -78,6 +78,8 @@ function createWindow() {
     direction,
     proxySetting,
     poidataPath,
+    settingKey,
+    settingValue,
   }) => {
     const reply = (requests, requestIndex, error, data) => {
       event.sender.send('kancolle-command-reply', {
@@ -178,6 +180,24 @@ function createWindow() {
           .catch(() => {
             reply(null, null, null, { poidata: null });
           });
+        break;
+      }
+
+      case 'setting': {
+        const oldSetting = config.get(settingKey, null);
+        if (settingKey && typeof settingValue === 'undefined') {
+          reply(null, null, null, {
+            settingKey,
+            settingValue: oldSetting,
+          });
+        } else if (settingKey && typeof settingValue !== 'undefined') {
+          if (typeof oldSetting === 'object') {
+            const newSetting = Object.assign(oldSetting, settingValue);
+            config.set(settingKey, newSetting);
+          } else {
+            config.set(settingKey, settingValue);
+          }
+        }
         break;
       }
 

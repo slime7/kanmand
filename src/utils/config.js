@@ -1,5 +1,6 @@
 import path from 'path';
 import fs from 'fs';
+import { defaultSetting } from './constant';
 
 const { APPDATA_PATH } = global;
 const configFile = path.join(APPDATA_PATH, 'config.json');
@@ -9,9 +10,12 @@ class Config {
     this.configData = null;
     try {
       const configContent = fs.readFileSync(configFile, { encoding: 'utf8' });
-      this.configData = JSON.parse(configContent);
+      this.configData = {
+        kanmand:
+          Object.assign(defaultSetting, JSON.parse(configContent).kanmand),
+      };
     } catch (err) {
-      this.configData = {};
+      this.configData = { kanmand: defaultSetting };
       console.log(err);
     }
   }
