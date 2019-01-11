@@ -409,13 +409,13 @@ export default {
     overflow: scroll;
   }
 
-  .tab-actions > .text-btn + .text-btn {
+  .tab-actions > .text-btn {
     position: relative;
     margin-left: 1.4em;
   }
 
-  .tab-actions > .text-btn + .text-btn:hover:before,
-  .tab-actions > .text-btn + .text-btn.active:before {
+  .tab-actions > .text-btn:hover:before,
+  .tab-actions > .text-btn.active:before {
     position: absolute;
     content: 'play_arrow';
     font-family: 'Material Icons';

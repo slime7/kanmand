@@ -4,9 +4,35 @@
       <v-layout row>
         <div>快捷操作</div>
         <v-spacer/>
-        <div class="text-btn" v-on:click="devtool">控制台</div>
       </v-layout>
     </div>
+    <div class="divider"></div>
+    <v-layout row class="padding-8">
+      <div class="text-btn" v-on:click="poidataRefresh">
+        <v-icon
+          dark
+          size="20"
+          v-show="!tcpLoading && !pluginInstalled"
+        >
+          close
+        </v-icon>
+        <v-icon
+          dark
+          size="20"
+          v-show="!tcpLoading && pluginInstalled"
+        >
+          check
+        </v-icon>
+        <v-progress-circular
+          :size="18"
+          color="primary"
+          indeterminate
+          v-show="tcpLoading"
+        ></v-progress-circular>
+        <span>poi ghost</span>
+      </div>
+      <span class="text-btn" v-on:click="devtool">打开控制台</span>
+    </v-layout>
     <div class="divider"></div>
     <v-layout rolumn fill-height class="flex dq-frame-body">
       <v-flex class="content">
@@ -81,7 +107,7 @@
 
 <script>
 import { ipcRenderer } from 'electron';
-import { mapState, mapGetters } from 'vuex';
+import { mapState, mapGetters, mapMutations } from 'vuex';
 
 export default {
   name: 'QuickAction',
@@ -92,10 +118,25 @@ export default {
 
   computed: {
     ...mapGetters(['repairShip']),
-    ...mapState(['routes', 'gameLinkStored', 'poidata']),
+    ...mapState(['routes', 'gameLinkStored', 'poidata', 'pluginInstalled', 'tcpLoading']),
   },
 
   methods: {
+    poidataRefresh() {
+      const dataPath = [
+        'info.ships',
+        'info.fleets',
+        'info.equips',
+        'info.repairs',
+      ];
+      if (!(this.poidata.const && this.poidata.const.$ships)) {
+        dataPath.push('const.$ships');
+      }
+      dataPath.forEach((poidataPath) => {
+        this.setTcpStatus({ loading: true });
+        ipcRenderer.send('kancolle-command-actions', { type: 'poidata', poidataPath });
+      });
+    },
     addCommand(route, data) {
       const [gameRoute] = this.routes.filter(r => r.name === route);
       const gameData = Object.assign(JSON.parse(gameRoute.defaultData), data);
@@ -206,6 +247,9 @@ export default {
     devtool() {
       ipcRenderer.send('kancolle-command-actions', { type: 'devtool' });
     },
+    ...mapMutations([
+      'setTcpStatus',
+    ]),
   },
 
   mounted() {
