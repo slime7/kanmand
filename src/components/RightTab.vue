@@ -73,12 +73,16 @@ export default {
 
   methods: {
     poidataRefresh() {
-      [
+      const dataPath = [
         'info.ships',
         'info.fleets',
         'info.equips',
         'info.repairs',
-      ].forEach((poidataPath) => {
+      ];
+      if (!(this.poidata.const && this.poidata.const.$ships)) {
+        dataPath.push('const.$ships');
+      }
+      dataPath.forEach((poidataPath) => {
         this.setTcpStatus({ loading: true });
         ipcRenderer.send('kancolle-command-actions', { type: 'poidata', poidataPath });
       });
