@@ -114,7 +114,11 @@ export default {
           requestIndex,
           requests,
           error,
-          data,
+          maximize,
+          poidata,
+          poidataPath,
+          settingKey,
+          settingValue,
         }) => {
           if (error) {
             this.$toasted.error(error);
@@ -145,30 +149,21 @@ export default {
             }
           }
 
-          if (data) {
-            const {
-              maximize,
-              poidata,
-              poidataPath,
-              settingKey,
-              settingValue,
-            } = data;
-            // 最大化
-            if (typeof maximize !== 'undefined') {
-              this.maximize = maximize;
-            }
-            // poidata
-            if (poidata && poidataPath) {
-              this.setPoidata({ poidata, poidataPath });
-            }
-            if (typeof poidata !== 'undefined' && !poidata) {
-              this.setPluginStatus({ install: false });
-            }
-            // 设置
-            if (settingKey && settingValue) {
-              if (settingKey === 'kanmand.repair') {
-                this.setRepairFilter(settingValue);
-              }
+          // 最大化
+          if (typeof maximize !== 'undefined') {
+            this.maximize = maximize;
+          }
+          // poidata
+          if (poidata && poidataPath) {
+            this.setPoidata({ poidata, poidataPath });
+          }
+          if (typeof poidata !== 'undefined' && !poidata) {
+            this.setPluginStatus({ install: false });
+          }
+          // 设置
+          if (settingKey && settingValue) {
+            if (settingKey === 'kanmand.repair') {
+              this.setRepairFilter(settingValue);
             }
           }
         });

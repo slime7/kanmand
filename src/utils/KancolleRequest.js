@@ -215,7 +215,11 @@ export default class KancolleRequest {
       if (this.requests[this.requestIndex].error) {
         errorMessage = `${this.requestIndex + 1}: 网络出错。`;
       }
-      this.stageEndCallback(this.requests, this.requestIndex, errorMessage);
+      this.stageEndCallback({
+        requests: this.requests,
+        requestIndex: this.requestIndex,
+        error: errorMessage,
+      });
     }
     this.requestIndex += 1;
     if (this.requestIndex < this.requests.length) {

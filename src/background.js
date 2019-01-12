@@ -81,13 +81,8 @@ function createWindow() {
     settingKey,
     settingValue,
   }) => {
-    const reply = (requests, requestIndex, error, data) => {
-      event.sender.send('kancolle-command-reply', {
-        requests,
-        requestIndex,
-        error,
-        data,
-      });
+    const reply = (payload) => {
+      event.sender.send('kancolle-command-reply', payload);
     };
     const init = (force) => {
       if (force || !kanmand) {
@@ -95,7 +90,7 @@ function createWindow() {
         const success = kanmand.init(reqData.gameLink);
         if (!success) {
           kanmand = null;
-          reply(null, null, '游戏链接填写有误');
+          reply({ error: '游戏链接填写有误' });
         } else {
           kanmand.setStageEndCallback(reply);
           if (proxy && proxy.enabled) {
@@ -121,7 +116,7 @@ function createWindow() {
       case 'add':
         if (init()) {
           kanmand.add(reqData.gameRoute, reqData.gameData);
-          reply(kanmand.requestInfo().requests);
+          reply({ requests: kanmand.requestInfo().requests });
         }
         break;
 
@@ -132,33 +127,33 @@ function createWindow() {
         }
         kanmand.clear();
         kanmand = null;
-        reply([]);
+        reply({ requests: [] });
         break;
 
       case 'remove':
         kanmand.remove(reqInd);
         if (kanmand.requestInfo().requests.length === 0) {
           kanmand = null;
-          reply([]);
+          reply({ requests: [] });
         } else {
-          reply(kanmand.requestInfo().requests);
+          reply({ requests: kanmand.requestInfo().requests });
         }
         break;
 
       case 'move':
         kanmand.move(reqInd, direction);
-        reply(kanmand.requestInfo().requests);
+        reply({ requests: kanmand.requestInfo().requests });
         break;
 
       case 'modify':
         kanmand.modify(reqInd, reqData);
-        reply(kanmand.requestInfo().requests);
+        reply({ requests: kanmand.requestInfo().requests });
         break;
 
       case 'import':
         if (init(true)) {
           kanmand.importReq(reqData.importString);
-          reply(kanmand.requestInfo().requests);
+          reply({ requests: kanmand.requestInfo().requests });
         }
         break;
 
@@ -168,17 +163,17 @@ function createWindow() {
         break;
 
       case 'isMaximize':
-        reply(null, null, null, { maximize });
+        reply({ maximize });
         break;
 
       case 'poidata': {
         const poidata = new Poidata();
         poidata.fetch(poidataPath)
           .then((result) => {
-            reply(null, null, null, { poidata: result, poidataPath });
+            reply({ poidata: result, poidataPath });
           })
           .catch(() => {
-            reply(null, null, null, { poidata: null });
+            reply({ poidata: null });
           });
         break;
       }
@@ -186,7 +181,7 @@ function createWindow() {
       case 'setting': {
         const oldSetting = config.get(settingKey, null);
         if (settingKey && typeof settingValue === 'undefined') {
-          reply(null, null, null, {
+          reply({
             settingKey,
             settingValue: oldSetting,
           });
@@ -216,13 +211,13 @@ function createWindow() {
   win.on('maximize', () => {
     // 最大化
     maximize = true;
-    win.webContents.send('kancolle-command-reply', { data: { maximize } });
+    win.webContents.send('kancolle-command-reply', { maximize });
   });
 
   win.on('unmaximize', () => {
     // 取消最大化：
     maximize = false;
-    win.webContents.send('kancolle-command-reply', { data: { maximize } });
+    win.webContents.send('kancolle-command-reply', { maximize });
   });
 
   win.on('close', () => {
