@@ -99,7 +99,12 @@ export default new Vuex.Store({
       if (!state.poidata[path[0]][path[1]]) {
         Vue.set(state.poidata[path[0]], [path[1]], {});
       }
-      state.poidata[path[0]][path[1]] = JSON.parse(poidata);
+      try {
+        state.poidata[path[0]][path[1]] = JSON.parse(poidata);
+      } catch (e) {
+        console.log({ poidataPath, poidata });
+        console.log(`转换数据出错: ${e.message}`);
+      }
       state.tcpLoading = false;
       state.pluginInstalled = true;
     },

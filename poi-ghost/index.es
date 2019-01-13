@@ -29,14 +29,19 @@ export const pluginDidLoad = () => {
 
         case 'close':
         default:
-          ret = 'close';
+          // ret = 'close';
           break;
       }
-      socket.write(ret);
-      socket.end();
+      if (ret) {
+        socket.write(`::${data}::`);
+        socket.write(ret);
+        socket.write(`;;${data};;`);
+      }
+      // socket.end();
+    }
+  );
     });
-  });
-};
-export const pluginWillUnload = () => {
-  server.close();
-};
+  };
+  export const pluginWillUnload = () => {
+    server.close();
+  };

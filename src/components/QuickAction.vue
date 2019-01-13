@@ -24,7 +24,7 @@
           check
         </v-icon>
         <v-progress-circular
-          :size="18"
+          :size="16"
           color="primary"
           indeterminate
           v-show="tcpLoading"

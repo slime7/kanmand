@@ -12,7 +12,8 @@ import {
 import './utils/global';
 import KancolleRequest from './utils/KancolleRequest';
 import config from './utils/config';
-import Poidata from './utils/poidata';
+// import Poidata from './utils/poidata';
+import poidata from './utils/poidata';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -167,9 +168,10 @@ function createWindow() {
         break;
 
       case 'poidata': {
-        const poidata = new Poidata();
+        // const poidata = new Poidata();
         poidata.fetch(poidataPath)
           .then((result) => {
+            console.log(poidataPath);
             reply({ poidata: result, poidataPath });
           })
           .catch(() => {
@@ -221,6 +223,7 @@ function createWindow() {
   });
 
   win.on('close', () => {
+    poidata.close();
     if (!maximize) {
       const pos = win.getPosition();
       const size = win.getSize();
