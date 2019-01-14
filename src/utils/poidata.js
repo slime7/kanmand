@@ -10,7 +10,6 @@ class Poidata {
     this.address = address || HOST;
     this.port = port || PORT;
     this.init();
-    this.chunks = [];
   }
 
   init() {

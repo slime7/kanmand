@@ -103,7 +103,7 @@ export default new Vuex.Store({
     },
     setPoidata(state, { poidata }) {
       try {
-        state.poidata = JSON.parse(poidata);
+        state.poidata = Object.assign({}, state.poidata, JSON.parse(poidata));
       } catch (e) {
         console.log(`转换数据出错: ${e.message}`);
       }
