@@ -1,4 +1,5 @@
 import net from 'net';
+import stick from '../libs/stick';
 
 const [HOST, PORT] = ['localhost', 10800];
 
@@ -15,29 +16,30 @@ class Poidata {
   init() {
     const client = this;
     client.socket.connect(client.port, client.host, () => {
-      console.log(`Client connected to: ${client.address}: ${client.port}`);
+      console.log(`Client: connected to: ${client.address}: ${client.port}`);
     });
 
     client.socket.on('close', () => {
-      console.log('Client closed');
+      console.log('Client: closed');
     });
   }
 
-  fetch(path) {
+  fetch(paths) {
     const client = this;
+    const msgCenter = new stick.msgCenter({ type: 32 });// eslint-disable-line new-cap
 
     return new Promise((resolve, reject) => {
       if (client.pluginInstalled) {
-        client.socket.write(path);
+        const msgBuffer = msgCenter.publish(JSON.stringify(paths));
+        client.socket.write(msgBuffer);
 
         client.socket.on('data', (data) => {
-          client.chunks.push(data);
+          msgCenter.putData(data);
         });
 
-        client.socket.on('end', () => {
-          const result = Buffer.concat(client.chunks);
-          resolve(result.toString());
-          client.socket.destroy();
+        msgCenter.onMsgRecv((data) => {
+          const dataString = data.toString();
+          resolve(dataString);
         });
       }
 
@@ -49,6 +51,11 @@ class Poidata {
       });
     });
   }
-}
 
-export default Poidata;
+  close() {
+    const client = this;
+    client.socket.end();
+  }
+}
+const poidata = new Poidata();
+export default poidata;

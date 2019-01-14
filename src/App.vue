@@ -85,7 +85,7 @@ export default {
   },
 
   computed: {
-    ...mapState(['selected', 'activeTab']),
+    ...mapState(['selected', 'activeTab', 'tcpLoading']),
   },
 
   methods: {
@@ -116,7 +116,6 @@ export default {
           error,
           maximize,
           poidata,
-          poidataPath,
           settingKey,
           settingValue,
         }) => {
@@ -154,8 +153,8 @@ export default {
             this.maximize = maximize;
           }
           // poidata
-          if (poidata && poidataPath) {
-            this.setPoidata({ poidata, poidataPath });
+          if (typeof poidata !== 'undefined' && poidata) {
+            this.setPoidata({ poidata });
           }
           if (typeof poidata !== 'undefined' && !poidata) {
             this.setPluginStatus({ install: false });
@@ -183,15 +182,16 @@ export default {
   mounted() {
     this.onReqReply();
     ipcRenderer.send('kancolle-command-actions', { type: 'isMaximize' });
-    [
-      'const.$ships',
-      'info.ships',
-      'info.fleets',
-      'info.equips',
-      'info.repairs',
-    ].forEach((poidataPath) => {
-      this.setTcpStatus({ loading: true });
-      ipcRenderer.send('kancolle-command-actions', { type: 'poidata', poidataPath });
+    this.setTcpStatus({ loading: true });
+    ipcRenderer.send('kancolle-command-actions', {
+      type: 'poidata',
+      poidataPath: [
+        'const.$ships',
+        'info.ships',
+        'info.fleets',
+        'info.equips',
+        'info.repairs',
+      ],
     });
   },
 };

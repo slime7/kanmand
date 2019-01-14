@@ -10,7 +10,17 @@ export default new Vuex.Store({
     lastRequests: [],
     selected: null,
     routes,
-    poidata: {},
+    poidata: {
+      info: {
+        ships: {},
+        fleets: {},
+        equips: {},
+        repairs: {},
+      },
+      const: {
+        $ships: {},
+      },
+    },
     pluginInstalled: true,
     tcpLoading: false,
     activeTab: 'result',
@@ -91,15 +101,12 @@ export default new Vuex.Store({
     clearLastRequests(state) {
       state.lastRequests = [];
     },
-    setPoidata(state, { poidata, poidataPath }) {
-      const path = poidataPath.split('.');
-      if (!state.poidata[path[0]]) {
-        Vue.set(state.poidata, path[0], {});
+    setPoidata(state, { poidata }) {
+      try {
+        state.poidata = JSON.parse(poidata);
+      } catch (e) {
+        console.log(`转换数据出错: ${e.message}`);
       }
-      if (!state.poidata[path[0]][path[1]]) {
-        Vue.set(state.poidata[path[0]], [path[1]], {});
-      }
-      state.poidata[path[0]][path[1]] = JSON.parse(poidata);
       state.tcpLoading = false;
       state.pluginInstalled = true;
     },
