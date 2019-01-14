@@ -8,7 +8,7 @@
     </div>
     <div class="divider"></div>
     <v-layout row class="padding-8">
-      <div class="text-btn" v-on:click="poidataRefresh">
+      <v-layout row class="text-btn poidata-btn" v-on:click="poidataRefresh">
         <v-icon
           dark
           size="20"
@@ -24,14 +24,16 @@
           check
         </v-icon>
         <v-progress-circular
-          :size="16"
+          :size="20"
           color="primary"
+          style="vertical-align: top;"
           indeterminate
           v-show="tcpLoading"
         ></v-progress-circular>
         <span>poi ghost</span>
-      </div>
+      </v-layout>
       <span class="text-btn" v-on:click="devtool">打开控制台</span>
+      <v-spacer/>
     </v-layout>
     <div class="divider"></div>
     <v-layout rolumn fill-height class="flex dq-frame-body">
@@ -283,5 +285,9 @@ export default {
 
   .ship-level {
     width: 45px;
+  }
+
+  .poidata-btn {
+    flex: none;
   }
 </style>
