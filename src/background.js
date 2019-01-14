@@ -168,11 +168,9 @@ function createWindow() {
         break;
 
       case 'poidata': {
-        // const poidata = new Poidata();
         poidata.fetch(poidataPath)
           .then((result) => {
-            console.log(poidataPath);
-            reply({ poidata: result, poidataPath });
+            reply({ poidata: result });
           })
           .catch(() => {
             reply({ poidata: null });

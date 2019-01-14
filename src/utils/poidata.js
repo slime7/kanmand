@@ -1,4 +1,5 @@
 import net from 'net';
+import stick from '../libs/stick';
 
 const [HOST, PORT] = ['localhost', 10800];
 
@@ -23,38 +24,23 @@ class Poidata {
     });
   }
 
-  fetch(path) {
+  fetch(paths) {
     const client = this;
+    const msgCenter = new stick.msgCenter({ type: 32 });// eslint-disable-line new-cap
 
     return new Promise((resolve, reject) => {
       if (client.pluginInstalled) {
-        client.socket.write(path);
+        const msgBuffer = msgCenter.publish(JSON.stringify(paths));
+        client.socket.write(msgBuffer);
 
         client.socket.on('data', (data) => {
-          const dataString = data.toString();
-          console.log(`Client: ${dataString.substring(0, 20)}`);
-          const start = new RegExp(/^::(.*)::/i).exec(dataString);
-          const end = new RegExp(/;;(.*);;$/i).exec(dataString);
-          if (start) {
-            const chunkString = dataString.substring(start.index);
-            client.chunks.push(Buffer.from(chunkString, 'utf8'));
-          } else if (end) {
-            const chunkString = dataString.substring(0, end.index);
-            client.chunks.push(Buffer.from(chunkString, 'utf8'));
-            const result = Buffer.concat(client.chunks);
-            resolve(result.toString());
-          } else {
-            client.chunks.push(data);
-          }
+          msgCenter.putData(data);
         });
 
-        /*
-        client.socket.on('end', () => {
-          const result = Buffer.concat(client.chunks);
-          resolve(result.toString());
-          client.socket.destroy();
+        msgCenter.onMsgRecv((data) => {
+          const dataString = data.toString();
+          resolve(dataString);
         });
-        */
       }
 
       client.socket.on('error', (error) => {

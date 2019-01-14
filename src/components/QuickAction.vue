@@ -132,10 +132,8 @@ export default {
       if (!(this.poidata.const && this.poidata.const.$ships)) {
         dataPath.push('const.$ships');
       }
-      dataPath.forEach((poidataPath) => {
-        this.setTcpStatus({ loading: true });
-        ipcRenderer.send('kancolle-command-actions', { type: 'poidata', poidataPath });
-      });
+      this.setTcpStatus({ loading: true });
+      ipcRenderer.send('kancolle-command-actions', { type: 'poidata', poidataPath: dataPath });
     },
     addCommand(route, data) {
       const [gameRoute] = this.routes.filter(r => r.name === route);
