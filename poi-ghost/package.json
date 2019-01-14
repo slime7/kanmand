@@ -1,6 +1,6 @@
 {
   "name": "poi-plugin-ghost",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "index.es",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
