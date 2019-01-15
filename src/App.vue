@@ -164,8 +164,8 @@ export default {
                 this.selectEditingRequest(null);
               }
               if (requestsProgressing.length === 0
-                && this.poidataConfig.refresh === 'requested'
-                && this.pluginInstalled && this.tcpLoading) {
+                && this.pluginInstalled && !this.tcpLoading
+                && this.poidataConfig.refresh === 'requested') {
                 this.poidataRefresh();
               }
             } else {
