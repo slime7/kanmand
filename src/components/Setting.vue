@@ -58,6 +58,34 @@
             </div>
           </v-layout>
         </div>
+        <div class="divider"></div>
+        <div class="padding-8">
+          <div>poi ghost</div>
+          <v-layout row align-center tag="p">
+            <div class="setting-title">刷新模式</div>
+            <div
+              class="switch text-btn"
+              :class="{on: poidataConfig.refresh === rc[0]}"
+              v-for="rc in poidataConfigValue.refresh"
+              :key="rc[0]"
+              v-on:click="setPoidataRefresh({ refresh: rc[0] })"
+            >
+              {{rc[1]}}
+            </div>
+          </v-layout>
+          <v-layout row align-center tag="p" v-show="poidataConfig.refresh === 'timeout'">
+            <div class="setting-title">定时间隔</div>
+            <div
+              class="switch text-btn"
+              :class="{on: poidataConfig.timeout === tc[0]}"
+              v-for="tc in poidataConfigValue.timeout"
+              :key="tc[0]"
+              v-on:click="setPoidataRefresh({ timeout: tc[0] })"
+            >
+              {{tc[1]}}
+            </div>
+          </v-layout>
+        </div>
       </v-flex>
     </v-layout>
   </v-layout>
@@ -70,8 +98,27 @@ import { mapState, mapMutations } from 'vuex';
 export default {
   name: 'Setting',
 
+  data() {
+    return {
+      poidataConfigValue: {
+        refresh: [
+          ['none', '手动'],
+          // ['timeout', '定时间隔'],
+          ['requested', '完成队列时'],
+        ],
+        timeout: [
+          [30000, '30秒'],
+          [60000, '1分钟'],
+          [120000, '2分钟'],
+          [300000, '5分钟'],
+        ],
+        poidataRefreshTimeout: null,
+      },
+    };
+  },
+
   computed: {
-    ...mapState(['repairFilter']),
+    ...mapState(['repairFilter', 'poidataConfig']),
   },
 
   methods: {
@@ -88,11 +135,29 @@ export default {
         settingValue: field === 'hp' ? +value : value,
       });
     },
-    ...mapMutations(['setRepairFilter']),
+    setPoidataRefresh({ refresh, timeout }) {
+      this.setPoidataConfig({ refresh, timeout });
+      if (typeof refresh !== 'undefined') {
+        ipcRenderer.send('kancolle-command-actions', {
+          type: 'setting',
+          settingKey: 'kanmand.poidata.refresh',
+          settingValue: refresh,
+        });
+      }
+      if (typeof timeout !== 'undefined') {
+        ipcRenderer.send('kancolle-command-actions', {
+          type: 'setting',
+          settingKey: 'kanmand.poidata.timeout',
+          settingValue: +timeout,
+        });
+      }
+    },
+    ...mapMutations(['setRepairFilter', 'setPoidataConfig']),
   },
 
   mounted() {
     ipcRenderer.send('kancolle-command-actions', { type: 'setting', settingKey: 'kanmand.repair' });
+    ipcRenderer.send('kancolle-command-actions', { type: 'setting', settingKey: 'kanmand.poidata' });
   },
 };
 </script>
@@ -118,7 +183,7 @@ export default {
   .switch {
     position: relative;
     margin-left: 1.4em;
-    width: 40px;
+    min-width: 40px;
   }
 
   .switch:hover:before,

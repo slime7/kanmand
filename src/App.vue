@@ -85,7 +85,14 @@ export default {
   },
 
   computed: {
-    ...mapState(['selected', 'activeTab', 'tcpLoading']),
+    ...mapState([
+      'selected',
+      'activeTab',
+      'tcpLoading',
+      'poidata',
+      'poidataConfig',
+      'pluginInstalled',
+    ]),
   },
 
   methods: {
@@ -107,6 +114,19 @@ export default {
       if (remote) {
         remote.getCurrentWindow().minimize();
       }
+    },
+    poidataRefresh() {
+      const dataPath = [
+        'info.ships',
+        'info.fleets',
+        'info.equips',
+        'info.repairs',
+      ];
+      if (!Object.keys(this.poidata.const.$ships).length) {
+        dataPath.push('const.$ships');
+      }
+      this.setTcpStatus({ loading: true });
+      ipcRenderer.send('kancolle-command-actions', { type: 'poidata', poidataPath: dataPath });
     },
     onReqReply() {
       if (ipcRenderer) {
@@ -143,6 +163,11 @@ export default {
               if (requestsProgressing.length <= this.selected) {
                 this.selectEditingRequest(null);
               }
+              if (requestsProgressing.length === 0
+                && this.poidataConfig.refresh === 'requested'
+                && this.pluginInstalled && this.tcpLoading) {
+                this.poidataRefresh();
+              }
             } else {
               this.setRequests(requestsCopy);
             }
@@ -164,6 +189,9 @@ export default {
             if (settingKey === 'kanmand.repair') {
               this.setRepairFilter(settingValue);
             }
+            if (settingKey === 'kanmand.poidata') {
+              this.setPoidataConfig(settingValue);
+            }
           }
         });
       }
@@ -176,6 +204,7 @@ export default {
       'setPluginStatus',
       'setTcpStatus',
       'setRepairFilter',
+      'setPoidataConfig',
     ]),
   },
 
@@ -184,17 +213,7 @@ export default {
     this.onReqReply();
     ipcRenderer.send('kancolle-command-actions', { type: 'isMaximize' });
     setTimeout(() => {
-      app.setTcpStatus({ loading: true });
-      ipcRenderer.send('kancolle-command-actions', {
-        type: 'poidata',
-        poidataPath: [
-          'const.$ships',
-          'info.ships',
-          'info.fleets',
-          'info.equips',
-          'info.repairs',
-        ],
-      });
+      app.poidataRefresh();
     }, 100);
   },
 };

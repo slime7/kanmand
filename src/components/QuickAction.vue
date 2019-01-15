@@ -131,7 +131,7 @@ export default {
         'info.equips',
         'info.repairs',
       ];
-      if (!(this.poidata.const && this.poidata.const.$ships)) {
+      if (!Object.keys(this.poidata.const.$ships).length) {
         dataPath.push('const.$ships');
       }
       this.setTcpStatus({ loading: true });

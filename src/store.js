@@ -29,6 +29,10 @@ export default new Vuex.Store({
       hp: 50,
       infleet: true,
     },
+    poidataConfig: {
+      refresh: 'timeout',
+      timeout: 300000,
+    },
   },
   getters: {
     repairShip: (state) => {
@@ -141,6 +145,14 @@ export default new Vuex.Store({
       }
       if (typeof infleet !== 'undefined') {
         state.repairFilter.infleet = infleet;
+      }
+    },
+    setPoidataConfig(state, { refresh, timeout }) {
+      if (typeof refresh !== 'undefined') {
+        state.poidataConfig.refresh = refresh;
+      }
+      if (typeof timeout !== 'undefined') {
+        state.repairFilter.timeout = +timeout;
       }
     },
   },

@@ -82,4 +82,8 @@ export const defaultSetting = {
     hp: 50,
     infleet: true,
   },
+  poidata: {
+    refresh: 'timeout',
+    timeout: 300000,
+  },
 };
