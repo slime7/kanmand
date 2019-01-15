@@ -180,19 +180,22 @@ export default {
   },
 
   mounted() {
+    const app = this;
     this.onReqReply();
     ipcRenderer.send('kancolle-command-actions', { type: 'isMaximize' });
-    this.setTcpStatus({ loading: true });
-    ipcRenderer.send('kancolle-command-actions', {
-      type: 'poidata',
-      poidataPath: [
-        'const.$ships',
-        'info.ships',
-        'info.fleets',
-        'info.equips',
-        'info.repairs',
-      ],
-    });
+    setTimeout(() => {
+      app.setTcpStatus({ loading: true });
+      ipcRenderer.send('kancolle-command-actions', {
+        type: 'poidata',
+        poidataPath: [
+          'const.$ships',
+          'info.ships',
+          'info.fleets',
+          'info.equips',
+          'info.repairs',
+        ],
+      });
+    }, 100);
   },
 };
 </script>

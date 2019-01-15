@@ -13,9 +13,9 @@ export default new Vuex.Store({
     poidata: {
       info: {
         ships: {},
-        fleets: {},
+        fleets: [],
         equips: {},
-        repairs: {},
+        repairs: [],
       },
       const: {
         $ships: {},
@@ -39,6 +39,7 @@ export default new Vuex.Store({
         && state.poidata.info
         && state.poidata.info.ships
         && state.poidata.info.fleets
+        && state.poidata.info.fleets.length
         && state.poidata.info.repairs
         && state.poidata.const
         && state.poidata.const.$ships) {
