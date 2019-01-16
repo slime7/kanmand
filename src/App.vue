@@ -97,12 +97,10 @@ export default {
   },
 
   watch: {
-    'poidataConfig.refresh': function (refresh, oldValue) {
-      console.log({ refresh, oldValue });
+    'poidataConfig.refresh': function (refresh) {
       this.poidataTimeoutRefresh(refresh === 'timeout');
     },
-    'poidataConfig.timeout': function (timeout, oldValue) {
-      console.log({ timeout, oldValue });
+    'poidataConfig.timeout': function () {
       this.poidataTimeoutRefresh(true);
     },
   },
