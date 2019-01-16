@@ -81,6 +81,7 @@ export default {
   data() {
     return {
       maximize: false,
+      poidataRefreshTimeout: null,
     };
   },
 
@@ -93,6 +94,17 @@ export default {
       'poidataConfig',
       'pluginInstalled',
     ]),
+  },
+
+  watch: {
+    'poidataConfig.refresh': function (refresh, oldValue) {
+      console.log({ refresh, oldValue });
+      this.poidataTimeoutRefresh(refresh === 'timeout');
+    },
+    'poidataConfig.timeout': function (timeout, oldValue) {
+      console.log({ timeout, oldValue });
+      this.poidataTimeoutRefresh(true);
+    },
   },
 
   methods: {
@@ -127,6 +139,12 @@ export default {
       }
       this.setTcpStatus({ loading: true });
       ipcRenderer.send('kancolle-command-actions', { type: 'poidata', poidataPath: dataPath });
+    },
+    poidataTimeoutRefresh(enable) {
+      clearInterval(this.poidataRefreshTimeout);
+      if (enable) {
+        this.poidataRefreshTimeout = setInterval(this.poidataRefresh, this.poidataConfig.timeout);
+      }
     },
     onReqReply() {
       if (ipcRenderer) {
@@ -191,6 +209,7 @@ export default {
             }
             if (settingKey === 'kanmand.poidata') {
               this.setPoidataConfig(settingValue);
+              this.poidataTimeoutRefresh(this.poidataConfig.refresh === 'timeout');
             }
           }
         });

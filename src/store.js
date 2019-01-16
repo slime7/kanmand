@@ -152,7 +152,7 @@ export default new Vuex.Store({
         state.poidataConfig.refresh = refresh;
       }
       if (typeof timeout !== 'undefined') {
-        state.repairFilter.timeout = +timeout;
+        state.poidataConfig.timeout = +timeout;
       }
     },
   },

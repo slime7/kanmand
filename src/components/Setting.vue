@@ -17,7 +17,7 @@
               <input
                 type="text"
                 class="setting-repair-hp"
-                v-model="repairFilter.hp"
+                v-model.number="repairFilter.hp"
                 v-on:blur="setFilter('hp', repairFilter.hp)"
               >
               <span
@@ -103,7 +103,7 @@ export default {
       poidataConfigValue: {
         refresh: [
           ['none', '手动'],
-          // ['timeout', '定时间隔'],
+          ['timeout', '定时间隔'],
           ['requested', '完成队列时'],
         ],
         timeout: [
@@ -112,7 +112,6 @@ export default {
           [120000, '2分钟'],
           [300000, '5分钟'],
         ],
-        poidataRefreshTimeout: null,
       },
     };
   },
