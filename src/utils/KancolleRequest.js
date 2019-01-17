@@ -138,7 +138,11 @@ export default class KancolleRequest {
       } else {
         this.requests[requestInd].error = error.message;
       }
-      await this.endTask(true);
+      try {
+        await this.endTask(true);
+      } catch (e) {
+        console.log(e);
+      }
     }
   }
 
