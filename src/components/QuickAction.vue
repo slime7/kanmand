@@ -32,6 +32,7 @@
         ></v-progress-circular>
         <span>poi ghost</span>
       </v-layout>
+      <span class="text-btn" v-on:click="savePlugin">下载插件</span>
       <span class="text-btn" v-on:click="devtool">打开控制台</span>
       <v-spacer/>
     </v-layout>
@@ -108,6 +109,7 @@
 </template>
 
 <script>
+/* global __static */
 import { ipcRenderer } from 'electron';
 import { mapState, mapGetters, mapMutations } from 'vuex';
 
@@ -115,7 +117,9 @@ export default {
   name: 'QuickAction',
 
   data() {
-    return {};
+    return {
+      pluginDir: `${__static}`,
+    };
   },
 
   computed: {
@@ -243,6 +247,9 @@ export default {
           }
         });
       }
+    },
+    savePlugin() {
+      ipcRenderer.send('kancolle-command-actions', { type: 'saveplugin', pluginDir: this.pluginDir });
     },
     devtool() {
       ipcRenderer.send('kancolle-command-actions', { type: 'devtool' });

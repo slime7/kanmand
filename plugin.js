@@ -9,7 +9,9 @@ npm.load(() => {
     fs.rename(path.join(rootdir, packagename),
       path.join(rootdir, 'public', 'poi-plugin-ghost.tgz'),
       (fserr) => {
-        console.log(fserr.message);
+        if (fserr) {
+          console.log(fserr.message);
+        }
       });
   });
 });

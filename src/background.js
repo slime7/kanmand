@@ -4,11 +4,14 @@ import {
   BrowserWindow,
   ipcMain,
   screen,
+  dialog,
 } from 'electron';
 import {
   createProtocol,
   installVueDevtools,
 } from 'vue-cli-plugin-electron-builder/lib';
+import path from 'path';
+import fs from 'fs';
 import './utils/global';
 import KancolleRequest from './utils/KancolleRequest';
 import config from './utils/config';
@@ -81,6 +84,7 @@ function createWindow() {
     poidataPath,
     settingKey,
     settingValue,
+    pluginDir,
   }) => {
     const reply = (payload) => {
       event.sender.send('kancolle-command-reply', payload);
@@ -193,6 +197,26 @@ function createWindow() {
             config.set(settingKey, settingValue);
           }
         }
+        break;
+      }
+
+      case 'saveplugin': {
+        const options = {
+          defaultPath: 'poi-plugin-ghost.tgz',
+          filters: [
+            { name: 'poi ghost', extensions: ['tgz'] },
+          ],
+        };
+        dialog.showSaveDialog(options, (filename) => {
+          const pluginFile = path.join(pluginDir, 'poi-plugin-ghost.tgz');
+          if (filename) {
+            fs.copyFile(pluginFile, filename, (fserr) => {
+              if (fserr) {
+                reply({ error: fserr.message });
+              }
+            });
+          }
+        });
         break;
       }
 
