@@ -2,11 +2,13 @@
   <div class="padding-8">
     <div class="input-area gap-v-8">
       <v-layout row>
-        <input class="flex"
-               placeholder="游戏链接"
-               v-model="gameLink"
-               :disabled="!!requests.length"
-               v-on:blur="saveGameLink"
+        <input
+          class="flex"
+          placeholder="游戏链接"
+          v-model="gameLink"
+          :disabled="!!requests.length"
+          v-on:blur="saveGameLink"
+          v-on:click.right.exact="showContextMenu('link')"
         />
       </v-layout>
       <v-layout row>
@@ -24,7 +26,13 @@
         </select>
       </v-layout>
       <v-layout row>
-        <textarea class="flex" placeholder="发送数据" rows="5" v-model="gameData"></textarea>
+        <textarea
+          class="flex"
+          placeholder="发送数据"
+          rows="5"
+          v-model="gameData"
+          v-on:click.right.exact="showContextMenu('data')"
+        ></textarea>
       </v-layout>
     </div>
     <div class="button-group">
@@ -74,7 +82,7 @@
 </template>
 
 <script>
-import { ipcRenderer } from 'electron';
+import { ipcRenderer, remote, clipboard } from 'electron';
 import { mapState, mapMutations } from 'vuex';
 
 export default {
@@ -327,6 +335,30 @@ export default {
     },
     saveGameLink() {
       this.setGameLink({ gameLink: this.gameLink });
+    },
+    showContextMenu(el) {
+      const self = this;
+      const clip = clipboard.readText();
+      // 创建菜单
+      const { Menu } = remote;
+      const items = [
+        {
+          label: '清空并粘贴',
+          enabled: clip !== '',
+          id: 'test',
+          click() {
+            if (clip !== '' && el === 'data') {
+              self.gameData = clip;
+            } else if (clip !== '' && el === 'link') {
+              self.gameLink = clip;
+            }
+          },
+        },
+      ];
+      const menu = Menu.buildFromTemplate(items);
+
+      // 弹出菜单
+      menu.popup({ window: remote.getCurrentWindow() });
     },
     ...mapMutations([
       'selectEditingRequest',
