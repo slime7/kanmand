@@ -4,6 +4,7 @@
       <v-layout row>
         <div>设置</div>
         <v-spacer/>
+        <div>v{{version}}</div>
       </v-layout>
     </div>
     <div class="divider"></div>
@@ -117,7 +118,7 @@ export default {
   },
 
   computed: {
-    ...mapState(['repairFilter', 'poidataConfig']),
+    ...mapState(['repairFilter', 'poidataConfig', 'version']),
   },
 
   methods: {
@@ -157,6 +158,7 @@ export default {
   mounted() {
     ipcRenderer.send('kancolle-command-actions', { type: 'setting', settingKey: 'kanmand.repair' });
     ipcRenderer.send('kancolle-command-actions', { type: 'setting', settingKey: 'kanmand.poidata' });
+    ipcRenderer.send('kancolle-command-actions', { type: 'appversion' });
   },
 };
 </script>

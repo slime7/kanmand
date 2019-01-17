@@ -154,6 +154,7 @@ export default {
           poidata,
           settingKey,
           settingValue,
+          appversion,
         }) => {
           if (error) {
             this.$toasted.error(error);
@@ -200,6 +201,9 @@ export default {
           if (typeof poidata !== 'undefined' && !poidata) {
             this.setPluginStatus({ install: false });
           }
+          if (typeof appversion !== 'undefined') {
+            this.setAppVersion({ version: appversion });
+          }
           // 设置
           if (settingKey && settingValue) {
             if (settingKey === 'kanmand.repair') {
@@ -222,6 +226,7 @@ export default {
       'setTcpStatus',
       'setRepairFilter',
       'setPoidataConfig',
+      'setAppVersion',
     ]),
   },
 

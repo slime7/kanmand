@@ -6,6 +6,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
+    version: null,
     requests: [],
     lastRequests: [],
     selected: null,
@@ -153,6 +154,11 @@ export default new Vuex.Store({
       }
       if (typeof timeout !== 'undefined') {
         state.poidataConfig.timeout = +timeout;
+      }
+    },
+    setAppVersion(state, { version }) {
+      if (!state.version) {
+        state.version = version;
       }
     },
   },

@@ -224,6 +224,10 @@ function createWindow() {
         win.webContents.openDevTools();
         break;
 
+      case 'appversion':
+        reply({ appversion: app.getVersion() });
+        break;
+
       default:
         break;
     }
