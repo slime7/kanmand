@@ -181,7 +181,38 @@ export default {
     formatFleetMission(fleet) {
       let missionText = '';
       if (fleet.api_mission[0] !== 0) {
-        const missionNum = `00${fleet.api_mission[1]}`.substr(-2);
+        let missionCode;
+        if (+fleet.api_mission[1] > 100) {
+          switch (+fleet.api_mission[1]) {
+            case 100:
+              missionCode = 'A1';
+              break;
+            case 101:
+              missionCode = 'A2';
+              break;
+            case 102:
+              missionCode = 'A3';
+              break;
+            case 110:
+              missionCode = 'B1';
+              break;
+            case 111:
+              missionCode = 'B2';
+              break;
+            case 301:
+              missionCode = 'S1';
+              break;
+            case 302:
+              missionCode = 'S2';
+              break;
+            default:
+              missionCode = '??';
+              break;
+          }
+        } else {
+          [, missionCode] = fleet.api_mission;
+        }
+        const missionNum = `00${missionCode}`.substr(-2);
         const completeLeftSecond = Math.round((fleet.api_mission[2] - new Date().getTime()) / 1000);
         const completeLeft = completeLeftSecond > 0 ? [
           `00${Math.floor(completeLeftSecond / 3600)}`.substr(-2),
