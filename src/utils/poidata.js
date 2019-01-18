@@ -9,6 +9,7 @@ class Poidata {
     this.socket = null;
     this.address = address || HOST;
     this.port = port || PORT;
+    this.msgCenter = null;
   }
 
   async init() {
@@ -37,12 +38,16 @@ class Poidata {
           console.log(error);
         }
       });
+
+      client.socket.on('data', (data) => {
+        client.msgCenter.putData(data);
+      });
     });
   }
 
   async fetch(paths) {
     const client = this;
-    const msgCenter = new stick.msgCenter({ type: 32 });// eslint-disable-line new-cap
+    client.msgCenter = new stick.msgCenter({ type: 32 });// eslint-disable-line new-cap
 
     if (!client.pluginInstalled) {
       try {
@@ -55,18 +60,15 @@ class Poidata {
 
     return new Promise((resolve, reject) => {
       if (client.pluginInstalled) {
-        const msgBuffer = msgCenter.publish(JSON.stringify(paths));
+        const msgBuffer = client.msgCenter.publish(JSON.stringify(paths));
         client.socket.write(msgBuffer);
 
-        client.socket.on('data', (data) => {
-          msgCenter.putData(data);
-        });
-
-        msgCenter.onMsgRecv((data) => {
+        client.msgCenter.onMsgRecv((data) => {
           const dataString = data.toString();
           resolve(dataString);
         });
       } else {
+        client.msgCenter = null;
         reject();
       }
     });
