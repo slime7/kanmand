@@ -97,7 +97,7 @@
                   v-if="fleet.api_mission[0] !== 0"
                   v-on:click="addMissionCommand(fleet)"
                 >
-                {{formatFleetMission(fleet)}}
+                {{missions[index].text}}
               </span>
               </div>
             </li>
@@ -119,12 +119,39 @@ export default {
   data() {
     return {
       pluginDir: `${__static}`,
+      missions: [
+        { text: '', timeoutId: null },
+        { text: '', timeoutId: null },
+        { text: '', timeoutId: null },
+        { text: '', timeoutId: null },
+      ],
     };
   },
 
   computed: {
     ...mapGetters(['repairShip']),
     ...mapState(['routes', 'gameLinkStored', 'poidata', 'pluginInstalled', 'tcpLoading']),
+  },
+
+  watch: {
+    poidata() {
+      if (this.poidata.info.fleets) {
+        this.poidata.info.fleets.forEach((fleet, index) => {
+          const missionText = this.formatFleetMission(fleet);
+          this.missions[index].text = missionText;
+          if (this.missions[index].timeoutId) {
+            clearInterval(this.missions[index].timeoutId);
+            this.missions[index].timeoutId = null;
+          }
+          if (missionText !== '') {
+            const self = this;
+            this.missions[index].timeoutId = setInterval(() => {
+              self.missions[index].text = self.formatFleetMission(fleet);
+            }, 500);
+          }
+        });
+      }
+    },
   },
 
   methods: {
@@ -280,7 +307,10 @@ export default {
       }
     },
     savePlugin() {
-      ipcRenderer.send('kancolle-command-actions', { type: 'saveplugin', pluginDir: this.pluginDir });
+      ipcRenderer.send('kancolle-command-actions', {
+        type: 'saveplugin',
+        pluginDir: this.pluginDir,
+      });
     },
     devtool() {
       ipcRenderer.send('kancolle-command-actions', { type: 'devtool' });
