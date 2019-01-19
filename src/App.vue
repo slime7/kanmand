@@ -340,9 +340,8 @@ export default {
   }
 
   .dq-frame.toasted {
-    border-radius: 6px;
-    background-color: #000;
-    box-shadow: 0 0 0 1px #000, 0 0 7px 3px #000 inset;
+    border-radius: 6px !important;
+    box-shadow: 0 0 0 1px #000, 0 0 7px 3px #000 inset !important;
   }
 
   .dq-frame-header, .dq-frame-body, .dq-frame-footer {
