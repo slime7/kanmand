@@ -21,6 +21,11 @@ export const routes = [
     hint: '接任务',
     defaultData: '{"api_quest_id":201}',
   }, {
+    name: 'quest_clear',
+    path: '/kcsapi/api_req_quest/clearitemget',
+    hint: '完成任务',
+    defaultData: '{"api_quest_id":201}',
+  }, {
     name: 'slotset',
     path: '/kcsapi/api_req_kaisou/slotset',
     hint: '装备物品',
@@ -61,15 +66,15 @@ export const routes = [
     hint: '修理',
     defaultData: '{"api_highspeed":0,"api_ndock_id":1,"api_ship_id":1}',
   }, {
-    name: 'quest_clear',
-    path: '/kcsapi/api_req_quest/clearitemget',
-    hint: '完成任务',
-    defaultData: '{"api_quest_id":201}',
-  }, {
     name: 'createitem',
     path: '/kcsapi/api_req_kousyou/createitem',
     hint: '开发装备',
     defaultData: '{"api_item1":10,"api_item2":10,"api_item3":10,"api_item4":10}',
+  }, {
+    name: 'port',
+    path: '/kcsapi/api_port/port',
+    hint: '母港',
+    defaultData: '{"api_sort_key":5,"spi_sort_order":2,"api_port":""}',
   },
 ];
 export const defaultSetting = {

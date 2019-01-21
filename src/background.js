@@ -12,10 +12,10 @@ import {
 } from 'vue-cli-plugin-electron-builder/lib';
 import path from 'path';
 import fs from 'fs';
+import axios from 'axios';
 import './utils/global';
 import KancolleRequest from './utils/KancolleRequest';
 import config from './utils/config';
-// import Poidata from './utils/poidata';
 import poidata from './utils/poidata';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
@@ -85,6 +85,7 @@ function createWindow() {
     settingKey,
     settingValue,
     pluginDir,
+    currentScriptVersion,
   }) => {
     const reply = (payload) => {
       event.sender.send('kancolle-command-reply', payload);
@@ -190,8 +191,8 @@ function createWindow() {
             settingValue: oldSetting,
           });
         } else if (settingKey && typeof settingValue !== 'undefined') {
-          if (typeof oldSetting === 'object') {
-            const newSetting = Object.assign(oldSetting, settingValue);
+          if (oldSetting !== null && typeof oldSetting === 'object') {
+            const newSetting = Object.assign({}, oldSetting, settingValue);
             config.set(settingKey, newSetting);
           } else {
             config.set(settingKey, settingValue);
@@ -217,6 +218,36 @@ function createWindow() {
             });
           }
         });
+        break;
+      }
+
+      case 'getSeed': {
+        // currentScriptVersion
+        let kcsConstResponse;
+        try {
+          kcsConstResponse = await axios.get('http://203.104.209.7/gadget_html5/js/kcs_const.js');
+        } catch (e) {
+          console.log('获取kcs_const失败');
+        }
+        if (kcsConstResponse) {
+          const [, scriptVersion] = /VersionInfo\.scriptVesion.*"(.*)";/.exec(kcsConstResponse.data);
+          if (scriptVersion !== currentScriptVersion) {
+            let kcsMainJsResponse;
+            try {
+              kcsMainJsResponse = await axios.get(`http://203.104.209.102/kcs2/js/main.js?version=${scriptVersion}`);
+            } catch (e) {
+              console.log('获取main.js失败');
+            }
+            if (!kcsMainJsResponse) {
+              reply({ error: '获取seed失败了' });
+              break;
+            }
+            const [, seed] = /e.PORT_API_SEED=(\[.*?\]),/.exec(kcsMainJsResponse.data);
+            reply({ seed, gameScriptVersion: scriptVersion });
+          } else {
+            reply({ gameScriptVersion: scriptVersion });
+          }
+        }
         break;
       }
 

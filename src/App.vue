@@ -93,6 +93,7 @@ export default {
       'poidata',
       'poidataConfig',
       'pluginInstalled',
+      'memberid',
     ]),
   },
 
@@ -131,6 +132,7 @@ export default {
         'info.fleets',
         'info.equips',
         'info.repairs',
+        'info.basic',
       ];
       if (!Object.keys(this.poidata.const.$ships).length) {
         dataPath.push('const.$ships');
@@ -144,6 +146,18 @@ export default {
         this.poidataRefreshTimeout = setInterval(this.poidataRefresh, this.poidataConfig.timeout);
       }
     },
+    getLocalGameSeed() {
+      const storedSeed = localStorage.getItem('gameseed');
+      if (storedSeed) {
+        const seed = JSON.parse(storedSeed);
+        ipcRenderer.send('kancolle-command-actions', {
+          type: 'getSeed',
+          currentScriptVersion: seed.version,
+        });
+      } else {
+        ipcRenderer.send('kancolle-command-actions', { type: 'getSeed' });
+      }
+    },
     onReqReply() {
       if (ipcRenderer) {
         ipcRenderer.on('kancolle-command-reply', (event, {
@@ -155,6 +169,8 @@ export default {
           settingKey,
           settingValue,
           appversion,
+          seed,
+          gameScriptVersion,
         }) => {
           if (error) {
             this.$toasted.error(error);
@@ -204,6 +220,22 @@ export default {
           if (typeof appversion !== 'undefined') {
             this.setAppVersion({ version: appversion });
           }
+          // 游戏 seed
+          if (typeof gameScriptVersion !== 'undefined') {
+            if (typeof seed !== 'undefined') {
+              const gameSeed = JSON.parse(seed);
+              const seedAndVersion = JSON.stringify({
+                seed: gameSeed,
+                version: gameScriptVersion,
+              });
+              this.setGameSeed({ gameSeed });
+              localStorage.setItem('gameseed', seedAndVersion);
+            } else {
+              const storedSeed = localStorage.getItem('gameseed');
+              const gameSeed = JSON.parse(storedSeed).seed;
+              this.setGameSeed({ gameSeed });
+            }
+          }
           // 设置
           if (settingKey && settingValue) {
             if (settingKey === 'kanmand.repair') {
@@ -212,6 +244,9 @@ export default {
             if (settingKey === 'kanmand.poidata') {
               this.setPoidataConfig(settingValue);
               this.poidataTimeoutRefresh(this.poidataConfig.refresh === 'timeout');
+            }
+            if (settingKey === 'kanmand.memberid' && settingValue && settingValue !== this.memberid) {
+              this.setMemberid({ memberid: settingValue });
             }
           }
         });
@@ -227,6 +262,8 @@ export default {
       'setRepairFilter',
       'setPoidataConfig',
       'setAppVersion',
+      'setGameSeed',
+      'setMemberid',
     ]),
   },
 
@@ -234,9 +271,11 @@ export default {
     const app = this;
     this.onReqReply();
     ipcRenderer.send('kancolle-command-actions', { type: 'isMaximize' });
+    this.getLocalGameSeed();
     setTimeout(() => {
       app.poidataRefresh();
     }, 100);
+    // ipcRenderer.send('kancolle-command-actions', { type: 'getSeed' });
   },
 };
 </script>

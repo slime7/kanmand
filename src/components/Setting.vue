@@ -87,6 +87,21 @@
             </div>
           </v-layout>
         </div>
+        <div class="divider"></div>
+        <div class="padding-8">
+          <div>游戏信息</div>
+          <v-layout row align-center tag="p">
+            <div class="setting-title">member id</div>
+            <div>
+              <input
+                type="text"
+                class="setting-memberid"
+                :value="memberid"
+                v-on:blur="changeMemberid"
+              >
+            </div>
+          </v-layout>
+        </div>
       </v-flex>
     </v-layout>
   </v-layout>
@@ -118,7 +133,7 @@ export default {
   },
 
   computed: {
-    ...mapState(['repairFilter', 'poidataConfig', 'version']),
+    ...mapState(['repairFilter', 'poidataConfig', 'version', 'memberid']),
   },
 
   methods: {
@@ -152,13 +167,35 @@ export default {
         });
       }
     },
-    ...mapMutations(['setRepairFilter', 'setPoidataConfig']),
+    changeMemberid(ev) {
+      const memberid = ev.target.value;
+      if (memberid) {
+        this.setMemberid({ memberid });
+        ipcRenderer.send('kancolle-command-actions', {
+          type: 'setting',
+          settingKey: 'kanmand.memberid',
+          settingValue: memberid,
+        });
+      }
+    },
+    ...mapMutations([
+      'setRepairFilter',
+      'setPoidataConfig',
+      'setMemberid',
+    ]),
   },
 
   mounted() {
     ipcRenderer.send('kancolle-command-actions', { type: 'setting', settingKey: 'kanmand.repair' });
-    ipcRenderer.send('kancolle-command-actions', { type: 'setting', settingKey: 'kanmand.poidata' });
+    ipcRenderer.send('kancolle-command-actions', {
+      type: 'setting',
+      settingKey: 'kanmand.poidata',
+    });
     ipcRenderer.send('kancolle-command-actions', { type: 'appversion' });
+    ipcRenderer.send('kancolle-command-actions', {
+      type: 'setting',
+      settingKey: 'kanmand.memberid',
+    });
   },
 };
 </script>

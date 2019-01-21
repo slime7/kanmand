@@ -65,6 +65,9 @@
         <div class="divider"></div>
         <div class="padding-8" v-if="poidata.info">
           <div>舰队管理</div>
+          <div>
+            <span class="text-btn" v-on:click="addPortCommand">母港</span>
+          </div>
           <ol>
             <li
               v-for="(fleet, index) in poidata.info.fleets"
@@ -112,6 +115,7 @@
 /* global __static */
 import { ipcRenderer } from 'electron';
 import { mapState, mapGetters, mapMutations } from 'vuex';
+import { getPortId } from '../utils';
 
 export default {
   name: 'QuickAction',
@@ -130,7 +134,15 @@ export default {
 
   computed: {
     ...mapGetters(['repairShip']),
-    ...mapState(['routes', 'gameLinkStored', 'poidata', 'pluginInstalled', 'tcpLoading']),
+    ...mapState([
+      'routes',
+      'gameLinkStored',
+      'poidata',
+      'pluginInstalled',
+      'tcpLoading',
+      'memberid',
+      'gameSeed',
+    ]),
   },
 
   watch: {
@@ -151,6 +163,17 @@ export default {
           }
         });
       }
+      if (this.poidata.info.basic) {
+        const memberid = this.poidata.info.basic.api_member_id;
+        if (this.memberid !== memberid) {
+          this.setMemberid({ memberid });
+          ipcRenderer.send('kancolle-command-actions', {
+            type: 'setting',
+            settingKey: 'kanmand.memberid',
+            settingValue: memberid,
+          });
+        }
+      }
     },
   },
 
@@ -161,6 +184,7 @@ export default {
         'info.fleets',
         'info.equips',
         'info.repairs',
+        'info.basic',
       ];
       if (!Object.keys(this.poidata.const.$ships).length) {
         dataPath.push('const.$ships');
@@ -251,7 +275,8 @@ export default {
       return missionText;
     },
     addMissionCommand(fleet) {
-      if (fleet.api_mission[0] === 2) {
+      const completeLeftSecond = Math.round((fleet.api_mission[2] - new Date().getTime()) / 1000);
+      if (completeLeftSecond < 50) {
         this.addCommand('mission_result', {
           api_deck_id: fleet.api_id,
         });
@@ -306,6 +331,16 @@ export default {
         });
       }
     },
+    addPortCommand() {
+      if (this.memberid && this.gameSeed.length) {
+        const portId = getPortId(this.memberid, this.gameSeed);
+        this.addCommand('port', {
+          api_port: portId,
+        });
+      } else {
+        this.$toasted.show('母港操作需要 member id 和 seed');
+      }
+    },
     savePlugin() {
       ipcRenderer.send('kancolle-command-actions', {
         type: 'saveplugin',
@@ -317,6 +352,7 @@ export default {
     },
     ...mapMutations([
       'setTcpStatus',
+      'setMemberid',
     ]),
   },
 

@@ -17,6 +17,7 @@ export default new Vuex.Store({
         fleets: [],
         equips: {},
         repairs: [],
+        basic: {},
       },
       const: {
         $ships: {},
@@ -34,6 +35,8 @@ export default new Vuex.Store({
       refresh: 'timeout',
       timeout: 300000,
     },
+    memberid: null,
+    gameSeed: [],
   },
   getters: {
     repairShip: (state) => {
@@ -160,6 +163,12 @@ export default new Vuex.Store({
       if (!state.version) {
         state.version = version;
       }
+    },
+    setMemberid(state, { memberid }) {
+      state.memberid = memberid;
+    },
+    setGameSeed(state, { gameSeed }) {
+      state.gameSeed = gameSeed;
     },
   },
 });

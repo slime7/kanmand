@@ -98,6 +98,16 @@
 | `api_item3` | 钢   |
 | `api_item4` | 铝   |
 
+母港 `/kcsapi/api_port/port`
+
+| 参数             | 说明 |
+| ---------------- | ---- |
+| `api_sort_key`   | 5 |
+| `spi_sort_order` | 2 |
+| `api_port`   | 母港动态 id |
+
+
+
 ## 技巧
 
 ### 代理
