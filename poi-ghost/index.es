@@ -35,6 +35,7 @@ export const pluginDidLoad = () => {
             case 'info.equips':
             case 'info.quests':
             case 'info.repairs':
+            case 'info.basic':
             case 'const.$ships': {
               const pathSplit = path.split('.');
               if (!poidata[pathSplit[0]]) {
