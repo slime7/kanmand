@@ -8,6 +8,9 @@ module.exports = {
   pluginOptions: {
     electronBuilder: {
       builderOptions: {
+        nsis: {
+          oneClick: false,
+        },
         win: {
           icon: './src/assets/logo.ico',
           target: [
