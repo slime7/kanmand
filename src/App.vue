@@ -102,7 +102,7 @@ export default {
       this.poidataTimeoutRefresh(refresh === 'timeout');
     },
     'poidataConfig.timeout': function () {
-      this.poidataTimeoutRefresh(true);
+      this.poidataTimeoutRefresh(this.poidataConfig.refresh === 'timeout');
     },
   },
 
