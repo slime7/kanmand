@@ -9,7 +9,7 @@
             <v-flex shrink class="flex-none">
               <v-icon
                 dark
-                v-show="requestStatus.index !== index"
+                v-show="!requestStatus.processing || index"
               >
                 {{ requestIcon(req) }}
               </v-icon>
@@ -17,7 +17,7 @@
                 :size="24"
                 color="primary"
                 indeterminate
-                v-show="requestStatus.index === index"
+                v-show="requestStatus.processing && !index"
               ></v-progress-circular>
             </v-flex>
             <v-spacer/>
