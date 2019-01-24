@@ -183,6 +183,11 @@ export default {
             }
 
             if (typeof requestIndex === 'number') {
+              this.setRequestStatus({
+                processing: true,
+                index: requestIndex,
+                total: requests.length,
+              });
               const [requestsComplated, requestsProgressing] = [[], []];
               while (requestsCopy.length) {
                 if (requestsCopy[0].error || requestsCopy[0].response) {
@@ -195,6 +200,13 @@ export default {
               this.setLastRequests(requestsComplated);
               if (requestsProgressing.length <= this.selected) {
                 this.selectEditingRequest(null);
+              }
+              if (requestsProgressing.length === 0) {
+                this.setRequestStatus({
+                  processing: false,
+                  index: null,
+                  total: null,
+                });
               }
               if (requestsProgressing.length === 0
                 && this.pluginInstalled && !this.tcpLoading
@@ -264,6 +276,7 @@ export default {
       'setAppVersion',
       'setGameSeed',
       'setMemberid',
+      'setRequestStatus',
     ]),
   },
 
