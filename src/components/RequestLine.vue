@@ -7,7 +7,18 @@
           <v-layout column class="dq-frame-body padding-8">
             <v-flex shrink>{{ index + 1 + '.' + req.route.name }}</v-flex>
             <v-flex shrink class="flex-none">
-              <v-icon dark>{{ requestStatus(req) }}</v-icon>
+              <v-icon
+                dark
+                v-show="requestStatus.index !== index"
+              >
+                {{ requestIcon(req) }}
+              </v-icon>
+              <v-progress-circular
+                :size="24"
+                color="primary"
+                indeterminate
+                v-show="requestStatus.index === index"
+              ></v-progress-circular>
             </v-flex>
             <v-spacer/>
             <v-flex shrink class="req-actions">
@@ -45,7 +56,7 @@
           <v-layout column class="layout-flex flex-column dq-frame-body">
             <div>{{ index + 1 + '.' + req.route.name }}</div>
             <div>
-              <v-icon dark>{{ requestStatus(req) }}</v-icon>
+              <v-icon dark>{{ requestIcon(req) }}</v-icon>
             </div>
             <v-spacer/>
           </v-layout>
@@ -63,11 +74,17 @@ export default {
   name: 'RequestLine',
 
   computed: {
-    ...mapState(['requests', 'lastRequests', 'routes', 'selected']),
+    ...mapState([
+      'requests',
+      'lastRequests',
+      'routes',
+      'selected',
+      'requestStatus',
+    ]),
   },
 
   methods: {
-    requestStatus(req) {
+    requestIcon(req) {
       let ret;
       if (!req.error && !req.response) {
         ret = 'flag';

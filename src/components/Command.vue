@@ -36,14 +36,35 @@
       </v-layout>
     </div>
     <div class="button-group">
-      <button class="action-btn" v-on:click="clearCommand">清空队列</button>
-      <button class="action-btn" v-on:click="addCommandAction"> 新增</button>
-      <button class="action-btn"
-              v-on:click="modifyCommand"
-              v-show="selected !== null">
+      <button
+        class="action-btn"
+        v-on:click="clearCommand"
+        :disabled="!!requestStatus.processing"
+      >
+        清空队列
+      </button>
+      <button
+        class="action-btn"
+        v-on:click="addCommandAction"
+        :disabled="!!requestStatus.processing"
+      >
+        新增
+      </button>
+      <button
+        class="action-btn"
+        v-on:click="modifyCommand"
+        v-show="selected !== null"
+        :disabled="!!requestStatus.processing"
+      >
         修改
       </button>
-      <button class="action-btn" v-on:click="startCommand">执行队列</button>
+      <button
+        class="action-btn"
+        v-on:click="startCommand"
+        :disabled="!!requestStatus.processing"
+      >
+        执行队列
+      </button>
       <button
         class="action-btn"
         v-on:click="proxyPanel = !proxyPanel"
@@ -99,7 +120,14 @@ export default {
   },
 
   computed: {
-    ...mapState(['requests', 'routes', 'selected', 'poidata', 'pluginInstalled']),
+    ...mapState([
+      'requests',
+      'routes',
+      'selected',
+      'poidata',
+      'pluginInstalled',
+      'requestStatus',
+    ]),
   },
 
   watch: {

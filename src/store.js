@@ -8,6 +8,11 @@ export default new Vuex.Store({
   state: {
     version: null,
     requests: [],
+    requestStatus: {
+      processing: false,
+      index: null,
+      total: null,
+    },
     lastRequests: [],
     selected: null,
     routes,
@@ -97,6 +102,17 @@ export default new Vuex.Store({
     },
     removeRequest(state, reqInd) {
       state.requests.splice(reqInd, 1);
+    },
+    setRequestStatus(state, { processing, index, total }) {
+      if (typeof processing !== 'undefined' && state.requestStatus.processing !== processing) {
+        state.requestStatus.processing = processing;
+      }
+      if (typeof index !== 'undefined' && state.requestStatus.index !== index) {
+        state.requestStatus.index = index;
+      }
+      if (typeof total !== 'undefined' && state.requestStatus.total !== total) {
+        state.requestStatus.total = total;
+      }
     },
     selectEditingRequest(state, selected) {
       state.selected = selected;

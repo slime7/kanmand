@@ -116,6 +116,7 @@ export default class KancolleRequest {
     return {
       gameInfo: this.gameInfo,
       requests: this.requests,
+      requestIndex: this.requestIndex,
     };
   }
 
@@ -125,30 +126,33 @@ export default class KancolleRequest {
 
   async start() {
     this.loading += 1;
-    try {
-      const response = await this.connect();
-      await this.success(response);
-    } catch (error) {
-      const requestInd = this.requestIndex;
-      this.requests[requestInd].error = error;
-      if (error.response) {
-        this.requests[requestInd].error = error.response;
-      } else if (error.request) {
-        this.requests[requestInd].error = error.request;
-      } else {
-        this.requests[requestInd].error = error.message;
-      }
+    const self = this;
+    const doReq = async function deReq() {
+      const requestInd = self.requestIndex;
+      let response;
       try {
-        await this.endTask(true);
-      } catch (e) {
-        console.log(e);
+        response = await self.connect(self.requests[requestInd]);
+      } catch (error) {
+        if (error.response) {
+          self.requests[requestInd].error = error.response;
+        } else if (error.request) {
+          self.requests[requestInd].error = error.request;
+        } else {
+          self.requests[requestInd].error = error.message;
+        }
+
+        self.endTask(true);
       }
+      if (response) {
+        self.success(response);
+      }
+    };
+    while (this.requestIndex < this.requests.length) {
+      await doReq(); // eslint-disable-line no-await-in-loop
     }
   }
 
-  async connect() {
-    const requestInd = this.requestIndex;
-    const request = this.requests[requestInd];
+  async connect(request) {
     const reqData = {
       api_token: this.gameInfo.gameToken,
       api_verno: 1,
@@ -171,26 +175,24 @@ export default class KancolleRequest {
       postConfig.proxy = this.proxy;
     }
 
-    try {
-      const response = await axios(postConfig);
-      return new Promise((resolve) => {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const response = await axios(postConfig);
         resolve(response);
-      });
-    } catch (error) {
-      return new Promise((resolve, reject) => {
+      } catch (error) {
         reject(error);
-      });
-    }
+      }
+    });
   }
 
-  async success(response) {
+  success(response) {
     const requestInd = this.requestIndex;
     this.requests[requestInd].response = response;
     const result = response.data.replace(/[\s\S]*svdata=/, '');
-    await this.parse(result);
+    this.parse(result);
   }
 
-  async parse(r) {
+  parse(r) {
     const requestInd = this.requestIndex;
     const request = this.requests[requestInd];
 
@@ -200,10 +202,10 @@ export default class KancolleRequest {
       api_result_msg: getString(json, 'api_result_msg'),
       raw_data: getObject(json, 'api_data'),
     };
-    await this.endTask(request.responseData.api_result === 1);
+    this.endTask(request.responseData.api_result === 1);
   }
 
-  async endTask(isApiSuccess) {
+  endTask(isApiSuccess) {
     if (this.loading > 0) {
       this.loading -= 1;
     }
@@ -226,10 +228,5 @@ export default class KancolleRequest {
       });
     }
     this.requestIndex += 1;
-    if (this.requestIndex < this.requests.length) {
-      await this.start();
-    } else {
-      console.log('end task');
-    }
   }
 }

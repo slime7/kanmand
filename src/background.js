@@ -109,15 +109,21 @@ function createWindow() {
     };
 
     switch (type) {
-      case 'start':
+      case 'start': {
         if (!kanmand) {
           console.log('请求列表为空');
           break;
         }
+        const info = kanmand.requestInfo();
+        reply({
+          requests: info.requests,
+          requestIndex: info.requestIndex,
+        });
         await kanmand.start();
         kanmand.clear();
         kanmand = null;
         break;
+      }
 
       case 'add':
         if (init()) {
