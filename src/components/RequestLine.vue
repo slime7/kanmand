@@ -21,7 +21,7 @@
               ></v-progress-circular>
             </v-flex>
             <v-spacer/>
-            <v-flex shrink class="req-actions">
+            <v-flex shrink class="req-actions" v-show="!requestStatus.processing">
               <v-layout row justify-space-between>
                 <div class="text-btn" v-on:click.stop="moveCommand(index, -1)">
                   <v-icon dark size="20">arrow_back</v-icon>
