@@ -39,6 +39,10 @@ function parseGameLink(link) {
   return null;
 }
 
+function debuglog(msg) {
+  global.win.webContents.send('kancolle-command-reply', { debuglog: msg });
+}
+
 export default class KancolleRequest {
   constructor() {
     this.gameInfo = null;
@@ -59,6 +63,7 @@ export default class KancolleRequest {
         ...gameBaseInfo,
         gameLink,
       };
+      axios.defaults.baseURL = `http://${this.gameInfo.serverIp}/`;
       return this;
     }
     return false;
@@ -133,6 +138,8 @@ export default class KancolleRequest {
       try {
         response = await self.connect(self.requests[requestInd]);
       } catch (error) {
+        debuglog(error.message);
+        debuglog(error);
         if (error.response) {
           self.requests[requestInd].error = error.response;
         } else if (error.request) {
@@ -160,8 +167,10 @@ export default class KancolleRequest {
     };
 
     const postConfig = {
-      url: `http://${this.gameInfo.serverIp}${request.route.path}`,
+      url: request.route.path,
       method: 'POST',
+      // 暂时禁止重定向跟踪
+      maxRedirects: 0,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         Host: this.gameInfo.serverIp,

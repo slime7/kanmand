@@ -58,6 +58,7 @@ function createWindow() {
     frame: false,
     // transparent: true,
   });
+  global.win = win;
 
   if (isDevelopment || process.env.IS_TEST) {
     // Load the url of the dev server if in development mode

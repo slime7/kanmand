@@ -171,6 +171,7 @@ export default {
           appversion,
           seed,
           gameScriptVersion,
+          debuglog,
         }) => {
           if (error) {
             this.$toasted.error(error);
@@ -260,6 +261,10 @@ export default {
             if (settingKey === 'kanmand.memberid' && settingValue && settingValue !== this.memberid) {
               this.setMemberid({ memberid: settingValue });
             }
+          }
+
+          if (debuglog) {
+            console.log(debuglog);
           }
         });
       }
