@@ -70,7 +70,9 @@ export default class KancolleRequest {
   }
 
   add(route, data) {
-    this.requests.push({ route, data });
+    if (!this.loading) {
+      this.requests.push({ route, data });
+    }
   }
 
   clear() {
