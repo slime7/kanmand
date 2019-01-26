@@ -148,7 +148,20 @@ export default class KancolleRequest {
           self.requests[requestInd].error = error.message;
         }
 
-        self.endTask(true);
+        // 遇到370自动重试而不是跟踪重定向，最多尝试5次
+        if (error.response && error.response.status === 307) {
+          delete self.requests[requestInd].error;
+          if (self.requests[requestInd].retry) {
+            self.requests[requestInd].retry += 1;
+          } else {
+            self.requests[requestInd].retry = 1;
+          }
+          if (self.requests[requestInd].retry >= 5) {
+            self.endTask(true);
+          }
+        } else {
+          self.endTask(true);
+        }
       }
       if (response) {
         self.success(response);
@@ -228,7 +241,11 @@ export default class KancolleRequest {
         errorMessage = `${this.requestIndex + 1}: 游戏返回了错误。`;
       }
       if (this.requests[this.requestIndex].error) {
-        errorMessage = `${this.requestIndex + 1}: 网络出错。`;
+        if (typeof this.requests[this.requestIndex].error === 'string') {
+          errorMessage = `${this.requestIndex + 1}: ${this.requests[this.requestIndex].error}`;
+        } else {
+          errorMessage = `${this.requestIndex + 1}: 网络出错。`;
+        }
       }
       this.stageEndCallback({
         requests: this.requests,
