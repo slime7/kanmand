@@ -94,7 +94,21 @@
                 >
                   弹
                 </span>
-                <span class="text-btn fleet-export" v-show="0">保存</span>
+                <span
+                  class="text-btn fleet-export"
+                  v-on:click="fleetExport(index + 1)"
+                  v-show="index !== 0"
+                >
+                  导出
+                </span>
+                <span
+                  class="text-btn fleet-export"
+                  v-on:click.exact="fleetExport(index + 1)"
+                  v-on:click.right="fleetExport(12)"
+                  v-show="index === 0"
+                >
+                  导出
+                </span>
                 <span
                   class="text-btn"
                   v-if="fleet.api_mission[0] !== 0"
@@ -113,7 +127,7 @@
 
 <script>
 /* global __static */
-import { ipcRenderer } from 'electron';
+import { ipcRenderer, clipboard } from 'electron';
 import { mapState, mapGetters, mapMutations } from 'vuex';
 import { getPortId } from '../utils';
 
@@ -340,6 +354,56 @@ export default {
       } else {
         this.$toasted.show('母港操作需要 member id 和 seed');
       }
+    },
+    fleetExport(fleetNum) {
+      const poiBattleStruct = {
+        version: 'kanmand',
+        fleet: {
+          main: [],
+          escort: null,
+        },
+      };
+      const poiInfo = this.poidata.info;
+      const buildFleet = (id) => {
+        const ship = poiInfo.ships[id];
+        const shipSlot = ship.api_slot.filter(e => e !== -1).map((equipId) => {
+          const equip = poiInfo.equips[equipId];
+          return equip;
+        });
+        const shipSlotEx = ship.api_slot_ex > 0
+          ? this.poidata.info.equips[ship.api_slot_ex]
+          : null;
+        const poiShip = {
+          api_id: id,
+          api_ship_id: ship.api_ship_id,
+          api_slotnum: ship.api_slotnum,
+          poi_slot: shipSlot,
+          poi_slot_ex: shipSlotEx,
+        };
+        return poiShip;
+      };
+      let fleetMain;
+      let fleetEscort;
+      if (fleetNum === 12) {
+        [fleetMain] = poiInfo.fleets;
+        [, fleetEscort] = poiInfo.fleets;
+      } else {
+        fleetMain = poiInfo.fleets[fleetNum - 1];
+      }
+      fleetMain.api_ship.filter(s => s !== -1).forEach((id) => {
+        const fleet = buildFleet(id);
+        poiBattleStruct.fleet.main.push(fleet);
+      });
+      if (fleetNum === 12) {
+        fleetEscort.api_ship.filter(s => s !== -1).forEach((id) => {
+          const fleet = buildFleet(id);
+          poiBattleStruct.fleet.escort = [];
+          poiBattleStruct.fleet.escort.push(fleet);
+        });
+      }
+
+      clipboard.writeText(JSON.stringify(poiBattleStruct));
+      this.$toasted.show('已复制到剪切板');
     },
     savePlugin() {
       ipcRenderer.send('kancolle-command-actions', {

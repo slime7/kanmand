@@ -16,7 +16,7 @@
           <option disabled value="">发送路径</option>
           <option value="importDataFromString">导入数据</option>
           <option value="importDataFromPoiBattle" v-show="pluginInstalled">
-            复制poi战斗数据所用舰队
+            复制poi战斗数据所用舰队或kanmand保存的舰队
           </option>
           <option v-for="route in routes"
                   :key="route.name"
