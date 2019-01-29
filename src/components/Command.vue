@@ -238,6 +238,13 @@ export default {
       const shipId = +ship.api_id;
       const shipStat = this.poidata.info.ships[shipId];
       const fleetStat = this.poidata.info.fleets[f - 1];
+
+      if (!shipStat) {
+        // 除籍舰
+        this.$toasted.show('有除籍舰被排除');
+        return null;
+      }
+
       // equipmentStat: 第一项为 exslot ，其余为常规 slot
       const equipmentStat = [
         shipStat.api_slot_ex > 0 ? shipStat.api_slot_ex : null,
@@ -329,15 +336,23 @@ export default {
       const kanmandObj = { version: 1, requests: [] };
       const { main, escort } = poiBattle.fleet;
       if (main) {
-        main.forEach((ship, si) => {
-          const k = this.formatShipKanmand(ship, 1, si);
-          kanmandObj.requests.push(...k);
+        let mainSi = 0;
+        main.forEach((ship) => {
+          const k = this.formatShipKanmand(ship, 1, mainSi);
+          if (k) {
+            kanmandObj.requests.push(...k);
+            mainSi += 1;
+          }
         });
       }
       if (escort) {
-        escort.forEach((ship, si) => {
-          const k = this.formatShipKanmand(ship, 2, si);
-          kanmandObj.requests.push(...k);
+        let escortSi = 0;
+        escort.forEach((ship) => {
+          const k = this.formatShipKanmand(ship, 2, escortSi);
+          if (k) {
+            kanmandObj.requests.push(...k);
+            escortSi += 1;
+          }
         });
       }
 
