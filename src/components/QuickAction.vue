@@ -80,19 +80,13 @@
                   v-on:click.left="addChargeCommand(fleet, 3)"
                   v-on:click.right="addChargeCommand(fleet, 9)"
                 >
-                  补给
+                  全补给
                 </span>
                 <span
                   class="text-btn"
-                  v-on:click="addChargeCommand(fleet, 1)"
+                  v-on:click="addChargeCommand(fleet, 0)"
                 >
-                  油
-                </span>
-                <span
-                  class="text-btn"
-                  v-on:click="addChargeCommand(fleet, 2)"
-                >
-                  弹
+                  载具补给
                 </span>
                 <span
                   class="text-btn fleet-export"
@@ -299,23 +293,49 @@ export default {
       }
     },
     addChargeCommand(fleet, type) {
-      // type 1: 油, 2: 弹, 3: 全
+      // type 1: 油, 2: 弹, 3: 全, 0: 铝
       const shipStat = [];
       fleet.api_ship.filter(s => s !== -1).forEach((shipId) => {
         const ship = this.poidata.info.ships[shipId];
         const shipStd = this.poidata.const.$ships[ship.api_ship_id];
+        const allEquips = this.poidata.info.equips;
+        const getShipEquipedId = () => {
+          const equipIds = [];
+          ship.api_slot.forEach((equip) => {
+            if (equip > 0) {
+              equipIds.push(allEquips[equip].api_slotitem_id);
+            } else {
+              equipIds.push(equip);
+            }
+          });
+          return equipIds;
+        };
+        const planeCheck = () => {
+          const nowSlot = ship.api_onslot;
+          const maxSlot = shipStd.api_maxeq;
+          const equips = getShipEquipedId();
+          let res = true;
+          maxSlot.forEach((c, i) => {
+            if (c !== nowSlot[i] && equips[i] !== 138 && equips[i] !== 178) {
+              res = false;
+            }
+          });
+          return res;
+        };
         shipStat.push({
           shipId,
           bull: [ship.api_bull, shipStd.api_bull_max],
           fuel: [ship.api_fuel, shipStd.api_fuel_max],
+          lostPlane: !planeCheck(),
         });
       });
 
       if (type !== 9) {
         const needCharge = [];
         shipStat.forEach((ship) => {
-          if ((type !== 1 && ship.bull[0] < ship.bull[1])
-            || (type !== 2 && ship.fuel[0] < ship.fuel[1])) {
+          if (((type === 2 || type === 3) && ship.bull[0] < ship.bull[1])
+            || ((type === 1 || type === 3) && ship.fuel[0] < ship.fuel[1])
+            || ((type === 0 || type === 3) && ship.lostPlane)) {
             needCharge.push(ship.shipId);
           }
         });
@@ -338,6 +358,13 @@ export default {
           if (ship.bull[0] < ship.bull[1]) {
             this.addCommand('charge', {
               api_kind: 2,
+              api_id_items: ship.shipId,
+              api_onslot: 1,
+            });
+          }
+          if (ship.lostPlane) {
+            this.addCommand('charge', {
+              api_kind: 0,
               api_id_items: ship.shipId,
               api_onslot: 1,
             });
