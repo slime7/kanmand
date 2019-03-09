@@ -2,9 +2,9 @@
   <v-layout column shrink class="flex padding-8">
     <v-layout row wrap class="flex req-wrap">
       <v-flex shrink class="req-block" v-for="(req, index) in requests" :key="index">
-        <div class="dq-frame" :class="{orange: selected === index}"
+        <div class="dq-frame padding-8" :class="{orange: selected === index}"
              v-on:click="selectEditingRequest(index)">
-          <v-layout column class="dq-frame-body padding-8">
+          <v-layout column class="dq-frame-body">
             <v-flex shrink>{{ index + 1 + '.' + req.route.name }}</v-flex>
             <v-flex shrink class="flex-none">
               <v-icon
@@ -36,9 +36,9 @@
         </div>
       </v-flex>
       <v-flex shrink class="req-block">
-        <div class="dq-frame" :class="{orange: selected === null}"
+        <div class="dq-frame padding-8" :class="{orange: selected === null}"
              v-on:click="selectEditingRequest(null)">
-          <v-layout column class="dq-frame-body padding-8">
+          <v-layout column class="dq-frame-body">
             <div>NEW</div>
             <div>
               <v-icon dark>add</v-icon>
@@ -53,7 +53,7 @@
 
       <v-flex shrink class="req-block" v-for="(req, index) in lastRequests" :key="'lr' + index">
         <div class="dq-frame padding-8">
-          <v-layout column class="layout-flex flex-column dq-frame-body">
+          <v-layout column class="dq-frame-body">
             <div>{{ index + 1 + '.' + req.route.name }}</div>
             <div>
               <v-icon dark>{{ requestIcon(req) }}</v-icon>
