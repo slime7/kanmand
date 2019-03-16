@@ -2,7 +2,7 @@
   <v-layout column shrink class="flex padding-8">
     <v-layout row wrap class="flex req-wrap">
       <v-flex shrink class="req-block" v-for="(req, index) in requests" :key="index">
-        <div class="dq-frame padding-8" :class="{orange: selected === index}"
+        <div class="dq-frame padding-8" :class="{org: selected === index}"
              v-on:click="selectEditingRequest(index)">
           <v-layout column class="dq-frame-body">
             <v-flex shrink>{{ index + 1 + '.' + req.route.name }}</v-flex>
@@ -36,7 +36,7 @@
         </div>
       </v-flex>
       <v-flex shrink class="req-block">
-        <div class="dq-frame padding-8" :class="{orange: selected === null}"
+        <div class="dq-frame padding-8" :class="{org: selected === null}"
              v-on:click="selectEditingRequest(null)">
           <v-layout column class="dq-frame-body">
             <div>NEW</div>

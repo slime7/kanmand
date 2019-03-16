@@ -333,12 +333,17 @@ export default {
         this.$toasted.show('导入格式不正确');
         return null;
       }
+      const targetFleetNo = poiBattle.target ? +poiBattle.target : 1;
       const kanmandObj = { version: 1, requests: [] };
       const { main, escort } = poiBattle.fleet;
+      if (main && escort && targetFleetNo !== 1) {
+        this.$toasted.show('联合舰队请配置到舰队1');
+        return null;
+      }
       if (main) {
         let mainSi = 0;
         main.forEach((ship) => {
-          const k = this.formatShipKanmand(ship, 1, mainSi);
+          const k = this.formatShipKanmand(ship, targetFleetNo, mainSi);
           if (k) {
             kanmandObj.requests.push(...k);
             mainSi += 1;
@@ -348,7 +353,7 @@ export default {
       if (escort) {
         let escortSi = 0;
         escort.forEach((ship) => {
-          const k = this.formatShipKanmand(ship, 2, escortSi);
+          const k = this.formatShipKanmand(ship, targetFleetNo + 1, escortSi);
           if (k) {
             kanmandObj.requests.push(...k);
             escortSi += 1;

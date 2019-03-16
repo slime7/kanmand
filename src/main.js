@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import Toasted from 'vue-toasted';
+import './plugins/vuetify';
 import App from './App.vue';
 import store from './store';
 import 'roboto-fontface/css/roboto/roboto-fontface.css';

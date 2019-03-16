@@ -1,6 +1,6 @@
 /* global __static */
 <template>
-  <v-container fluid id="app">
+  <v-app fluid id="app">
     <v-layout column class="dq-frame strong-shadow win" :class="{ max: maximize}">
       <v-flex shrink class="dq-frame-header padding-8">
         <v-layout row>
@@ -36,7 +36,7 @@
         <v-layout row class="main-content">
           <v-flex xs6 sm6 md6 lg4 xl3 class="main-left">
             <v-layout column fill-height class="flex">
-              <Command/>
+              <Command ref="childCommand"/>
               <div class="divider"></div>
               <request-line/>
             </v-layout>
@@ -53,7 +53,7 @@
         </v-layout>
       </v-layout>
     </v-layout>
-  </v-container>
+  </v-app>
 </template>
 
 <script>
@@ -94,6 +94,7 @@ export default {
       'poidataConfig',
       'pluginInstalled',
       'memberid',
+      'gameLinkStored',
     ]),
   },
 
@@ -172,6 +173,8 @@ export default {
           seed,
           gameScriptVersion,
           debuglog,
+          savedFleet,
+          loadedFleet,
         }) => {
           if (error) {
             this.$toasted.error(error);
@@ -249,6 +252,19 @@ export default {
               this.setGameSeed({ gameSeed });
             }
           }
+          // 队伍配置列表
+          if (typeof savedFleet !== 'undefined') {
+            this.setSavedFleet({ fleets: savedFleet });
+          }
+          // 展开队伍配置
+          if (typeof loadedFleet !== 'undefined') {
+            const poifleetsString = this.$refs.childCommand.parsePoiFleets(loadedFleet);
+            const reqData = {
+              gameLink: this.gameLinkStored,
+              importString: poifleetsString,
+            };
+            ipcRenderer.send('kancolle-command-actions', { type: 'import', reqData });
+          }
           // 设置
           if (settingKey && settingValue) {
             if (settingKey === 'kanmand.repair') {
@@ -282,6 +298,7 @@ export default {
       'setGameSeed',
       'setMemberid',
       'setRequestStatus',
+      'setSavedFleet',
     ]),
   },
 
@@ -302,14 +319,6 @@ export default {
   * {
     box-sizing: border-box;
     user-select: none;
-  }
-
-  *:not(pre) {
-    font-family: "Noto Sans", "Noto Sans CJK SC",
-    "Microsoft YaHei", "微软雅黑",
-    tahoma, arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
   }
 
   pre {
@@ -365,7 +374,6 @@ export default {
   }
 
   #app {
-    padding: 1px;
     height: 100vh;
     width: 100vw;
     background-image: url("./assets/bg.jpg");
@@ -389,7 +397,6 @@ export default {
 
   .dq-frame.win {
     border-radius: 0;
-    margin: 0;
   }
 
   .dq-frame.win.max {
@@ -397,6 +404,7 @@ export default {
   }
 
   .dq-frame.toasted {
+    border-color: #fff !important;
     border-radius: 6px !important;
     box-shadow: 0 0 0 1px #000, 0 0 7px 3px #000 inset !important;
   }
@@ -408,6 +416,7 @@ export default {
   .win > .dq-frame-header {
     border: none;
     -webkit-app-region: drag;
+    z-index: 9999;
   }
 
   .dq-frame-body {
@@ -433,12 +442,12 @@ export default {
     background-color: #fff;
   }
 
-  .dq-frame.orange {
+  .dq-frame.org {
     box-shadow: 0 0 0 1px #ff9800, 0 0 7px 3px #ff9800 inset;
     text-shadow: 0 1px #ff9800, 1px 0 #ff9800, -1px 0 #ff9800, 0 -1px #ff9800;
   }
 
-  .dq-frame.orange.strong-shadow {
+  .dq-frame.org.strong-shadow {
     box-shadow: 0 0 0 1px #ff9800, 0 0 1.2em .5em #ff9800 inset;
   }
 

@@ -90,15 +90,18 @@
                 </span>
                 <span
                   class="text-btn fleet-export"
-                  v-on:click="fleetExport(index + 1)"
+                  v-on:click.exact="fleetCopy(index + 1)"
+                  v-on:click.ctrl="fleetSaveDialog(index + 1)"
                   v-show="index !== 0"
                 >
                   导出
                 </span>
                 <span
                   class="text-btn fleet-export"
-                  v-on:click.exact="fleetExport(index + 1)"
-                  v-on:click.right="fleetExport(12)"
+                  v-on:click.exact="fleetCopy(1)"
+                  v-on:click.ctrl="fleetSaveDialog(1)"
+                  v-on:click.right.exact="fleetCopy(12)"
+                  v-on:click.ctrl.right="fleetSaveDialog(12)"
                   v-show="index === 0"
                 >
                   导出
@@ -114,8 +117,77 @@
             </li>
           </ol>
         </div>
+        <div class="divider"></div>
+        <div class="padding-8">
+          <v-layout row>
+            <div>舰队配置</div>
+            <v-spacer/>
+            <span class="text-btn" v-on:click="openFleetsDir">打开保存目录</span>
+          </v-layout>
+          <ol>
+            <li
+              v-for="(fleet, index) in savedFleet"
+              :key="index"
+            >
+              <v-layout row align-center>
+                <div
+                  class="fleet-desc text-btn"
+                  v-on:click="exportFleetMenu($event, fleet)"
+                >{{ fleet.replace(/.json/i, '') }}</div>
+              </v-layout>
+            </li>
+          </ol>
+          <div v-show="!savedFleet.length">暂无记录</div>
+        </div>
       </v-flex>
     </v-layout>
+    <v-menu
+      v-model="showExportFleetMenu"
+      :position-x="exportFleetMenuPosition.x"
+      :position-y="exportFleetMenuPosition.y"
+      absolute
+      offset-y
+    >
+      <div class="dq-frame padding-8">
+        <div class="dq-frame-body">
+          <v-layout column>
+            <div
+              class="switch text-btn"
+              v-for="f in [1, 2, 3, 4]"
+              v-on:click="exportFleet(f)"
+              :key="f"
+            >配置到舰队{{f}}
+            </div>
+            <div class="switch text-btn" v-on:click="removeSavedFleet">移除</div>
+          </v-layout>
+        </div>
+      </div>
+    </v-menu>
+    <v-dialog
+      v-model="showSaveFleetDialog"
+      attach="#app .main-container"
+      persistent
+      max-width="300"
+    >
+      <div class="dq-frame padding-8 modal">
+        <v-layout column class="dq-frame-body">
+          <div>舰队配置描述</div>
+          <v-layout row>
+            <input
+              class="flex"
+              placeholder="如：2-5水反"
+              v-model="fleetDesc"
+            />
+          </v-layout>
+          <v-layout row>
+            <v-spacer/>
+            <span class="text-btn" v-on:click="fleetSaveDialog(null, false)">取消</span>
+            <span class="text-btn" v-on:click="fleetSave">保存</span>
+          </v-layout>
+          <v-spacer/>
+        </v-layout>
+      </div>
+    </v-dialog>
   </v-layout>
 </template>
 
@@ -137,6 +209,12 @@ export default {
         { text: '', timeoutId: null },
         { text: '', timeoutId: null },
       ],
+      showSaveFleetDialog: false,
+      fleetNum: null,
+      fleetDesc: '',
+      showExportFleetMenu: false,
+      exportFleetMenuPosition: { x: 0, y: 0 },
+      exportFleetMenuSelected: null,
     };
   },
 
@@ -150,6 +228,7 @@ export default {
       'tcpLoading',
       'memberid',
       'gameSeed',
+      'savedFleet',
     ]),
   },
 
@@ -422,15 +501,71 @@ export default {
         poiBattleStruct.fleet.main.push(fleet);
       });
       if (fleetNum === 12) {
+        poiBattleStruct.fleet.escort = [];
         fleetEscort.api_ship.filter(s => s !== -1).forEach((id) => {
           const fleet = buildFleet(id);
-          poiBattleStruct.fleet.escort = [];
           poiBattleStruct.fleet.escort.push(fleet);
         });
       }
 
-      clipboard.writeText(JSON.stringify(poiBattleStruct));
+      return JSON.stringify(poiBattleStruct);
+    },
+    fleetCopy(fleetNum) {
+      const fleetString = this.fleetExport(fleetNum);
+      clipboard.writeText(fleetString);
       this.$toasted.show('已复制到剪切板');
+    },
+    fleetSave() {
+      if (!this.fleetNum) {
+        return;
+      }
+      const fleetDesc = this.fleetDesc.trim();
+      if (fleetDesc === '') {
+        this.$toasted.show('描述不能为空');
+        return;
+      }
+      const fleetDescVaild = /[\\:"<>?/]+/.test(fleetDesc);
+      if (fleetDescVaild) {
+        this.$toasted.show('描述不能包含以下字符：\\ : " < > ? /');
+        return;
+      }
+      const fleetString = this.fleetExport(this.fleetNum);
+      ipcRenderer.send('kancolle-command-actions', {
+        type: 'saveFleet',
+        fleetString,
+        fleetDesc,
+      });
+      this.showSaveFleetDialog = false;
+      this.fleetNum = null;
+    },
+    fleetSaveDialog(fleetNum, isOpen = true) {
+      if (isOpen) {
+        this.fleetNum = fleetNum;
+        this.showSaveFleetDialog = true;
+      } else {
+        this.fleetNum = null;
+        this.showSaveFleetDialog = false;
+      }
+    },
+    exportFleetMenu(ev, fleet) {
+      ev.preventDefault();
+      this.exportFleetMenuPosition.x = ev.clientX - ev.offsetX;
+      this.exportFleetMenuPosition.y = ev.clientY - ev.offsetY + ev.target.clientHeight + 4;
+      this.showExportFleetMenu = true;
+      this.exportFleetMenuSelected = fleet;
+    },
+    exportFleet(target) {
+      ipcRenderer.send('kancolle-command-actions', {
+        type: 'loadFleet',
+        fleetDesc: this.exportFleetMenuSelected,
+        fleetTarget: target,
+      });
+    },
+    removeSavedFleet() {
+      ipcRenderer.send('kancolle-command-actions', {
+        type: 'removeFleet',
+        fleetDesc: this.exportFleetMenuSelected,
+      });
     },
     savePlugin() {
       ipcRenderer.send('kancolle-command-actions', {
@@ -441,6 +576,9 @@ export default {
     devtool() {
       ipcRenderer.send('kancolle-command-actions', { type: 'devtool' });
     },
+    openFleetsDir() {
+      ipcRenderer.send('kancolle-command-actions', { type: 'openFleetsDir' });
+    },
     ...mapMutations([
       'setTcpStatus',
       'setMemberid',
@@ -448,6 +586,7 @@ export default {
   },
 
   mounted() {
+    ipcRenderer.send('kancolle-command-actions', { type: 'savedFleet' });
   },
 };
 </script>
@@ -465,7 +604,8 @@ export default {
   .fleet-name,
   .ship-name,
   .ship-level,
-  .ship-hp {
+  .ship-hp,
+  .fleet-desc {
     display: inline-block;
     vertical-align: top;
     overflow: hidden;
@@ -478,11 +618,34 @@ export default {
     width: 100px;
   }
 
+  .fleet-desc {
+    width: 100%;
+  }
+
   .ship-level {
     width: 45px;
   }
 
   .poidata-btn {
     flex: none;
+  }
+
+  .dq-frame.modal {
+    background: black;
+  }
+
+  .switch {
+    position: relative;
+    margin-left: 1.4em;
+    min-width: 40px;
+  }
+
+  .switch:hover:before,
+  .switch.on:before {
+    position: absolute;
+    content: 'play_arrow';
+    font-family: 'Material Icons';
+    font-size: 20px;
+    left: -1em;
   }
 </style>

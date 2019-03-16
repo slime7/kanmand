@@ -5,6 +5,7 @@ import {
   ipcMain,
   screen,
   dialog,
+  shell,
 } from 'electron';
 import {
   createProtocol,
@@ -87,6 +88,9 @@ function createWindow() {
     settingValue,
     pluginDir,
     currentScriptVersion,
+    fleetString,
+    fleetDesc,
+    fleetTarget,
   }) => {
     const reply = (payload) => {
       event.sender.send('kancolle-command-reply', payload);
@@ -255,6 +259,99 @@ function createWindow() {
             reply({ gameScriptVersion: scriptVersion });
           }
         }
+        break;
+      }
+
+      case 'openFleetsDir': {
+        const fleetsPath = path.join(global.APPDATA_PATH, 'fleets');
+        if (!fs.existsSync(fleetsPath)) {
+          fs.mkdirSync(fleetsPath);
+        }
+        shell.openItem(fleetsPath);
+        break;
+      }
+
+      case 'saveFleet': {
+        const fleetsPath = path.join(global.APPDATA_PATH, 'fleets');
+        if (fleetString.trim() && fleetDesc.trim()) {
+          if (!fs.existsSync(fleetsPath)) {
+            fs.mkdirSync(fleetsPath);
+          }
+          const fleetfilename = path.join(fleetsPath, `${fleetDesc.trim()}.json`);
+          if (!fs.existsSync(fleetfilename)) {
+            fs.writeFile(fleetfilename, fleetString, (err) => {
+              if (err) {
+                reply({ error: err.message });
+              } else {
+                fs.readdir(fleetsPath, (rerr, files) => {
+                  if (rerr) {
+                    reply({ error: rerr.message });
+                  } else {
+                    const items = files || [];
+                    reply({ savedFleet: items });
+                  }
+                });
+              }
+            });
+          } else {
+            reply({ error: '此配置名已存在。' });
+          }
+        }
+        break;
+      }
+
+      case 'savedFleet': {
+        const fleetsPath = path.join(global.APPDATA_PATH, 'fleets');
+        fs.readdir(fleetsPath, (err, files) => {
+          if (err) {
+            reply({ error: err.message });
+          } else {
+            const items = files || [];
+            reply({ savedFleet: items });
+          }
+        });
+        break;
+      }
+
+      case 'loadFleet': {
+        const fPath = path.join(global.APPDATA_PATH, 'fleets', fleetDesc);
+        if (!fs.existsSync(fPath)) {
+          reply({ error: '此配置不存在。' });
+        } else {
+          fs.readFile(fPath, 'utf8', (err, data) => {
+            if (err) {
+              reply({ error: err.message });
+            } else {
+              try {
+                const fleet = JSON.parse(data);
+                fleet.target = fleetTarget;
+                reply({ loadedFleet: JSON.stringify(fleet) });
+              } catch (jsonerr) {
+                reply({ error: '读取失败，配置可能损坏了' });
+              }
+            }
+          });
+        }
+        break;
+      }
+
+      case 'removeFleet': {
+        const fleetsPath = path.join(global.APPDATA_PATH, 'fleets');
+        const fPath = path.join(fleetsPath, fleetDesc);
+        fs.unlink(fPath, (err) => {
+          if (err) {
+            reply({ error: `删除失败 ${err.message}` });
+          } else {
+            fs.readdir(fleetsPath, (rerr, files) => {
+              if (rerr) {
+                reply({ error: rerr.message });
+              } else {
+                const items = files || [];
+                reply({ savedFleet: items });
+              }
+            });
+          }
+        });
         break;
       }
 

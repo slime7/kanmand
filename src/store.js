@@ -42,6 +42,7 @@ export default new Vuex.Store({
     },
     memberid: null,
     gameSeed: [],
+    savedFleet: [],
   },
   getters: {
     repairShip: (state) => {
@@ -185,6 +186,9 @@ export default new Vuex.Store({
     },
     setGameSeed(state, { gameSeed }) {
       state.gameSeed = gameSeed;
+    },
+    setSavedFleet(state, { fleets }) {
+      state.savedFleet = fleets;
     },
   },
 });

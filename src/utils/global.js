@@ -1,4 +1,4 @@
-import { app } from 'electron'; // eslint-disable-line
+import { app } from 'electron';
 import path from 'path';
 
 global.ROOT = path.join(__dirname, '..');
