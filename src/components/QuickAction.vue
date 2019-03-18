@@ -109,7 +109,8 @@
                 <span
                   class="text-btn"
                   v-if="fleet.api_mission[0] !== 0"
-                  v-on:click="addMissionCommand(fleet)"
+                  v-on:click.exact="addMissionCommand(fleet)"
+                  v-on:click.right="addMissionCommand(fleet, false)"
                 >
                 {{missions[index].text}}
               </span>
@@ -133,7 +134,9 @@
                 <div
                   class="fleet-desc text-btn"
                   v-on:click="exportFleetMenu($event, fleet)"
-                >{{ fleet.replace(/.json/i, '') }}</div>
+                >
+                  {{ fleet.replace(/.json/i, '') }}
+                </div>
               </v-layout>
             </li>
           </ol>
@@ -221,6 +224,7 @@ export default {
   computed: {
     ...mapGetters(['repairShip']),
     ...mapState([
+      'requests',
       'routes',
       'gameLinkStored',
       'poidata',
@@ -361,12 +365,23 @@ export default {
       }
       return missionText;
     },
-    addMissionCommand(fleet) {
+    addMissionCommand(fleet, charge = true) {
       const completeLeftSecond = Math.round((fleet.api_mission[2] - new Date().getTime()) / 1000);
-      if (completeLeftSecond < 50) {
+      if (completeLeftSecond < 59) {
+        const hasPortCommand = this.requests.filter(r => r.route.name === 'port');
+        if (!hasPortCommand.length) {
+          this.addPortCommand();
+        }
         this.addCommand('mission_result', {
           api_deck_id: fleet.api_id,
         });
+        if (charge) {
+          this.addCommand('charge', {
+            api_kind: 3,
+            api_id_items: fleet.api_ship.filter(s => s !== -1).join(','),
+            api_onslot: 1,
+          });
+        }
       } else {
         this.$toasted.show('远征还没回来');
       }
