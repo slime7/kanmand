@@ -74,6 +74,19 @@ function createWindow() {
     win.maximize();
   }
 
+  // fleets
+  const readFleets = () => {
+    const fleetsPath = path.join(global.APPDATA_PATH, 'fleets');
+    fs.readdir(fleetsPath, (err, files) => {
+      if (err) {
+        win.webContents.send('kancolle-command-reply', { error: err.message });
+      } else {
+        const items = files || [];
+        win.webContents.send('kancolle-command-reply', { savedFleet: items });
+      }
+    });
+  };
+
   // ipc request listen
   let kanmand;
 
@@ -283,14 +296,7 @@ function createWindow() {
               if (err) {
                 reply({ error: err.message });
               } else {
-                fs.readdir(fleetsPath, (rerr, files) => {
-                  if (rerr) {
-                    reply({ error: rerr.message });
-                  } else {
-                    const items = files || [];
-                    reply({ savedFleet: items });
-                  }
-                });
+                readFleets();
               }
             });
           } else {
@@ -300,18 +306,9 @@ function createWindow() {
         break;
       }
 
-      case 'savedFleet': {
-        const fleetsPath = path.join(global.APPDATA_PATH, 'fleets');
-        fs.readdir(fleetsPath, (err, files) => {
-          if (err) {
-            reply({ error: err.message });
-          } else {
-            const items = files || [];
-            reply({ savedFleet: items });
-          }
-        });
+      case 'savedFleet':
+        readFleets();
         break;
-      }
 
       case 'loadFleet': {
         const fPath = path.join(global.APPDATA_PATH, 'fleets', fleetDesc);
@@ -342,14 +339,7 @@ function createWindow() {
           if (err) {
             reply({ error: `删除失败 ${err.message}` });
           } else {
-            fs.readdir(fleetsPath, (rerr, files) => {
-              if (rerr) {
-                reply({ error: rerr.message });
-              } else {
-                const items = files || [];
-                reply({ savedFleet: items });
-              }
-            });
+            readFleets();
           }
         });
         break;
@@ -369,6 +359,13 @@ function createWindow() {
   });
   ipcMain.on('get-proxy-setting', (event) => {
     event.sender.send('proxy-setting', { proxy });
+  });
+
+  // watch fleets folder
+  fs.watch(path.join(global.APPDATA_PATH, 'fleets'), (eventType) => {
+    if (eventType === 'rename') {
+      readFleets();
+    }
   });
 
   win.on('maximize', () => {
