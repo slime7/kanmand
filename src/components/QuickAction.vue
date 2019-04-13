@@ -4,38 +4,34 @@
       <v-layout row>
         <div>快捷操作</div>
         <v-spacer/>
+        <v-layout row class="text-btn poidata-btn" v-on:click="poidataRefresh">
+          <v-icon
+            dark
+            size="20"
+            v-show="!tcpLoading && !pluginInstalled"
+          >
+            close
+          </v-icon>
+          <v-icon
+            dark
+            size="20"
+            v-show="!tcpLoading && pluginInstalled"
+          >
+            check
+          </v-icon>
+          <v-progress-circular
+            :size="20"
+            color="primary"
+            style="vertical-align: top;"
+            indeterminate
+            v-show="tcpLoading"
+          ></v-progress-circular>
+          <span>poi ghost</span>
+        </v-layout>
+        <span class="text-btn" v-on:click="savePlugin">下载插件</span>
+        <span class="text-btn" v-on:click="devtool">打开控制台</span>
       </v-layout>
     </div>
-    <div class="divider"></div>
-    <v-layout row class="padding-8">
-      <v-layout row class="text-btn poidata-btn" v-on:click="poidataRefresh">
-        <v-icon
-          dark
-          size="20"
-          v-show="!tcpLoading && !pluginInstalled"
-        >
-          close
-        </v-icon>
-        <v-icon
-          dark
-          size="20"
-          v-show="!tcpLoading && pluginInstalled"
-        >
-          check
-        </v-icon>
-        <v-progress-circular
-          :size="20"
-          color="primary"
-          style="vertical-align: top;"
-          indeterminate
-          v-show="tcpLoading"
-        ></v-progress-circular>
-        <span>poi ghost</span>
-      </v-layout>
-      <span class="text-btn" v-on:click="savePlugin">下载插件</span>
-      <span class="text-btn" v-on:click="devtool">打开控制台</span>
-      <v-spacer/>
-    </v-layout>
     <div class="divider"></div>
     <v-layout rolumn fill-height class="flex dq-frame-body">
       <v-flex class="content">
@@ -120,6 +116,15 @@
         </div>
         <div class="divider"></div>
         <div class="padding-8">
+          <div>常用任务</div>
+          <ul>
+            <li v-for="quest in quickQuests" :key="quest.id">
+              {{quest.type}} - {{quest.name}}
+            </li>
+          </ul>
+        </div>
+        <div class="divider"></div>
+        <div class="padding-8">
           <v-layout row>
             <div>舰队配置</div>
             <v-spacer/>
@@ -199,6 +204,7 @@
 import { ipcRenderer, clipboard } from 'electron';
 import { mapState, mapGetters, mapMutations } from 'vuex';
 import { getPortId } from '../utils';
+import { quickQuests } from '../utils/constant';
 
 export default {
   name: 'QuickAction',
@@ -218,6 +224,7 @@ export default {
       showExportFleetMenu: false,
       exportFleetMenuPosition: { x: 0, y: 0 },
       exportFleetMenuSelected: null,
+      quickQuests,
     };
   },
 
