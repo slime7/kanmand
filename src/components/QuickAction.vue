@@ -119,7 +119,10 @@
           <div>常用任务</div>
           <ul>
             <li v-for="quest in quickQuests" :key="quest.id">
-              {{quest.type}} - {{quest.name}}
+              <span class="text-btn" v-on:click="addQuestCommand(quest.id, 'start')">接受</span>
+              <span class="text-btn" v-on:click="addQuestCommand(quest.id, 'clear')">完成</span>
+              <span class="text-btn" v-on:click="addQuestCommand(quest.id, 'stop')">取消</span>
+              <span>{{quest.type}} - {{quest.name}}</span>
             </li>
           </ul>
         </div>
@@ -481,6 +484,26 @@ export default {
         });
       } else {
         this.$toasted.show('母港操作需要 member id 和 seed');
+      }
+    },
+    addQuestCommand(questId, actionType) {
+      switch (actionType) {
+        case 'start':
+        default:
+          this.addCommand('quest_start', {
+            api_quest_id: questId,
+          });
+          break;
+        case 'stop':
+          this.addCommand('quest_stop', {
+            api_quest_id: questId,
+          });
+          break;
+        case 'clear':
+          this.addCommand('quest_clear', {
+            api_quest_id: questId,
+          });
+          break;
       }
     },
     fleetExport(fleetNum) {
