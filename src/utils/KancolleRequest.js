@@ -186,6 +186,7 @@ export default class KancolleRequest {
       method: 'POST',
       // 暂时禁止重定向跟踪
       maxRedirects: 0,
+      timeout: 30000,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         Host: this.gameInfo.serverIp,
