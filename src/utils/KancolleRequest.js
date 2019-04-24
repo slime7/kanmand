@@ -134,7 +134,7 @@ export default class KancolleRequest {
   async start() {
     this.loading += 1;
     const self = this;
-    const doReq = async function deReq() {
+    const doReq = async function doReq() {
       const requestInd = self.requestIndex;
       let response;
       try {
@@ -166,7 +166,12 @@ export default class KancolleRequest {
         }
       }
       if (response) {
-        self.success(response);
+        if (response.data !== '') {
+          self.success(response);
+        } else {
+          self.requests[requestInd].error = '网络出错。';
+          self.endTask();
+        }
       }
     };
     while (this.requestIndex < this.requests.length) {
@@ -234,13 +239,13 @@ export default class KancolleRequest {
     if (this.loading > 0) {
       this.loading -= 1;
     }
-    if (!isApiSuccess) {
+    if (typeof isApiSuccess !== 'undefined' && !isApiSuccess) {
       this.requests[this.requestIndex].api_error = true;
     }
 
     if (typeof this.stageEndCallback === 'function') {
       let errorMessage;
-      if (!isApiSuccess) {
+      if (typeof isApiSuccess !== 'undefined' && !isApiSuccess) {
         errorMessage = `${this.requestIndex + 1}: 游戏返回了错误。`;
       }
       if (this.requests[this.requestIndex].error) {
