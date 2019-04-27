@@ -136,15 +136,42 @@ export default new Vuex.Store({
       state.tcpLoading = false;
       state.pluginInstalled = true;
     },
-    shipPreUnset(state, { shipId, equipId, isExSlot = false }) {
-      if (!isExSlot) {
-        const oldSlot = JSON.parse(JSON.stringify(state.poidata.info.ships[`${shipId}`].api_slot));
-        const equipIndex = oldSlot.indexOf(equipId);
-        oldSlot.splice(equipIndex, 1);
-        oldSlot.push(-1);
-        state.poidata.info.ships[`${shipId}`].api_slot = oldSlot;
-      } else {
-        state.poidata.info.ships[`${shipId}`].api_slot_ex = -1;
+    shipPreEquip(state, {
+      action,
+      shipId,
+      equipId,
+      equipInd,
+      equipDstInd,
+      isExSlot = false,
+    }) {
+      const oldSlot = JSON.parse(JSON.stringify(state.poidata.info.ships[`${shipId}`].api_slot));
+      switch (action) {
+        default:
+        case 'unset':
+          if (!isExSlot) {
+            const equipIndex = oldSlot.indexOf(equipId);
+            oldSlot.splice(equipIndex, 1);
+            oldSlot.push(-1);
+            state.poidata.info.ships[`${shipId}`].api_slot = oldSlot;
+          } else {
+            state.poidata.info.ships[`${shipId}`].api_slot_ex = -1;
+          }
+          break;
+        case 'unsetall':
+          state.poidata.info.ships[`${shipId}`].api_slot = Array(oldSlot.length).fill(-1);
+          break;
+        case 'equip':
+          if (!isExSlot) {
+            oldSlot[equipInd] = equipId;
+            state.poidata.info.ships[`${shipId}`].api_slot = oldSlot;
+          } else {
+            state.poidata.info.ships[`${shipId}`].api_slot_ex = equipId;
+          }
+          break;
+        case 'exchange':
+          [oldSlot[equipInd], oldSlot[equipDstInd]] = [oldSlot[equipDstInd], oldSlot[equipInd]];
+          state.poidata.info.ships[`${shipId}`].api_slot = oldSlot;
+          break;
       }
     },
     setPluginStatus(state, { installed }) {

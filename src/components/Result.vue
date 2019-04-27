@@ -27,6 +27,12 @@
           }}
         </div>
         <div>
+          data: {{
+          lastRequests[resultIndex] ?
+          lastRequests[resultIndex].data : '-'
+          }}
+        </div>
+        <div>
           result: {{
           lastRequests[resultIndex] && !lastRequests[resultIndex].error ?
           lastRequests[resultIndex].responseData.api_result : '-'

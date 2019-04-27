@@ -41,6 +41,11 @@ export const routes = [
     hint: '卸除所有装备',
     defaultData: '{"api_id":1}',
   }, {
+    name: 'slot_exchange',
+    path: '/kcsapi/api_req_kaisou/slot_exchange_index',
+    hint: '交换装备位置',
+    defaultData: '{"api_id":1,"api_src_idx":0,"api_dst_idx":1}',
+  }, {
     name: 'slotset_ex',
     path: '/kcsapi/api_req_kaisou/slotset_ex',
     hint: '装备打孔栏物品',

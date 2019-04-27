@@ -263,11 +263,15 @@ export default {
         ...this.poislotIds(ship.poi_slot.filter(e => e !== null)),
       ];
       if (JSON.stringify(equipment) !== JSON.stringify(equipmentStat)) {
-        if (equipment.slice(1).length < ship.api_slotnum) {
-          // 卸下所有装备
+        if (equipment.length - 1 < ship.api_slotnum) {
+          // 当前常规栏装备数小于目标装备数则卸下所有装备
           k.push({
             ro: 'unsetslot_all',
             da: `{"api_id":${ship.api_ship_id}}`,
+          });
+          this.shipPreEquip({
+            action: 'unsetall',
+            shipId: ship.api_ship_id,
           });
         }
         if (equipment.length) {
@@ -284,13 +288,15 @@ export default {
                     unsetKind = ueqi > 0 ? 0 : 1;
                     unsetEqi = ueqi > 0 ? ueqi - 1 : 0;
                   }
-                  return +sk !== +shipId && ueqi >= 0;
+                  return ueqi >= 0;
                 });
               if (searchEquipedShip) {
-                // 需要的装备被别的舰娘装备
-                k.push({
-                  ro: 'slot_deprive',
-                  da: JSON.stringify(JSON.parse(`\
+                const isSelfEquiped = +searchEquipedShip === +shipId;
+                if (!isSelfEquiped) {
+                  // 需要的装备被别的舰娘装备
+                  k.push({
+                    ro: 'slot_deprive',
+                    da: JSON.stringify(JSON.parse(`\
                     {\
                       "api_unset_idx":${unsetEqi},\
                       "api_set_slot_kind":${eqi === 0 ? 1 : 0},\
@@ -299,23 +305,61 @@ export default {
                       "api_set_idx":${eqi - 1},\
                       "api_set_ship":${shipId}\
                     }`)),
-                });
-                this.shipPreUnset({
-                  shipId: searchEquipedShip,
-                  equipId: eq,
-                  isExSlot: !!unsetKind,
-                });
+                  });
+                  this.shipPreEquip({
+                    action: 'unset',
+                    shipId: searchEquipedShip,
+                    equipId: eq,
+                    isExSlot: !!unsetKind,
+                  });
+                  this.shipPreEquip({
+                    action: 'equip',
+                    shipId,
+                    equipId: eq,
+                    equipInd: eqi - 1,
+                    isExSlot: eqi === 0,
+                  });
+                } else {
+                  // 需要的装备被自己装备
+                  const targetShip = this.poidata.info.ships[searchEquipedShip];
+                  const dstInd = targetShip.api_slot.indexOf(eq);
+                  if (dstInd >= 0 && dstInd !== eqi - 1) {
+                    k.push({
+                      ro: 'slot_exchange',
+                      da: `{"api_id":${shipId},"api_src_idx":${dstInd},"api_dst_idx":${eqi - 1}}`,
+                    });
+                    this.shipPreEquip({
+                      action: 'exchange',
+                      shipId,
+                      equipInd: eqi - 1,
+                      equipDstInd: dstInd,
+                    });
+                  }
+                  // 如果要交换 ex 栏和普通栏怎么办？
+                }
               } else if (eqi === 0 && +shipStat.api_slot_ex !== +eq) {
                 // 自己没装备此额外装备
                 k.push({
                   ro: 'slotset_ex',
                   da: `{"api_id":${shipId},"api_item_id":${eq}}`,
                 });
+                this.shipPreEquip({
+                  action: 'equip',
+                  shipId,
+                  equipId: eq,
+                  isExSlot: true,
+                });
               } else if (eqi > 0 && +shipStat.api_slot[eqi - 1] !== +eq) {
                 // 自己没装备此装备
                 k.push({
                   ro: 'slotset',
                   da: `{"api_id":${shipId},"api_item_id":${eq},"api_slot_idx":${eqi - 1}}`,
+                });
+                this.shipPreEquip({
+                  action: 'equip',
+                  shipId,
+                  equipId: eq,
+                  equipInd: eqi - 1,
                 });
               }
             }
@@ -411,7 +455,7 @@ export default {
     ...mapMutations([
       'selectEditingRequest',
       'clearLastRequests',
-      'shipPreUnset',
+      'shipPreEquip',
       'setGameLink',
     ]),
   },
