@@ -234,6 +234,9 @@ export default {
       }
     },
     formatShipKanmand(ship, f, i) {
+      if (!ship) {
+        return null;
+      }
       const k = [];
       const shipId = +ship.api_id;
       const shipStat = this.poidata.info.ships[shipId];
@@ -267,11 +270,11 @@ export default {
           // 当前常规栏装备数小于目标装备数则卸下所有装备
           k.push({
             ro: 'unsetslot_all',
-            da: `{"api_id":${ship.api_ship_id}}`,
+            da: `{"api_id":${ship.api_id}}`,
           });
           this.shipPreEquip({
             action: 'unsetall',
-            shipId: ship.api_ship_id,
+            shipId: ship.api_id,
           });
         }
         if (equipment.length) {

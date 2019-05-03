@@ -144,7 +144,7 @@ export default new Vuex.Store({
       equipDstInd,
       isExSlot = false,
     }) {
-      const oldSlot = JSON.parse(JSON.stringify(state.poidata.info.ships[`${shipId}`].api_slot));
+      const oldSlot = JSON.parse(JSON.stringify(state.poidata.info.ships[shipId].api_slot));
       switch (action) {
         default:
         case 'unset':
@@ -152,25 +152,25 @@ export default new Vuex.Store({
             const equipIndex = oldSlot.indexOf(equipId);
             oldSlot.splice(equipIndex, 1);
             oldSlot.push(-1);
-            state.poidata.info.ships[`${shipId}`].api_slot = oldSlot;
+            state.poidata.info.ships[shipId].api_slot = oldSlot;
           } else {
-            state.poidata.info.ships[`${shipId}`].api_slot_ex = -1;
+            state.poidata.info.ships[shipId].api_slot_ex = -1;
           }
           break;
         case 'unsetall':
-          state.poidata.info.ships[`${shipId}`].api_slot = Array(oldSlot.length).fill(-1);
+          state.poidata.info.ships[shipId].api_slot = Array(oldSlot.length).fill(-1);
           break;
         case 'equip':
           if (!isExSlot) {
             oldSlot[equipInd] = equipId;
-            state.poidata.info.ships[`${shipId}`].api_slot = oldSlot;
+            state.poidata.info.ships[shipId].api_slot = oldSlot;
           } else {
-            state.poidata.info.ships[`${shipId}`].api_slot_ex = equipId;
+            state.poidata.info.ships[shipId].api_slot_ex = equipId;
           }
           break;
         case 'exchange':
           [oldSlot[equipInd], oldSlot[equipDstInd]] = [oldSlot[equipDstInd], oldSlot[equipInd]];
-          state.poidata.info.ships[`${shipId}`].api_slot = oldSlot;
+          state.poidata.info.ships[shipId].api_slot = oldSlot;
           break;
       }
     },
