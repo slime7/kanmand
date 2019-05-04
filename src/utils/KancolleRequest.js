@@ -133,6 +133,9 @@ export default class KancolleRequest {
 
   async start() {
     this.loading += 1;
+    if (global.win) {
+      global.win.setProgressBar(0.01, { mode: 'normal' });
+    }
     const self = this;
     const doReq = async function doReq() {
       const requestInd = self.requestIndex;
@@ -261,6 +264,18 @@ export default class KancolleRequest {
         error: errorMessage,
       });
     }
+
+    // 设置 windows taskbar 进度条
+    if (global.win) {
+      const progressPercent = (this.requestIndex + 1) / this.requests.length;
+      global.win.setProgressBar(progressPercent, { mode: 'normal' });
+      if (progressPercent === 1) {
+        setTimeout(() => {
+          global.win.setProgressBar(-1);
+        }, 500);
+      }
+    }
+
     this.requestIndex += 1;
   }
 }
