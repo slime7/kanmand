@@ -81,7 +81,11 @@ function createWindow() {
       if (err) {
         win.webContents.send('kancolle-command-reply', { error: err.message });
       } else {
-        const items = files || [];
+        const items = files.filter((f) => {
+          const ff = path.join(fleetsPath, f);
+          const s = fs.statSync(ff);
+          return s.isFile();
+        }) || [];
         win.webContents.send('kancolle-command-reply', { savedFleet: items });
       }
     });
