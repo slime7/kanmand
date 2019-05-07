@@ -26,7 +26,7 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 let win;
 
 // Standard scheme must be registered before the app is ready
-protocol.registerStandardSchemes(['app'], { secure: true });
+protocol.registerSchemesAsPrivileged([{ scheme: 'app', privileges: { secure: true } }]);
 
 function createWindow() {
   // set position
@@ -57,6 +57,7 @@ function createWindow() {
     width,
     height,
     frame: false,
+    webPreferences: { nodeIntegration: true },
     // transparent: true,
   });
   global.win = win;
