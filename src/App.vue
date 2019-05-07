@@ -384,7 +384,7 @@ export default {
     border: 2px solid #fff;
     border-radius: 6px;
     margin: 1px;
-    height: 100%;
+    height: calc(100% - 2px);
     background: rgba(0, 0, 0, .54);
     color: #fff;
     box-shadow: 0 0 0 1px #000, 0 0 7px 3px #000 inset;
