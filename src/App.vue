@@ -320,10 +320,10 @@ export default {
     box-sizing: border-box;
     user-select: none;
   }
-
   pre {
     font-family: "Source Code Pro", Monospace, "Noto Sans CJK SC", "Microsoft YaHei";
     margin: 0;
+    user-select: text;
   }
 
   ol, ul {
