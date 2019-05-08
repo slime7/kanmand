@@ -124,6 +124,7 @@ export default {
 
 <style scoped>
   .req-wrap {
+    height: 100%;
     overflow: scroll;
   }
 

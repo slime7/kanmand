@@ -1,4 +1,4 @@
-<template>
+<template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
   <v-layout column class="dq-frame main">
     <div class="dq-frame-header padding-8">
       <v-layout row>
@@ -71,45 +71,69 @@
             >
               <div>
                 <span class="fleet-name">{{fleet.api_name}}</span>
-                <span
-                  class="text-btn"
-                  v-on:click.left="addChargeCommand(fleet, 3)"
-                  v-on:click.right="addChargeCommand(fleet, 9)"
-                >
-                  全补给
-                </span>
+                <v-tooltip left>
+                  <template v-slot:activator="{ on }">
+                    <span
+                      class="text-btn"
+                      v-on="on"
+                      v-on:click.left="addChargeCommand(fleet, 3)"
+                      v-on:click.right="addChargeCommand(fleet, 9)"
+                    >
+                      全补给
+                    </span>
+                  </template>
+                  <span>左键一次补给，右键分开补给</span>
+                </v-tooltip>
                 <span
                   class="text-btn"
                   v-on:click="addChargeCommand(fleet, 0)"
                 >
                   载具补给
                 </span>
-                <span
-                  class="text-btn fleet-export"
-                  v-on:click.exact="fleetCopy(index + 1)"
-                  v-on:click.ctrl="fleetSaveDialog(index + 1)"
-                  v-show="index !== 0"
-                >
-                  导出
-                </span>
-                <span
-                  class="text-btn fleet-export"
-                  v-on:click.exact="fleetCopy(1)"
-                  v-on:click.ctrl="fleetSaveDialog(1)"
-                  v-on:click.right.exact="fleetCopy(12)"
-                  v-on:click.ctrl.right="fleetSaveDialog(12)"
-                  v-show="index === 0"
-                >
-                  导出
-                </span>
-                <span
-                  class="text-btn"
-                  v-if="fleet.api_mission[0] !== 0"
-                  v-on:click.exact="addMissionCommand(fleet)"
-                  v-on:click.right="addMissionCommand(fleet, false)"
-                >
-                {{missions[index].text}}
-              </span>
+                <v-tooltip left>
+                  <template v-slot:activator="{ on }">
+                    <span
+                      class="text-btn fleet-export"
+                      v-on="on"
+                      v-on:click.exact="fleetCopy(index + 1)"
+                      v-on:click.ctrl="fleetSaveDialog(index + 1)"
+                      v-show="index !== 0"
+                    >
+                      导出
+                    </span>
+                  </template>
+                  <span>左键复制，ctrl+左键保存</span>
+                </v-tooltip>
+                <v-tooltip left>
+                  <template v-slot:activator="{ on }">
+                    <span
+                      class="text-btn fleet-export"
+                      v-on="on"
+                      v-on:click.exact="fleetCopy(1)"
+                      v-on:click.ctrl="fleetSaveDialog(1)"
+                      v-on:click.right.exact="fleetCopy(12)"
+                      v-on:click.ctrl.right="fleetSaveDialog(12)"
+                      v-show="index === 0"
+                    >
+                      导出
+                    </span>
+                  </template>
+                  <span>左键复制，ctrl+左键保存，右键复制联合舰队，ctrl+右键保存联合舰队</span>
+                </v-tooltip>
+                <v-tooltip left>
+                  <template v-slot:activator="{ on }">
+                    <span
+                      class="text-btn"
+                      v-if="fleet.api_mission[0] !== 0"
+                      v-on="on"
+                      v-on:click.exact="addMissionCommand(fleet)"
+                      v-on:click.right="addMissionCommand(fleet, false)"
+                    >
+                    {{missions[index].text}}
+                  </span>
+                  </template>
+                  <span>左键快速收远征并补给，右键收远征不补给</span>
+                </v-tooltip>
               </div>
             </li>
           </ol>
@@ -122,7 +146,13 @@
               <span class="text-btn" v-on:click="addQuestCommand(quest.id, 'start')">接受</span>
               <span class="text-btn" v-on:click="addQuestCommand(quest.id, 'clear')">完成</span>
               <span class="text-btn" v-on:click="addQuestCommand(quest.id, 'stop')">取消</span>
-              <span>{{quest.type}} - {{quest.name}}</span>
+              <span>{{quest.type}} - </span>
+              <v-tooltip bottom>
+                <template v-slot:activator="{ on }">
+                  <span v-on="on">{{quest.name}}</span>
+                </template>
+                <span>{{quest.content}}</span>
+              </v-tooltip>
             </li>
           </ul>
         </div>

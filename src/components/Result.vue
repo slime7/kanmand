@@ -27,10 +27,11 @@
           }}
         </div>
         <div>
-          data: {{
+          data:
+          <pre>{{
           lastRequests[resultIndex] ?
           lastRequests[resultIndex].data : '-'
-          }}
+            }}</pre>
         </div>
         <div>
           result: {{
