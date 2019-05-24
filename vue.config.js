@@ -12,7 +12,7 @@ module.exports = {
           oneClick: false,
         },
         win: {
-          icon: './src/assets/logo.ico',
+          icon: './src/assets/icons/logo.ico',
           target: [
             {
               target: 'nsis',
@@ -32,6 +32,13 @@ module.exports = {
                 'x64',
               ],
             },
+          ],
+        },
+        linux: {
+          icon: './src/assets/icons',
+          target: [
+            'deb',
+            'AppImage',
           ],
         },
       },

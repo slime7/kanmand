@@ -369,7 +369,10 @@ function createWindow() {
     event.sender.send('proxy-setting', { proxy });
   });
 
-  // watch fleets folder
+  // create and watch fleets folder
+  if (!fs.existsSync(path.join(global.APPDATA_PATH, 'fleets'))) {
+    fs.mkdirSync(path.join(global.APPDATA_PATH, 'fleets'));
+  }
   fs.watch(path.join(global.APPDATA_PATH, 'fleets'), (eventType) => {
     if (eventType === 'rename') {
       readFleets();
