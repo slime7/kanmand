@@ -1,7 +1,7 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
   <v-layout column class="dq-frame main">
     <div class="dq-frame-header padding-8">
-      <v-layout row>
+      <v-layout row align-center>
         <div>快捷操作</div>
         <v-spacer/>
         <v-layout row class="text-btn poidata-btn" v-on:click="poidataRefresh">
@@ -42,16 +42,15 @@
               v-for="ship in repairShip"
               :key="ship.api_id"
             >
-            <span
+            <v-layout
+              align-center
               class="text-btn"
               v-on:click="addRepairCommand(ship.api_id)"
             >
-              <span class="ship-name">
-                {{shipName(ship)}}
-              </span>
+              <span class="ship-name">{{shipName(ship)}}</span>
               <span class="ship-level">lv.{{ship.api_lv}}</span>
               <span class="ship-hp">{{shipHp(ship)}}</span>
-            </span>
+            </v-layout>
             </li>
           </ol>
           <div v-if="!repairShip.length">
