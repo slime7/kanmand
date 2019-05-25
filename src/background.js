@@ -285,9 +285,6 @@ function createWindow() {
 
       case 'openFleetsDir': {
         const fleetsPath = path.join(global.APPDATA_PATH, 'fleets');
-        if (!fs.existsSync(fleetsPath)) {
-          fs.mkdirSync(fleetsPath);
-        }
         shell.openItem(fleetsPath);
         break;
       }
@@ -300,7 +297,11 @@ function createWindow() {
           }
           const fleetfilename = path.join(fleetsPath, `${fleetDesc.trim()}.json`);
           if (!fs.existsSync(fleetfilename)) {
-            fs.writeFile(fleetfilename, fleetString, (err) => {
+            const options = {};
+            if (process.platform === 'linux') {
+              options.mode = 0o600;
+            }
+            fs.writeFile(fleetfilename, fleetString, options, (err) => {
               if (err) {
                 reply({ error: err.message });
               } else {
@@ -369,7 +370,10 @@ function createWindow() {
     event.sender.send('proxy-setting', { proxy });
   });
 
-  // watch fleets folder
+  // create and watch fleets folder
+  if (!fs.existsSync(path.join(global.APPDATA_PATH, 'fleets'))) {
+    fs.mkdirSync(path.join(global.APPDATA_PATH, 'fleets'));
+  }
   fs.watch(path.join(global.APPDATA_PATH, 'fleets'), (eventType) => {
     if (eventType === 'rename') {
       readFleets();
