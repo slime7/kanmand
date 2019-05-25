@@ -19,13 +19,13 @@
   "main": "background.js",
   "dependencies": {
     "axios": "^0.18.0",
-    "material-design-icons-iconfont": "^4.0.5",
+    "material-design-icons-iconfont": "*",
     "qs": "^6.7.0",
     "roboto-fontface": "*",
     "vue": "^2.6.10",
-    "vue-toasted": "^1.1.26",
+    "vue-toasted": "^1.1.27",
     "vuetify": "^1.5.14",
-    "vuex": "^3.1.0"
+    "vuex": "^3.1.1"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^3.7.0",
@@ -33,13 +33,13 @@
     "@vue/cli-service": "^3.7.0",
     "@vue/eslint-config-airbnb": "^4.0.0",
     "babel-eslint": "^10.0.1",
-    "electron": "^5.0.1",
+    "electron": "^5.0.2",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.2.2",
     "npm": "^6.9.0",
     "stylus": "^0.54.5",
     "stylus-loader": "^3.0.1",
-    "vue-cli-plugin-electron-builder": "^1.3.1",
+    "vue-cli-plugin-electron-builder": "^1.3.2",
     "vue-cli-plugin-vuetify": "^0.4.6",
     "vue-template-compiler": "^2.6.10",
     "vuetify-loader": "^1.2.2"
