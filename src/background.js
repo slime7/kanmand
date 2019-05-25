@@ -285,9 +285,6 @@ function createWindow() {
 
       case 'openFleetsDir': {
         const fleetsPath = path.join(global.APPDATA_PATH, 'fleets');
-        if (!fs.existsSync(fleetsPath)) {
-          fs.mkdirSync(fleetsPath);
-        }
         shell.openItem(fleetsPath);
         break;
       }
@@ -300,7 +297,11 @@ function createWindow() {
           }
           const fleetfilename = path.join(fleetsPath, `${fleetDesc.trim()}.json`);
           if (!fs.existsSync(fleetfilename)) {
-            fs.writeFile(fleetfilename, fleetString, (err) => {
+            const options = {};
+            if (process.platform === 'linux') {
+              options.mode = 0o600;
+            }
+            fs.writeFile(fleetfilename, fleetString, options, (err) => {
               if (err) {
                 reply({ error: err.message });
               } else {
