@@ -53,8 +53,12 @@ class Config {
   }
 
   save() {
+    const writeFileOptions = {};
+    if (process.platform === 'linux') {
+      writeFileOptions.mode = 0o600;
+    }
     try {
-      fs.writeFileSync(configFile, JSON.stringify(this.configData, null, 2));
+      fs.writeFileSync(configFile, JSON.stringify(this.configData, null, 2), writeFileOptions);
     } catch (err) {
       console.log(err);
     }
