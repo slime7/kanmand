@@ -67,13 +67,9 @@ export default new Vuex.Store({
           }
         });
         if (repairFleetOnly) {
-          const [fleet1, fleet2, fleet3, fleet4] = state.poidata.info.fleets;
-          const fleetShips = [
-            ...fleet1.api_ship,
-            ...fleet2.api_ship,
-            ...fleet3.api_ship,
-            ...fleet4.api_ship,
-          ].filter(s => s !== -1);
+          const fleetShips = state.poidata.info.fleets
+            .reduce((a, c) => [...a, ...c.api_ship], [])
+            .filter(s => s !== -1);
           searchShips = searchShips.filter(s => fleetShips.indexOf(s.api_id) >= 0);
         }
         searchShips.filter(s => repairingShip.indexOf(s.api_id) === -1)
