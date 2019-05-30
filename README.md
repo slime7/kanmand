@@ -47,7 +47,7 @@ npm run electron:serve
 
 #### 快捷操作
 
-需要配合 poi 并在 poi 中安装插件。下载插件后将压缩包中的`pakage`文件夹放入 poi 的插件文件夹（可在 poi 的插件页面直接打开该文件夹）内，重启 poi 即可。
+需要配合 poi 并在 poi 中安装插件。下载插件后将压缩包中的`pakage`文件夹放入 poi 的插件文件夹（可在 poi 的插件页面直接打开该文件夹）内，并重命名为以`poi-plugin-`开头的文件夹（如`poi-plugin-ghost`），重启 poi 即可。
 
 有了插件后可以方便地进行各种操作。
 
