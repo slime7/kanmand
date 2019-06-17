@@ -145,6 +145,7 @@ function createWindow() {
           requests: info.requests,
           requestIndex: info.requestIndex,
         });
+        kanmand.newCancelToken();
         await kanmand.start();
         kanmand.clear();
         kanmand = null;
@@ -185,6 +186,11 @@ function createWindow() {
 
       case 'modify':
         kanmand.modify(reqInd, reqData);
+        reply({ requests: kanmand.requestInfo().requests });
+        break;
+
+      case 'cancel':
+        kanmand.cancel();
         reply({ requests: kanmand.requestInfo().requests });
         break;
 
