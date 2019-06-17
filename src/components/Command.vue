@@ -61,9 +61,16 @@
       <button
         class="action-btn"
         v-on:click="startCommand"
-        :disabled="!!requestStatus.processing"
+        v-show="!requestStatus.processing"
       >
         执行队列
+      </button>
+      <button
+        class="action-btn"
+        v-on:click="cancelCommand"
+        v-show="!!requestStatus.processing"
+      >
+        取消执行
       </button>
       <button
         class="action-btn"
@@ -207,6 +214,9 @@ export default {
         reqData,
       });
       this.$toasted.show('修改完成。');
+    },
+    cancelCommand() {
+      ipcRenderer.send('kancolle-command-actions', { type: 'cancel' });
     },
     importCommand() {
       if (this.gameLink === '' || this.gameRoute === '' || this.gameData === '') {

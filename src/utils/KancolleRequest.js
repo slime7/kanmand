@@ -50,6 +50,7 @@ export default class KancolleRequest {
     this.requests = [];
     this.requestIndex = 0;
     this.stageEndCallback = null;
+    this.cancelTokenSource = null;
   }
 
   setStageEndCallback(stageEndCallback) {
@@ -93,6 +94,17 @@ export default class KancolleRequest {
 
   modify(reqInd, reqData) {
     this.requests[reqInd] = { route: reqData.gameRoute, data: reqData.gameData };
+  }
+
+  newCancelToken() {
+    const { CancelToken } = axios;
+    this.cancelTokenSource = CancelToken.source();
+  }
+
+  cancel() {
+    if (this.cancelTokenSource && this.cancelTokenSource.cancel) {
+      this.cancelTokenSource.cancel('主动取消队列');
+    }
   }
 
   importReq(importString) {
@@ -206,6 +218,9 @@ export default class KancolleRequest {
     };
     if (this.proxy) {
       postConfig.proxy = this.proxy;
+    }
+    if (this.cancelTokenSource && this.cancelTokenSource.token) {
+      postConfig.cancelToken = this.cancelTokenSource.token;
     }
 
     return new Promise(async (resolve, reject) => {
