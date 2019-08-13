@@ -42,15 +42,15 @@
               v-for="ship in repairShip"
               :key="ship.api_id"
             >
-            <v-layout
-              align-center
-              class="text-btn"
-              v-on:click="addRepairCommand(ship.api_id)"
-            >
-              <span class="ship-name">{{shipName(ship)}}</span>
-              <span class="ship-level">lv.{{ship.api_lv}}</span>
-              <span class="ship-hp">{{shipHp(ship)}}</span>
-            </v-layout>
+              <v-layout
+                align-center
+                class="text-btn"
+                v-on:click="addRepairCommand(ship.api_id)"
+              >
+                <span class="ship-name">{{shipName(ship)}}</span>
+                <span class="ship-level">lv.{{ship.api_lv}}</span>
+                <span class="ship-hp">{{shipHp(ship)}}</span>
+              </v-layout>
             </li>
           </ol>
           <div v-if="!repairShip.length">
@@ -95,7 +95,7 @@
                       class="text-btn fleet-export"
                       v-on="on"
                       v-on:click.exact="fleetCopy(index + 1)"
-                      v-on:click.ctrl="fleetSaveDialog(index + 1)"
+                      v-on:click.ctrl="fleetSave(index + 1)"
                       v-show="index !== 0"
                     >
                       导出
@@ -109,9 +109,9 @@
                       class="text-btn fleet-export"
                       v-on="on"
                       v-on:click.exact="fleetCopy(1)"
-                      v-on:click.ctrl="fleetSaveDialog(1)"
+                      v-on:click.ctrl="fleetSave(1)"
                       v-on:click.right.exact="fleetCopy(12)"
-                      v-on:click.ctrl.right="fleetSaveDialog(12)"
+                      v-on:click.ctrl.right="fleetSave(12)"
                       v-show="index === 0"
                     >
                       导出
@@ -204,7 +204,7 @@
       </div>
     </v-menu>
     <v-dialog
-      v-model="showSaveFleetDialog"
+      v-model="fleetSaveDialog.show"
       attach="#app .main-container"
       persistent
       max-width="300"
@@ -216,13 +216,13 @@
             <input
               class="flex"
               placeholder="如：2-5水反"
-              v-model="fleetDesc"
+              v-model="fleetSaveDialog.fleetDesc"
             />
           </v-layout>
           <v-layout row>
             <v-spacer/>
-            <span class="text-btn" v-on:click="fleetSaveDialog(null, false)">取消</span>
-            <span class="text-btn" v-on:click="fleetSave">保存</span>
+            <span class="text-btn" v-on:click="fleetSaveDialogCancel">取消</span>
+            <span class="text-btn" v-on:click="fleetSaveDialogOk">保存</span>
           </v-layout>
           <v-spacer/>
         </v-layout>
@@ -250,13 +250,16 @@ export default {
         { text: '', timeoutId: null },
         { text: '', timeoutId: null },
       ],
-      showSaveFleetDialog: false,
-      fleetNum: null,
-      fleetDesc: '',
       showExportFleetMenu: false,
       exportFleetMenuPosition: { x: 0, y: 0 },
       exportFleetMenuSelected: null,
       quickQuests,
+      fleetSaveDialog: {
+        show: false,
+        fleetDesc: '',
+        resolve: null,
+        reject: null,
+      },
     };
   },
 
@@ -589,11 +592,18 @@ export default {
       clipboard.writeText(fleetString);
       this.$toasted.show('已复制到剪切板');
     },
-    fleetSave() {
-      if (!this.fleetNum) {
+    async fleetSave(fleetNum) {
+      let saveDialogResult = false;
+      try {
+        saveDialogResult = await this.openFleetSaveDialog();
+      } catch (error) {
+        // 没有 reject
+      }
+
+      if (!fleetNum || !saveDialogResult) {
         return;
       }
-      const fleetDesc = this.fleetDesc.trim();
+      const fleetDesc = this.fleetSaveDialog.fleetDesc.trim();
       if (fleetDesc === '') {
         this.$toasted.show('描述不能为空');
         return;
@@ -603,23 +613,28 @@ export default {
         this.$toasted.show('描述不能包含以下字符：\\ : " < > ? /');
         return;
       }
-      const fleetString = this.fleetExport(this.fleetNum);
+      const fleetString = this.fleetExport(fleetNum);
       ipcRenderer.send('kancolle-command-actions', {
         type: 'saveFleet',
         fleetString,
         fleetDesc,
       });
-      this.showSaveFleetDialog = false;
-      this.fleetNum = null;
     },
-    fleetSaveDialog(fleetNum, isOpen = true) {
-      if (isOpen) {
-        this.fleetNum = fleetNum;
-        this.showSaveFleetDialog = true;
-      } else {
-        this.fleetNum = null;
-        this.showSaveFleetDialog = false;
-      }
+    openFleetSaveDialog() {
+      this.fleetSaveDialog.show = true;
+      const vm = this;
+      return new Promise((resolve, reject) => {
+        vm.fleetSaveDialog.resolve = resolve;
+        vm.fleetSaveDialog.reject = reject;
+      });
+    },
+    fleetSaveDialogOk() {
+      this.fleetSaveDialog.show = false;
+      this.fleetSaveDialog.resolve(true);
+    },
+    fleetSaveDialogCancel() {
+      this.fleetSaveDialog.show = false;
+      this.fleetSaveDialog.resolve(false);
     },
     exportFleetMenu(ev, fleet) {
       ev.preventDefault();
