@@ -5,24 +5,19 @@ module.exports = {
     node: true,
     browser: true
   },
-  extends: [
-    'airbnb-base',
-  ],
-  plugins: [
-    'import',
-  ],
+  extends: ['airbnb', 'poi-plugin'],
+  plugins: ['import', 'react'],
   rules: {
-    'import/no-unresolved':
-      [2, {
-        'ignore':
-          [
-            'views/utils/game-utils',
-            'views/utils/selectors',
-            'views/create-store',
-            'views/components/etc/avatar',
-            'views/components/etc/icon',
-          ]
-      }],
+    semi: ['error', 'always'],
+    'import/no-unresolved': [2, { ignore: ['views/.*'] }],
+    'react/jsx-filename-extension': 'off',
+    'no-underscore-dangle': ['error', { allowAfterThis: true }],
+    'import/extensions': ['error', { es: 'never' }],
+    'import/no-extraneous-dependencies': 'off',
+    'comma-dangle': ['error', 'always-multiline'],
+    'no-confusing-arrow': ['error', { allowParens: true }],
+    'react/prefer-stateless-function': 'off',
+    'no-console': ['warn', {allow: ['log', 'warn', 'error']}],
   },
   settings: {
     'import/resolver': {

@@ -125,9 +125,9 @@ export default new Vuex.Store({
     },
     setPoidata(state, { poidata }) {
       try {
-        state.poidata = Object.assign({}, state.poidata, JSON.parse(poidata));
+        state.poidata = Object.assign({}, state.poidata, poidata);
       } catch (e) {
-        console.log(`转换数据出错: ${e.message}`);
+        console.log(`转换数据出错: ${e.message}`, poidata);
       }
       state.tcpLoading = false;
       state.pluginInstalled = true;
