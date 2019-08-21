@@ -17,7 +17,6 @@ import axios from 'axios';
 import './utils/global';
 import KancolleRequest from './utils/KancolleRequest';
 import config from './utils/config';
-import poidata from './utils/poidata';
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -211,9 +210,10 @@ function createWindow() {
         break;
 
       case 'poidata': {
-        poidata.fetch(poidataPath)
-          .then((result) => {
-            reply({ poidata: result });
+        const query = poidataPath.map(p => `name=${p}`).join('&');
+        axios.get(`http://localhost:10800/store?${query}`)
+          .then((response) => {
+            reply({ poidata: response.data });
           })
           .catch(() => {
             reply({ poidata: null });
@@ -399,7 +399,6 @@ function createWindow() {
   });
 
   win.on('close', () => {
-    poidata.close();
     if (!maximize) {
       const pos = win.getPosition();
       const size = win.getSize();
