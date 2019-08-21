@@ -3,19 +3,14 @@ import path from 'path';
 import React, { Component } from 'react';
 import { Checkbox } from 'react-bootstrap';
 import { connect } from 'react-redux';
-import { observe, observer } from 'redux-observers';
 import { createSelector } from 'reselect';
 import { configSelector } from 'views/utils/selectors';
 import { store } from 'views/create-store';
 import PropTypes from 'prop-types';
-import axios from 'axios';
 import StoreServer from './StoreServer';
 
 const PLUGIN_NAME = 'poi-plugin-ghost';
 const storeServer = new StoreServer();
-let seeds;
-let seed;
-let gettingSeeds = false;
 const serverIpSelector = state => state.info.server.ip;
 const memberIdSelector = state => state.info.basic.api_member_id;
 const playerInfoSelector = createSelector(
@@ -31,11 +26,13 @@ const ghostSelector = createSelector(
     logPosition: config.plugin[PLUGIN_NAME].logPosition,
   }),
 );
-const handleGameResponse = (ev) => {
+const handleGameResponse = async (ev) => {
   const { path: reqPath, postBody } = ev.detail;
   if (/api_req_mission\/start|api_req_sortie\/battle/i.test(reqPath)) {
     const { logPosition } = ghostSelector(store.getState());
-    if (logPosition && seed && !gettingSeeds) {
+    const { memberId } = playerInfoSelector(store.getState());
+    if (logPosition) {
+      const seed = await storeServer.seedManager.seed(memberId);
       const type = postBody.api_mission_id ? 'mission' : 'sortie';
       const logDir = path.join(global.APPDATA_PATH, 'mission_log');
       const logFile = path.join(logDir, `${type}_log.csv`);
@@ -55,25 +52,6 @@ const listenSortie = () => {
 };
 const unListenSortie = () => {
   window.removeEventListener('game.response', handleGameResponse);
-};
-const getSeed = async (serverIp, memberId) => {
-  if (gettingSeeds) {
-    return;
-  }
-
-  try {
-    gettingSeeds = true;
-    if (!seeds) {
-      const response = await axios.get(`http://${serverIp}/kcs2/js/main.js`);
-      const [, seedsString] = /e.PORT_API_SEED=(\[.*?\]),/.exec(response.data);
-      seeds = JSON.parse(seedsString);
-    }
-    seed = seeds[+memberId % 10];
-  } catch (error) {
-    console.log('获取 seed 失败', error.message);
-  } finally {
-    gettingSeeds = false;
-  }
 };
 const createLogFiles = () => {
   const logDir = path.join(global.APPDATA_PATH, 'mission_log');
@@ -116,22 +94,8 @@ const settingsClass = connect(
   state => ghostSelector(state),
 )(SettingComponent);
 
-const unsubscribeObserve = observe(store, [
-  observer(
-    state => playerInfoSelector(state),
-    async (dispatch, current, previous) => {
-      if (!seed && current.memberId !== previous.memberId) {
-        await getSeed(current.serverIp, current.memberId);
-      }
-    },
-  ),
-]);
-
 const pluginDidLoad = () => {
-  {
-    const { serverIp, memberId } = playerInfoSelector(store.getState());
-    getSeed(serverIp, memberId);
-  }
+  storeServer.seedManager.getSeeds();
   createLogFiles();
   listenSortie();
   storeServer.start();
@@ -140,7 +104,6 @@ const pluginDidLoad = () => {
 const pluginWillUnload = () => {
   storeServer.stop();
   unListenSortie();
-  unsubscribeObserve();
 };
 
 export {

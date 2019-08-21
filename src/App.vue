@@ -239,7 +239,7 @@ export default {
           // 游戏 seed
           if (typeof gameScriptVersion !== 'undefined') {
             if (typeof seed !== 'undefined') {
-              const gameSeed = JSON.parse(seed);
+              const gameSeed = seed;
               const seedAndVersion = JSON.stringify({
                 seed: gameSeed,
                 version: gameScriptVersion,

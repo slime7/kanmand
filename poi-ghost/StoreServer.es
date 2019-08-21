@@ -1,5 +1,6 @@
 import http from 'http';
 import { URL } from 'url';
+import SeedManager from './SeedManager';
 
 class StoreServer {
   host;
@@ -12,13 +13,16 @@ class StoreServer {
 
   response;
 
+  seedManager;
+
   constructor(host = 'localhost', port = 10800) {
     this.host = host;
     this.port = port;
     this.server = http.createServer(this.onRequest.bind(this));
+    this.seedManager = new SeedManager();
   }
 
-  onRequest(request, response) {
+  async onRequest(request, response) {
     this.response = response;
     const { method } = request;
     const url = new URL(request.url, `http://${request.headers.host}`);
@@ -57,28 +61,52 @@ class StoreServer {
               path: '/store/$1(/$2)',
               description: '获取 store 内容',
             },
+            {
+              method: 'get',
+              path: '/seed?serverIp=serverIp&memberId=memberId',
+              description: '获取用户 seed',
+            },
+            {
+              method: 'get',
+              path: '/seeds',
+              description: '获取 seed 数组',
+            },
           ];
           this.simpleJsonResponse(options);
-        }
           break;
+        }
 
         case pathname === '/store': {
           const params = url.searchParams;
 
           this.getStore(params.getAll('name')
             .map(p => p.split('.')));
-        }
           break;
+        }
 
         case !!pathname.match(/^\/store\/(?<p1>[^/]+)(?:\/(?<p2>[^/]+))?$/): {
           const matches = pathname.match(/^\/store\/(?<p1>[^/]+)(?:\/(?<p2>[^/]+))?$/);
           const { p1, p2 } = matches.groups;
           this.getStore([[p1, p2]]);
-        }
           break;
+        }
+
+        case pathname === '/seed': {
+          const params = url.searchParams;
+          const memberId = params.get('memberId');
+          const seed = await this.seedManager.seed(memberId);
+          this.simpleJsonResponse(seed);
+          break;
+        }
+
+        case pathname === '/seeds': {
+          const seeds = await this.seedManager.getSeeds();
+          this.simpleJsonResponse(seeds);
+          break;
+        }
 
         default:
-          this.emptyResponse(405);
+          this.emptyResponse(404);
       }
     } else {
       this.emptyResponse(405);

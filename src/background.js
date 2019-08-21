@@ -270,18 +270,17 @@ function createWindow() {
         if (kcsConstResponse) {
           const [, scriptVersion] = /VersionInfo\.scriptVesion.*"(.*)";/.exec(kcsConstResponse.data);
           if (scriptVersion !== currentScriptVersion) {
-            let kcsMainJsResponse;
+            let seedsResponse;
             try {
-              kcsMainJsResponse = await axios.get(`http://203.104.209.102/kcs2/js/main.js?version=${scriptVersion}`);
+              seedsResponse = await axios.get('http://localhost:10800/seeds');
             } catch (e) {
               console.log('获取main.js失败');
             }
-            if (!kcsMainJsResponse) {
+            if (!seedsResponse) {
               reply({ error: '获取seed失败了' });
               break;
             }
-            const [, seed] = /e.PORT_API_SEED=(\[.*?\]),/.exec(kcsMainJsResponse.data);
-            reply({ seed, gameScriptVersion: scriptVersion });
+            reply({ seed: seedsResponse.data, gameScriptVersion: scriptVersion });
           } else {
             reply({ gameScriptVersion: scriptVersion });
           }
