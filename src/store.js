@@ -4,7 +4,7 @@ import { routes } from './utils/constant';
 
 Vue.use(Vuex);
 
-export default new Vuex.Store({
+const storeConfig = {
   state: {
     version: null,
     requests: [],
@@ -214,4 +214,7 @@ export default new Vuex.Store({
       state.savedFleet = fleets;
     },
   },
-});
+};
+
+export { storeConfig };
+export default new Vuex.Store(storeConfig);
