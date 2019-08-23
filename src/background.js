@@ -4,7 +4,6 @@ import {
   BrowserWindow,
   ipcMain,
   screen,
-  dialog,
   shell,
 } from 'electron';
 import {
@@ -106,7 +105,6 @@ function createWindow() {
     poidataPath,
     settingKey,
     settingValue,
-    pluginDir,
     currentScriptVersion,
     fleetString,
     fleetDesc,
@@ -236,26 +234,6 @@ function createWindow() {
             config.set(settingKey, settingValue);
           }
         }
-        break;
-      }
-
-      case 'saveplugin': {
-        const options = {
-          defaultPath: 'poi-plugin-ghost.tgz',
-          filters: [
-            { name: 'poi ghost', extensions: ['tgz'] },
-          ],
-        };
-        dialog.showSaveDialog(options, (filename) => {
-          const pluginFile = path.join(pluginDir, 'poi-plugin-ghost.tgz');
-          if (filename) {
-            fs.copyFile(pluginFile, filename, (fserr) => {
-              if (fserr) {
-                reply({ error: fserr.message });
-              }
-            });
-          }
-        });
         break;
       }
 

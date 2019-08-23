@@ -28,7 +28,6 @@
           ></v-progress-circular>
           <span>poi ghost</span>
         </v-layout>
-        <span class="text-btn" v-on:click="savePlugin">下载插件</span>
         <span class="text-btn" v-on:click="devtool">打开控制台</span>
       </v-layout>
     </div>
@@ -232,7 +231,6 @@
 </template>
 
 <script>
-/* global __static */
 import { ipcRenderer, clipboard } from 'electron';
 import { mapState, mapGetters, mapMutations } from 'vuex';
 import { getPortId } from '../utils';
@@ -243,7 +241,6 @@ export default {
 
   data() {
     return {
-      pluginDir: `${__static}`,
       missions: [
         { text: '', timeoutId: null },
         { text: '', timeoutId: null },
@@ -654,12 +651,6 @@ export default {
       ipcRenderer.send('kancolle-command-actions', {
         type: 'removeFleet',
         fleetDesc: this.exportFleetMenuSelected,
-      });
-    },
-    savePlugin() {
-      ipcRenderer.send('kancolle-command-actions', {
-        type: 'saveplugin',
-        pluginDir: this.pluginDir,
       });
     },
     devtool() {
