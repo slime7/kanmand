@@ -137,23 +137,7 @@
           </ol>
         </div>
         <div class="divider"></div>
-        <div class="padding-8">
-          <div>常用任务</div>
-          <ul>
-            <li v-for="quest in quickQuests" :key="quest.id">
-              <span class="text-btn" v-on:click="addQuestCommand(quest.id, 'start')">接受</span>
-              <span class="text-btn" v-on:click="addQuestCommand(quest.id, 'clear')">完成</span>
-              <span class="text-btn" v-on:click="addQuestCommand(quest.id, 'stop')">取消</span>
-              <span>{{quest.type}} - </span>
-              <v-tooltip bottom>
-                <template v-slot:activator="{ on }">
-                  <span v-on="on">{{quest.name}}</span>
-                </template>
-                <span>{{quest.content}}</span>
-              </v-tooltip>
-            </li>
-          </ul>
-        </div>
+        <quests v-on:addCommand="addCommand"/>
         <div class="divider"></div>
         <div class="padding-8">
           <v-layout row>
@@ -234,10 +218,14 @@
 import { ipcRenderer, clipboard } from 'electron';
 import { mapState, mapGetters, mapMutations } from 'vuex';
 import { getPortId } from '../utils';
-import { quickQuests } from '../utils/constant';
+import Quests from './Quests.vue';
 
 export default {
   name: 'QuickAction',
+
+  components: {
+    Quests,
+  },
 
   data() {
     return {
@@ -250,7 +238,6 @@ export default {
       showExportFleetMenu: false,
       exportFleetMenuPosition: { x: 0, y: 0 },
       exportFleetMenuSelected: null,
-      quickQuests,
       fleetSaveDialog: {
         show: false,
         fleetDesc: '',
@@ -513,26 +500,6 @@ export default {
         });
       } else {
         this.$toasted.show('母港操作需要 member id 和 seed');
-      }
-    },
-    addQuestCommand(questId, actionType) {
-      switch (actionType) {
-        case 'start':
-        default:
-          this.addCommand('quest_start', {
-            api_quest_id: questId,
-          });
-          break;
-        case 'stop':
-          this.addCommand('quest_stop', {
-            api_quest_id: questId,
-          });
-          break;
-        case 'clear':
-          this.addCommand('quest_clear', {
-            api_quest_id: questId,
-          });
-          break;
       }
     },
     fleetExport(fleetNum) {
