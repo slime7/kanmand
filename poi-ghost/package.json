@@ -20,7 +20,7 @@
     "icon": "fa/assistive-listening-systems"
   },
   "dependencies": {
-    "axios": "^0.19.0"
+    "axios": "^0.21.1"
   },
   "devDependencies": {
     "babel-eslint": "^10.0.1",
